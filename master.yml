@@ -344,7 +344,7 @@ params:
     latex: A^{gm}_{\rm HMC}
 
 theory:
-  cl_like.CCL:
+  yxgxk_like.CCL:
     transfer_function: boltzmann_camb
     matter_pk: halofit
     baryons_pk: nobaryons
