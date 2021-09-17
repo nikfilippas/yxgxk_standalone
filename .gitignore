@@ -1,2 +1,11 @@
 yxgxk_2
-README.md
+instr.md
+
+# installation
+build/
+dist/
+yxg*/
+!yxgxk_like/
+
+# cache dirs
+__pycache__/
