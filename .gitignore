@@ -6,8 +6,8 @@ build/
 dist/
 yxg*/
 gxk*/
-gxk/
 !yxgxk_like/
+.bashrc
 
 # cache dirs
 __pycache__/
