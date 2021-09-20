@@ -8,7 +8,7 @@ for i in range(6):
                           f'ygk_{tname}_lM1_0',
                           'ygk_rhogy'],
              corrs=[(tname, tname),
-                    (tname, 'YMILCA')
+                    (tname, 'YMILCA'),
                     (tname, 'KAPPA')],
              bias_model='HaloModel',
              kmax=1.0,
