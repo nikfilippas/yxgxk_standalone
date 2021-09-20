@@ -5,6 +5,8 @@ instr.md
 build/
 dist/
 yxg*/
+gxk*/
+gxk/
 !yxgxk_like/
 
 # cache dirs
