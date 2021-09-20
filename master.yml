@@ -309,7 +309,7 @@ params:
     proposal: 0.002
   ygk_mass_bias:
     prior: {min: 0.05, max: 1.5}
-    ref: {dist: norm, scale: 0.05, loc: 0.73}
+    ref: {dist: norm, scale: 0.05, loc: 0.8}
     latex: 1-b_H
     proposal: 0.005
   ygk_rhogm:
