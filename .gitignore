@@ -9,3 +9,6 @@ yxg*/
 
 # cache dirs
 __pycache__/
+
+# results
+triangles*
