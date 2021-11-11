@@ -115,7 +115,7 @@ class ChainCalculator(object):
             p = s.getParams()
 
             if parname in self.interpolators:
-                rel = self.interpolators[parname][z]
+                rel = self.interpolators[parname][self.names[ibin]]
 
                 if hasattr(p, "sigma8"):
                     # free sigma8
@@ -158,6 +158,12 @@ def plot_tomo(models, parname, labels):
     ax.legend(loc="upper right", fontsize=12)
 
 c = ChainCalculator()
+
 models = ["yxgxksig", "yxgxk_b08", "gxk"]
 labels = models
 plot_tomo(models, "sigma8", labels)
+
+models = ["yxgxksig", "yxgxk"]
+labels = models
+plot_tomo(models, "ygk_mass_bias", labels)
+plot_tomo(models, "Omth", labels)
