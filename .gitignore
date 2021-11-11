@@ -1,18 +1,18 @@
-yxgxk_2
 instr.md
 
 # installation
 build/
 dist/
-yxg*/
-gxk*/
-!yxgxk_like/
+*.egg-info/
 .bashrc
 
 # cache dirs
 __pycache__/
 
 # results
-triangles*
+triangles/*
 figs/
 glamdring_out/
+
+# chains
+
