@@ -1,6 +1,6 @@
 #!/bin/bash -l
 echo =========================================================   
-echo Job submitted  date = Thu Nov 11 12:31:16 GMT 2021      
+echo Job submitted  date = Thu Nov 11 12:38:51 GMT 2021      
 date_start=`date +%s`
 echo $SLURM_JOB_NUM_NODES nodes \( $SMP processes per node \)        
 echo $SLURM_JOB_NUM_NODES hosts used: $SLURM_JOB_NODELIST      
@@ -17,7 +17,7 @@ export MV2_SMP_USE_CMA=0
 
 #which mpirun
 export OMP_NUM_THREADS=12
- nice -n 10 /users/nikfilippas/.local/bin/cobaya-run chains/yxgxk_b_uniform/yxgxk_b_uniform_5/params.yml
+ nice -n 10 /users/nikfilippas/.local/bin/cobaya-run chains/gxk_kmax05/gxk_kmax05_5/params.yml
 # If we've been checkpointed
 #if [ -n "${DMTCP_CHECKPOINT_DIR}" ]; then
   if [ -d "${DMTCP_CHECKPOINT_DIR}" ]; then
