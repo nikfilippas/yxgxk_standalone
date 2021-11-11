@@ -1,5 +1,6 @@
 from make_yml import make_yml
 
+run_name = 'yxgxk'
 fname_data = 'cls_cov.fits'
 
 for i in range(6):
@@ -15,5 +16,5 @@ for i in range(6):
              bias_model='HaloModel',
              kmax=1.0,
              fname_data=fname_data,
-             dirname_out=f'yxgxk_b_uniform_{i}',
+             dirname_out=f'chains/{run_name}/{run_name}_{i}',
              sampler='mcmc', nsamples=30000, debug=False)
