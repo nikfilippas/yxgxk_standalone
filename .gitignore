@@ -15,11 +15,3 @@ cobaya-run-*.out
 triangles/*
 figs/
 glamdring_out/
-
-# chains
-*.covmat
-*.1.txt
-*.progress
-*.checkpoint
-*.updated.yaml
-*.input.yaml
