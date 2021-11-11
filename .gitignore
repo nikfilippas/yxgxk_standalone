@@ -10,6 +10,7 @@ dist/
 __pycache__/
 
 # results
+cobaya-run.sh
 cobaya-run-*.out
 triangles/*
 figs/
