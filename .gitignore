@@ -20,3 +20,4 @@ glamdring_out/
 *.progress
 *.checkpoint
 *.updated.yaml
+*.input.yaml
