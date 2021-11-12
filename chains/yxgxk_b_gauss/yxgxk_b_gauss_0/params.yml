@@ -25,7 +25,7 @@ likelihood:
         lmin: 10
       LOWZ__5:
         lmin: 10
-      kmax: 1.0
+      kmax: 0.5
       lmax: 1024
       lmin: 0
     hb_name: Tinker10

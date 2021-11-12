@@ -25,7 +25,7 @@ likelihood:
         lmin: 10
       LOWZ__5:
         lmin: 10
-      kmax: 0.5
+      kmax: 1.0
       lmax: 1024
       lmin: 0
     hb_name: Tinker10
@@ -46,23 +46,14 @@ likelihood:
     - bins:
       - LOWZ__0
       - KAPPA
-output: chains/yxgxk_b_uniform/yxgxk_b_uniform_0/cobaya
+output: yxgxk_0/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
   h: 0.6766
   m_nu: 0.0
   n_s: 0.9665
-  sigma8:
-    latex: \sigma_8
-    prior:
-      max: 1.5
-      min: 0.2
-    proposal: 0.02
-    ref:
-      dist: norm
-      loc: 0.8102
-      scale: 0.02
+  sigma8: 0.8102
   ygk_Ahmc: 1.0
   ygk_Ahmcgg: 1.0
   ygk_Ahmcgm: 1.0
@@ -142,13 +133,13 @@ params:
   ygk_mass_bias:
     latex: 1-b_H
     prior:
-      max: 0.9
-      min: 0.6
+      max: 1.5
+      min: 0.05
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.6
-      scale: 0.002
+      loc: 0.73
+      scale: 0.05
   ygk_rhogm: 0.0
   ygk_rhogy:
     latex: \rho_{gy}
@@ -170,4 +161,4 @@ theory:
   yxgxk_like.CCL:
     baryons_pk: nobaryons
     matter_pk: halofit
-    transfer_function: arico21
+    transfer_function: boltzmann_camb
