@@ -1,8 +1,10 @@
+import os
 import numpy as np
 import pyccl as ccl
 from tqdm import tqdm
 from scipy.interpolate import interp2d
 import getdist.mcsamples as gmc
+import getdist.plots as gplot
 import matplotlib.pyplot as plt
 
 
@@ -107,10 +109,10 @@ class ChainCalculator(object):
 
         return F_interp
 
-    def from_chains(self, model, parname, latex=None):
+    def get_summary(self, model, parname, latex=None):
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
-            try:
+            try:  # TODO: fix this once cobaya has run
                 fname = f"chains/{model}/{model}_{ibin}/cobaya"
                 s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
             except ValueError:
@@ -161,19 +163,57 @@ def plot_tomo(models, parname, labels):
     colors = ["k", "grey", "r", "brown", "orange"]
 
     for i, model in enumerate(models):
-        BF = c.from_chains(model=model, parname=parname, latex=latex)
+        BF = c.get_summary(model=model, parname=parname, latex=latex)
         ax.errorbar(c.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
                     fmt="o", color=colors[i], label=labels[i])
 
     ax.legend(loc="upper right", fontsize=12)
 
+    fname_out = f"figs/tomo_{parname}.pdf"
+    if not os.path.isfile(fname_out):
+        plt.savefig(fname_out, bbox_inches="tight")
+
+
+def plot_triangles(models, parnames="all"):
+    for ibin, z in enumerate(c.z_arr):
+        try:  # TODO: fix this once cobaya has run
+            fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
+                      for model in models]
+            s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+                 for fname in fnames]
+        except ValueError:
+            fnames = [f"chains/{model}/{model}_{ibin}_kmax1/cobaya"
+                     for model in models]
+            s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+                 for fname in fnames]
+
+        # list all free parameters
+        if parnames == "all":
+            exclude = "chi2"
+            p = s[0].getParams()
+            params = [par for par in p.__dict__ if exclude not in par]
+
+        gdplot = gplot.get_subplot_plotter()
+        gdplot.triangle_plot(s, params, filled=True)
+
+        if len(models) == 1:
+            fname_out = f"figs/triang_{models[0]}_{ibin}.pdf"
+        else:
+            fname_out = f"figs/triang_{ibin}.pdf"
+        if not os.path.isfile(fname_out):
+            plt.savefig(fname_out, bbox_inches="tight")
+
+
 c = ChainCalculator()
 
-models = ["yxgxksig", "yxgxk_b08", "gxk", "gxk_kmax05"]
+models = ["yxgxksig", "yxgxk_b08", "gxk", "gxk_kmax05", "yxgxk_b_uniform"]
 labels = models
 plot_tomo(models, "sigma8", labels)
 
-models = ["yxgxksig", "yxgxk"]
+models = ["yxgxksig", "yxgxk", "yxgxk_b_uniform"]
 labels = models
 plot_tomo(models, "ygk_mass_bias", labels)
 plot_tomo(models, "Omth", labels)
+
+models = ["yxgxksig", "yxgxk_b_uniform"]
+plot_triangles(models)
