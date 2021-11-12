@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class ChainCalculator(object):
-    def __init__(self):
+    def __init__(self, *, new_interps=False):
         self.cosmo = ccl.CosmologyVanillaLCDM()
         self.cM = ccl.halos.ConcentrationDuffy08M500c()
         self.prof_g = ccl.halos.HaloProfileHOD(c_m_relation=self.cM)
@@ -24,7 +24,7 @@ class ChainCalculator(object):
 
         # interpolators
         self.interp_param_names = ["bPe", "Omth"]
-        self.interpolators = self.get_interpolators()
+        self.interpolators = self.get_interpolators(new_interps)
 
     def get_z_arr(self):
         fnames = [f"data/dndz/{name}_DIR.txt" for name in self.names]
@@ -49,15 +49,15 @@ class ChainCalculator(object):
         if mass_bias is not None:
             self.prof_y.update_parameters(mass_bias=mass_bias)
 
-    def get_interpolators(self):
+    def get_interpolators(self, new_interps=False):
         import os
-        if os.path.isfile("interpolators.npy"):
-            I = np.load("interpolators.npy", allow_pickle=True).item()
-        else:
+        if not os.path.isfile("interpolators.npy") or new_interps:
             I = dict.fromkeys(self.interp_param_names)
             for par in self.interp_param_names:
                 I[par] = self.interpolate_param(par)
             np.save("interpolators.npy", I)
+        else:
+            I = np.load("interpolators.npy", allow_pickle=True).item()
         return I
 
     def calculate_bPe(self, z):
@@ -110,8 +110,12 @@ class ChainCalculator(object):
     def from_chains(self, model, parname, latex=None):
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
-            fname = f"chains/{model}/{model}_{ibin}/cobaya"
-            s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            try:
+                fname = f"chains/{model}/{model}_{ibin}/cobaya"
+                s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            except ValueError:
+                fname = f"chains/{model}/{model}_{ibin}_kmax1/cobaya"
+                s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
             p = s.getParams()
 
             if parname in self.interpolators:
@@ -133,6 +137,12 @@ class ChainCalculator(object):
             vbf = dens.getLimits(0.001)[0]
             summary = vbf, vbf-vmin, vmax-vbf
             BF_arr[ibin] = summary
+
+        # normalize by the growth factor for sigma8
+        if parname == "sigma8":
+            cosmo = ccl.CosmologyVanillaLCDM()
+            BF_arr *= cosmo.growth_factor(1/(1+self.z_arr))[:, None]
+
         return BF_arr
 
 
@@ -159,7 +169,7 @@ def plot_tomo(models, parname, labels):
 
 c = ChainCalculator()
 
-models = ["yxgxksig", "yxgxk_b08", "gxk"]
+models = ["yxgxksig", "yxgxk_b08", "gxk", "gxk_kmax05"]
 labels = models
 plot_tomo(models, "sigma8", labels)
 
