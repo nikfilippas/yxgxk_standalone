@@ -173,9 +173,10 @@ def plot_tomo(models, parname, labels):
     fname_out = f"figs/tomo_{parname}.pdf"
     if not os.path.isfile(fname_out):
         plt.savefig(fname_out, bbox_inches="tight")
+    plt.close()
 
 
-def plot_triangles(models, parnames=None):
+def plot_triangles(models, parnames="all"):
     for ibin, z in enumerate(c.z_arr):
         try:  # TODO: fix this once cobaya has run
             fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
@@ -188,8 +189,14 @@ def plot_triangles(models, parnames=None):
             s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
                  for fname in fnames]
 
+        # list all free parameters
+        if parnames == "all":
+            exclude = "chi2"
+            p = s[0].getParams()
+            params = [par for par in p.__dict__ if exclude not in par]
+
         gdplot = gplot.get_subplot_plotter()
-        gdplot.triangle_plot(s, params=parnames, filled=True,
+        gdplot.triangle_plot(s, params, filled=True,
                              legend_labels=models)
 
         if len(models) == 1:
@@ -198,6 +205,7 @@ def plot_triangles(models, parnames=None):
             fname_out = f"figs/triang_{ibin}.pdf"
         if not os.path.isfile(fname_out):
             plt.savefig(fname_out, bbox_inches="tight")
+        plt.close()
 
 
 c = ChainCalculator()
