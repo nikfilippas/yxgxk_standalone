@@ -160,7 +160,8 @@ def plot_tomo(models, parname, labels):
     ax.set_xlabel("z", fontsize=16)
     ax.set_ylabel(latex, fontsize=16)
     fig.tight_layout()
-    colors = ["k", "grey", "r", "brown", "orange"]
+    colors = ["k", "grey", "r", "brown", "orange",
+              "navy", "forestgreen", "crimson"]
 
     for i, model in enumerate(models):
         BF = c.get_summary(model=model, parname=parname, latex=latex)
@@ -174,7 +175,7 @@ def plot_tomo(models, parname, labels):
         plt.savefig(fname_out, bbox_inches="tight")
 
 
-def plot_triangles(models, parnames="all"):
+def plot_triangles(models, parnames=None):
     for ibin, z in enumerate(c.z_arr):
         try:  # TODO: fix this once cobaya has run
             fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
@@ -187,14 +188,9 @@ def plot_triangles(models, parnames="all"):
             s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
                  for fname in fnames]
 
-        # list all free parameters
-        if parnames == "all":
-            exclude = "chi2"
-            p = s[0].getParams()
-            params = [par for par in p.__dict__ if exclude not in par]
-
         gdplot = gplot.get_subplot_plotter()
-        gdplot.triangle_plot(s, params, filled=True)
+        gdplot.triangle_plot(s, params=parnames, filled=True,
+                             legend_labels=models)
 
         if len(models) == 1:
             fname_out = f"figs/triang_{models[0]}_{ibin}.pdf"
@@ -206,14 +202,16 @@ def plot_triangles(models, parnames="all"):
 
 c = ChainCalculator()
 
-models = ["yxgxksig", "yxgxk_b08", "gxk", "gxk_kmax05", "yxgxk_b_uniform"]
+models = ["yxgxksig", "yxgxk_b08", "gxk",
+          "gxk_kmax05", "yxgxk_b_uniform", "yxgxk_b_gauss"]
 labels = models
 plot_tomo(models, "sigma8", labels)
 
-models = ["yxgxksig", "yxgxk", "yxgxk_b_uniform"]
+models = ["yxgxksig", "yxgxk", "yxgxk_b_uniform", "yxgxk_b_gauss", "yxg"]
 labels = models
 plot_tomo(models, "ygk_mass_bias", labels)
+plot_tomo(models, "bPe", labels)
 plot_tomo(models, "Omth", labels)
 
-models = ["yxgxksig", "yxgxk_b_uniform"]
+models = ["yxgxksig", "yxgxk_b_uniform", "yxgxk_b_gauss"]
 plot_triangles(models)
