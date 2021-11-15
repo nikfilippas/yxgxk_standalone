@@ -159,9 +159,16 @@ def plot_tomo(models, parname, labels):
     fig, ax = plt.subplots()
     ax.set_xlabel("z", fontsize=16)
     ax.set_ylabel(latex, fontsize=16)
+    ax.set_xlim(0.05, 0.40)
     fig.tight_layout()
     colors = ["k", "grey", "r", "brown", "orange",
               "navy", "forestgreen", "crimson"]
+
+    if parname == "sigma8":
+        cosmo = ccl.CosmologyVanillaLCDM()
+        zt = np.linspace(0.01, 0.40, 64)
+        s8 = cosmo.sigma8() * cosmo.growth_factor(1/(1+zt))
+        ax.plot(zt, s8, "k--", lw=2, label="Planck")
 
     for i, model in enumerate(models):
         BF = c.get_summary(model=model, parname=parname, latex=latex)
