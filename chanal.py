@@ -222,7 +222,8 @@ models = ["yxgxksig", "yxgxk_b08", "gxk",
 labels = models
 plot_tomo(models, "sigma8", labels)
 
-models = ["yxgxksig", "yxgxk", "yxgxk_b_uniform", "yxgxk_b_gauss", "yxg"]
+models = ["yxgxksig", "yxgxk", "yxgxk_b_uniform",
+          "yxgxk_b_gauss", "yxg", "dam_yxg"]
 labels = models
 plot_tomo(models, "ygk_mass_bias", labels)
 plot_tomo(models, "bPe", labels)
