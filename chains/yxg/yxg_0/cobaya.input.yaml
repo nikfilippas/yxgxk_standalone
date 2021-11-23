@@ -1,4 +1,8 @@
-debug: false
+theory:
+  yxgxk_like.CCL:
+    baryons_pk: nobaryons
+    matter_pk: halofit
+    transfer_function: boltzmann_camb
 likelihood:
   yxgxk_like.YxGxKLike:
     HM_correction: halofit
@@ -43,7 +47,6 @@ likelihood:
     - bins:
       - LOWZ__0
       - YMILCA
-output: yxg_0/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
@@ -154,8 +157,6 @@ sampler:
     burn_in: 10
     learn_proposal: true
     max_samples: 30000
-theory:
-  yxgxk_like.CCL:
-    baryons_pk: nobaryons
-    matter_pk: halofit
-    transfer_function: boltzmann_camb
+output: cobaya
+packages_path: null
+test: false
