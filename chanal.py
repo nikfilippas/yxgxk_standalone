@@ -24,6 +24,9 @@ class ChainCalculator(object):
         self.DIR = dict.fromkeys(self.names)
         self.get_z_arr()
 
+        # MC samples
+        self.mcsamples = np.empty(len(self.names), dtype=object)
+
         # interpolators
         self.interp_param_names = ["bPe", "Omth"]
         self.interpolators = self.get_interpolators(new_interps)
@@ -112,12 +115,9 @@ class ChainCalculator(object):
     def get_summary(self, model, parname, latex=None):
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
-            try:  # TODO: fix this once cobaya has run
-                fname = f"chains/{model}/{model}_{ibin}/cobaya"
-                s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
-            except ValueError:
-                fname = f"chains/{model}/{model}_{ibin}_kmax1/cobaya"
-                s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            fname = f"chains/{model}/{model}_{ibin}/cobaya"
+            s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            self.mcsamples[ibin] = s
             p = s.getParams()
 
             if parname in self.interpolators:
@@ -148,86 +148,64 @@ class ChainCalculator(object):
         return BF_arr
 
 
-def plot_tomo(models, parname, labels):
-    if parname == "bPe":
-        latex = "bP_e"
-    elif parname == "Omth":
-        latex = "Omega_th"
-    else:
-        latex = None
+    def plot_tomo(self, models, parname, labels, keep_on=False):
+        if parname == "bPe":
+            latex = "bP_e"
+        elif parname == "Omth":
+            latex = "Omega_th"
+        else:
+            latex = None
 
-    fig, ax = plt.subplots()
-    ax.set_xlabel("z", fontsize=16)
-    ax.set_ylabel(latex, fontsize=16)
-    ax.set_xlim(0.05, 0.40)
-    fig.tight_layout()
-    colors = ["k", "grey", "r", "brown", "orange",
-              "navy", "forestgreen", "crimson"]
+        fig, ax = plt.subplots()
+        ax.set_xlabel("z", fontsize=16)
+        ax.set_ylabel(latex, fontsize=16)
+        ax.set_xlim(0.05, 0.40)
+        fig.tight_layout()
+        colors = ["k", "grey", "r", "brown", "orange",
+                  "navy", "forestgreen", "crimson"]
 
-    if parname == "sigma8":
-        cosmo = ccl.CosmologyVanillaLCDM()
-        zt = np.linspace(0.01, 0.40, 64)
-        s8 = cosmo.sigma8() * cosmo.growth_factor(1/(1+zt))
-        ax.plot(zt, s8, "k--", lw=2, label="Planck")
+        if parname == "sigma8":
+            cosmo = ccl.CosmologyVanillaLCDM()
+            zt = np.linspace(0.01, 0.40, 64)
+            s8 = cosmo.sigma8() * cosmo.growth_factor(1/(1+zt))
+            ax.plot(zt, s8, "k--", lw=2, label="Planck")
 
-    for i, model in enumerate(models):
-        BF = c.get_summary(model=model, parname=parname, latex=latex)
-        ax.errorbar(c.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
-                    fmt="o", color=colors[i], label=labels[i])
+        for i, model in enumerate(models):
+            BF = self.get_summary(model=model, parname=parname, latex=latex)
+            ax.errorbar(self.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
+                        fmt="o", color=colors[i], label=labels[i])
 
-    ax.legend(loc="upper right", fontsize=12)
+        ax.legend(loc="upper right", fontsize=12)
 
-    fname_out = f"figs/tomo_{parname}.pdf"
-    if not os.path.isfile(fname_out):
-        plt.savefig(fname_out, bbox_inches="tight")
-    plt.close()
+        fname_out = f"figs/tomo_{parname}.pdf"
+        if not os.path.isfile(fname_out):
+            plt.savefig(fname_out, bbox_inches="tight")
+        if not keep_on:
+            plt.close()
 
 
-def plot_triangles(models, parnames="all"):
-    for ibin, z in enumerate(c.z_arr):
-        try:  # TODO: fix this once cobaya has run
+    def plot_triangles(self, models, parnames="all", keep_on=False):
+        for ibin, z in enumerate(self.z_arr):
             fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
                       for model in models]
             s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
                  for fname in fnames]
-        except ValueError:
-            fnames = [f"chains/{model}/{model}_{ibin}_kmax1/cobaya"
-                     for model in models]
-            s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
-                 for fname in fnames]
 
-        # list all free parameters
-        if parnames == "all":
-            exclude = "chi2"
-            p = s[0].getParams()
-            params = [par for par in p.__dict__ if exclude not in par]
+            # list all free parameters
+            if parnames == "all":
+                exclude = "chi2"
+                p = s[0].getParams()
+                params = [par for par in p.__dict__ if exclude not in par]
 
-        gdplot = gplot.get_subplot_plotter()
-        gdplot.triangle_plot(s, params, filled=True,
-                             legend_labels=models)
+            gdplot = gplot.get_subplot_plotter()
+            gdplot.triangle_plot(s, params, filled=True,
+                                 legend_labels=models)
 
-        if len(models) == 1:
-            fname_out = f"figs/triang_{models[0]}_{ibin}.pdf"
-        else:
-            fname_out = f"figs/triang_{ibin}.pdf"
-        if not os.path.isfile(fname_out):
-            plt.savefig(fname_out, bbox_inches="tight")
-        plt.close()
-
-
-c = ChainCalculator()
-
-models = ["yxgxksig", "yxgxk_b08", "gxk",
-          "gxk_kmax05", "yxgxk_b_uniform", "yxgxk_b_gauss"]
-labels = models
-plot_tomo(models, "sigma8", labels)
-
-models = ["yxgxksig", "yxgxk", "yxgxk_b_uniform",
-          "yxgxk_b_gauss", "yxg", "dam_yxg"]
-labels = models
-plot_tomo(models, "ygk_mass_bias", labels)
-plot_tomo(models, "bPe", labels)
-plot_tomo(models, "Omth", labels)
-
-models = ["yxgxksig", "yxgxk_b_uniform", "yxgxk_b_gauss"]
-plot_triangles(models)
+            if len(models) == 1:
+                fname_out = f"figs/triang_{models[0]}_{ibin}.pdf"
+            else:
+                fname_out = f"figs/triang_{ibin}.pdf"
+            if not os.path.isfile(fname_out):
+                plt.savefig(fname_out, bbox_inches="tight")
+            if not keep_on:
+                plt.close()
