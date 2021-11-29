@@ -9,7 +9,7 @@ c.plot_tomo(m_s8, "sigma8", m_s8, keep_on=True)
 m_bh = ["yxgxksig", "yxgxk", "yxgxk_b_uniform",
         "yxgxk_b_gauss", "yxg", "dam_yxg"]
 c.plot_tomo(m_bh, "ygk_mass_bias", m_bh)
-c.plot_tomo(m_bh, "bPe", m_bh)
+c.plot_tomo(m_bh, "bPe", m_bh, keep_on=True)
 c.plot_tomo(m_bh, "Omth", m_bh, keep_on=True)
 
 m_tri = ["yxgxksig", "yxgxk_b_uniform", "yxgxk_b_gauss"]
