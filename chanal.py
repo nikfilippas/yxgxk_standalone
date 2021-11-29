@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 
 class ChainCalculator(object):
     def __init__(self, *, new_interps=False):
-        self.cosmo = ccl.CosmologyVanillaLCDM()
+        self.cosmo = ccl.Cosmology(
+            Omega_c=0.26066676, Omega_b=0.048974682,
+            h=0.6766, n_s=0.9665, sigma8=0.8102)
         self.cM = ccl.halos.ConcentrationDuffy08M500c()
         self.prof_g = ccl.halos.HaloProfileHOD(c_m_relation=self.cM)
         self.prof_k = ccl.halos.HaloProfileNFW(c_m_relation=self.cM)
@@ -116,6 +118,7 @@ class ChainCalculator(object):
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
             fname = f"chains/{model}/{model}_{ibin}/cobaya"
+
             s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
             self.mcsamples[ibin] = s
             p = s.getParams()
@@ -125,14 +128,14 @@ class ChainCalculator(object):
 
                 if hasattr(p, "sigma8"):
                     # free sigma8
-                    bPe_chain = np.array([rel(s8, by) for s8, by
+                    deriv_chain = np.array([rel(s8, by) for s8, by
                         in zip(p.sigma8, p.ygk_mass_bias)]).squeeze()
                 else:
                     # fixed sigma8
-                    bPe_chain = np.array([rel(0.81, by)
+                    deriv_chain = np.array([rel(0.81, by)
                         for by in p.ygk_mass_bias]).squeeze()
 
-                s.addDerived(bPe_chain, name=parname, label=latex)
+                s.addDerived(deriv_chain, name=parname, label=latex)
 
             dens = s.get1DDensity(parname)
             vmin, vmax = dens.getLimits(0.68)[:2]
