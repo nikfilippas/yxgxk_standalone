@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pyccl as ccl
 from tqdm import tqdm
-from scipy.interpolate import interp2d
+from scipy.interpolate import RectBivariateSpline
 import getdist.mcsamples as gmc
 import getdist.plots as gplot
 import matplotlib.pyplot as plt
@@ -110,7 +110,7 @@ class ChainCalculator(object):
                     self.update_parameters(mass_bias=bH)
                     Arr[i, j] = func(z)
 
-            F_interp[name] = interp2d(s8_arr, bH_arr, Arr, kind="cubic")
+            F_interp[name] = RectBivariateSpline(s8_arr, bH_arr, Arr)
 
         return F_interp
 
@@ -145,11 +145,26 @@ class ChainCalculator(object):
 
         # normalize by the growth factor for sigma8
         if parname == "sigma8":
-            cosmo = ccl.CosmologyVanillaLCDM()
-            BF_arr *= cosmo.growth_factor(1/(1+self.z_arr))[:, None]
+            BF_arr *= self.cosmo.growth_factor(1/(1+self.z_arr))[:, None]
 
         return BF_arr
 
+    def theory_sigma8(self, ax):
+        z_arr = np.linspace(0.01, 0.40, 64)
+        s8 = self.cosmo.sigma8() * self.cosmo.growth_factor(1/(1+z_arr))
+        ax.plot(z_arr, s8, "k--", lw=2, label="Planck")
+
+    def theory_bPe(self, ax):
+        from battaglia import BattagliaSchockHeating
+        z_arr = np.linspace(0.01, 0.40, 64)
+        BSH = BattagliaSchockHeating(self.cosmo, z_arr).get_theory
+
+        et2, et3, et5, etinf = [BSH(n_r) for n_r in [2, 3, 5, 20]]
+
+        ax.plot(z_arr,et2,'-',label='$r_{\\rm max}=2\\,r_{200c}$',c='k')
+        ax.plot(z_arr,et3,'--',label='$r_{\\rm max}=3\\,r_{200c}$',c='k')
+        ax.plot(z_arr,et5,'-.',label='$r_{\\rm max}=5\\,r_{200c}$',c='k')
+        ax.plot(z_arr,etinf,':',label='$r_{\\rm max}=\\infty$',c='k')
 
     def plot_tomo(self, models, parname, labels, keep_on=False):
         if parname == "bPe":
@@ -167,11 +182,10 @@ class ChainCalculator(object):
         colors = ["k", "grey", "r", "brown", "orange",
                   "navy", "forestgreen", "crimson"]
 
-        if parname == "sigma8":
-            cosmo = ccl.CosmologyVanillaLCDM()
-            zt = np.linspace(0.01, 0.40, 64)
-            s8 = cosmo.sigma8() * cosmo.growth_factor(1/(1+zt))
-            ax.plot(zt, s8, "k--", lw=2, label="Planck")
+        # First, plot theoretical models
+        if parname in ["sigma8", "bPe"]:
+            theory = getattr(self, f"theory_{parname}")
+            theory(ax=ax)
 
         for i, model in enumerate(models):
             BF = self.get_summary(model=model, parname=parname, latex=latex)
@@ -185,7 +199,6 @@ class ChainCalculator(object):
             plt.savefig(fname_out, bbox_inches="tight")
         if not keep_on:
             plt.close()
-
 
     def plot_triangles(self, models, parnames="all", keep_on=False):
         for ibin, z in enumerate(self.z_arr):
