@@ -65,9 +65,9 @@ class BattagliaSchockHeating(object):
         return simps(et[0]*bh*mfunc,x=et[1])
 
     def get_Om_th(self, z, n_r, delta):
-        E_th = self.get_thermal_energy(z, n_r, delta)
-        rho_crit = 1.054e4 * self.cosmo["h"]**2
-        return E_th/rho_crit
+        E_th = self.get_thermal_energy(z, n_r, delta)  # meV/cm^2
+        rho_crit = 1.054e4 * self.cosmo["h"]**2  # eV/cm^3
+        return 1e-3*E_th/rho_crit
 
     def R_Delta(self, M, a, Delta=500):
         """Calculate the reference radius of a halo."""
