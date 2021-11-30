@@ -40,19 +40,34 @@ class BattagliaSchockHeating(object):
         integrand = lambda x: x**2*self.ups_battaglia(x,bp)
         return 4*np.pi*(bp['rDelta'])**3 * quad(integrand, 0, n_r)[0]
 
+    def get_Eth_logmass(self, z, n_r, delta, nmass=256):
+        lmarr = np.linspace(8.,16.,nmass)
+        marr = 10.**lmarr
+        et = np.array([
+            self.integrated_profile(
+                self.get_battaglia(m,z,delta),n_r)
+            for m in marr])
+        return et, lmarr
+
+    def get_thermal_energy(self, z, n_r, delta):
+        et = self.get_Eth_logmass(z, n_r, delta)
+        return simps(et[0], x=et[1])
+
     def get_bpe(self, z, n_r, delta, nmass=256):
         cosmo = self.cosmo
         a = 1./(1+z)
-        lmarr = np.linspace(8.,16.,nmass)
-        marr = 10.**lmarr
         Dm = delta/ccl.omega_x(cosmo, a, "matter")  # CCL uses Delta_m
+
+        et = self.get_Eth_logmass(z, n_r, delta, nmass=nmass)
+        marr = 10**et[1]
         mfunc = ccl.massfunc(cosmo, marr, a, Dm)
         bh = ccl.halo_bias(cosmo, marr, a, Dm)
-        et = np.array([
-            self.integrated_profile(self.get_battaglia(m,z,delta),n_r)
-            for m in marr])
+        return simps(et[0]*bh*mfunc,x=et[1])
 
-        return simps(et*bh*mfunc,x=lmarr)
+    def get_Om_th(self, z, n_r, delta):
+        E_th = self.get_thermal_energy(z, n_r, delta)
+        rho_crit = 1.054e4 * self.cosmo["h"]**2
+        return E_th/rho_crit
 
     def R_Delta(self, M, a, Delta=500):
         """Calculate the reference radius of a halo."""

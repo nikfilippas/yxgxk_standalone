@@ -159,12 +159,27 @@ class ChainCalculator(object):
         z_arr = np.linspace(0.01, 0.40, 64)
         BSH = BattagliaSchockHeating(self.cosmo, z_arr).get_theory
 
-        et2, et3, et5, etinf = [BSH(n_r) for n_r in [2, 3, 5, 20]]
+        et1, et2, et3, et5, etinf = [BSH(n_r) for n_r in [1.5, 2, 3, 5, 20]]
 
+        ax.plot(z_arr,et1,'-',label='$r_{\\rm max}=1.5\\,r_{200c}$',c='brown')
         ax.plot(z_arr,et2,'-',label='$r_{\\rm max}=2\\,r_{200c}$',c='k')
         ax.plot(z_arr,et3,'--',label='$r_{\\rm max}=3\\,r_{200c}$',c='k')
         ax.plot(z_arr,et5,'-.',label='$r_{\\rm max}=5\\,r_{200c}$',c='k')
         ax.plot(z_arr,etinf,':',label='$r_{\\rm max}=\\infty$',c='k')
+
+    def theory_Omth(self, ax):
+        from battaglia import BattagliaSchockHeating
+        z_arr = np.linspace(0.01, 0.40, 64)
+        BSH = BattagliaSchockHeating(self.cosmo, z_arr).get_Om_th
+        func = lambda nr: BSH(z_arr, nr, 200)
+
+        ot1, ot2, ot3, ot5, otinf = [func(n_r) for n_r in [1.5, 2, 3, 5, 20]]
+
+        ax.plot(z_arr,ot1,'-',label='$r_{\\rm max}=1.5\\,r_{200c}$',c='brown')
+        ax.plot(z_arr,ot2,'-',label='$r_{\\rm max}=2\\,r_{200c}$',c='k')
+        ax.plot(z_arr,ot3,'--',label='$r_{\\rm max}=3\\,r_{200c}$',c='k')
+        ax.plot(z_arr,ot5,'-.',label='$r_{\\rm max}=5\\,r_{200c}$',c='k')
+        ax.plot(z_arr,otinf,':',label='$r_{\\rm max}=\\infty$',c='k')
 
     def plot_tomo(self, models, parname, labels, keep_on=False):
         if parname == "bPe":
