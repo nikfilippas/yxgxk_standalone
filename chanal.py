@@ -6,6 +6,7 @@ from scipy.interpolate import RectBivariateSpline
 import getdist.mcsamples as gmc
 import getdist.plots as gplot
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True
 
 
 class ChainCalculator(object):
@@ -33,6 +34,25 @@ class ChainCalculator(object):
         # interpolators
         self.interp_param_names = ["bPe", "Omth"]
         self.interpolators = self.get_interpolators(new_interps)
+
+        # latex
+        self.latex_names = {
+            "bPe": "\\langle bP_e \\rangle\\ [\\mathrm{meV\\,cm^{-3}}]",
+            "Omth": "\\Omega_{th}",
+            "ygk_mass_bias": "1-b_{\\mathrm{H}}",
+            "sigma8": "\\sigma_8"
+            }
+        self.latex_labels = {
+            "yxgxksig": r"fiducial $3 \times 2\mathrm{pt}$ \,g,y,k",
+            "yxgxk": r"$3 \times 2\mathrm{pt}$, \,g,y,k; fixed $\sigma_8=0.8122$",
+            "yxgxk_b08": r"$3 \times 2\mathrm{pt}$ \,g,y,k; fixed $b_{\mathrm{H}}=0.80$",
+            "yxgxk_b_uniform": r"$3 \times 2\mathrm{pt}$ \,g,y,k; $b_{\mathrm{H}} \sim U(0.60,0.90)$",
+            "yxgxk_b_gauss": r"$3 \times 2\mathrm{pt}$ \,g,y,k; $b_{\mathrm{H}} \sim N(0.73,0.10)$",
+            "gxk": r"$2 \times 2\mathrm{pt}$ \,g,k",
+            "gxk_kmax05": r"$2 \times 2\mathrm{pt}$ \,g,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
+            "yxg": r"Koukoufilippas et al., 2020",
+            "dam_yxg": r"damonge Koukoufilippas et al., 2020"
+            }
 
     def get_z_arr(self):
         fnames = [f"data/dndz/{name}_DIR.txt" for name in self.names]
@@ -153,16 +173,15 @@ class ChainCalculator(object):
     def theory_sigma8(self, ax):
         z_arr = np.linspace(0.01, 0.40, 64)
         s8 = self.cosmo.sigma8() * self.cosmo.growth_factor(1/(1+z_arr))
-        ax.plot(z_arr, s8, "k--", lw=2, label="Planck")
+        ax.plot(z_arr, s8, "k--", lw=2, label="Planck 2018")
 
     def theory_bPe(self, ax):
         from battaglia import BattagliaSchockHeating
         z_arr = np.linspace(0.01, 0.40, 64)
         BSH = BattagliaSchockHeating(self.cosmo, z_arr).get_theory
 
-        et1, et2, et3, et5, etinf = [BSH(n_r) for n_r in [1.5, 2, 3, 5, 20]]
+        et2, et3, et5, etinf = [BSH(n_r) for n_r in [2, 3, 5, 20]]
 
-        ax.plot(z_arr,et1,'-',label='$r_{\\rm max}=1.5\\,r_{200c}$',c='brown')
         ax.plot(z_arr,et2,'-',label='$r_{\\rm max}=2\\,r_{200c}$',c='k')
         ax.plot(z_arr,et3,'--',label='$r_{\\rm max}=3\\,r_{200c}$',c='k')
         ax.plot(z_arr,et5,'-.',label='$r_{\\rm max}=5\\,r_{200c}$',c='k')
@@ -172,27 +191,23 @@ class ChainCalculator(object):
         from battaglia import BattagliaSchockHeating
         z_arr = np.linspace(0.01, 0.40, 64)
         BSH = BattagliaSchockHeating(self.cosmo, z_arr).get_Om_th
-        func = lambda nr: BSH(z_arr, nr, 200)
+        func = lambda nr: np.array([BSH(z, nr, 200) for z in z_arr])
 
-        ot1, ot2, ot3, ot5, otinf = [func(n_r) for n_r in [1.5, 2, 3, 5, 20]]
+        ot2, ot3, ot5, otinf = [func(n_r) for n_r in [2, 3, 5, 20]]
 
-        ax.plot(z_arr,ot1,'-',label='$r_{\\rm max}=1.5\\,r_{200c}$',c='brown')
         ax.plot(z_arr,ot2,'-',label='$r_{\\rm max}=2\\,r_{200c}$',c='k')
         ax.plot(z_arr,ot3,'--',label='$r_{\\rm max}=3\\,r_{200c}$',c='k')
         ax.plot(z_arr,ot5,'-.',label='$r_{\\rm max}=5\\,r_{200c}$',c='k')
         ax.plot(z_arr,otinf,':',label='$r_{\\rm max}=\\infty$',c='k')
 
-    def plot_tomo(self, models, parname, labels, keep_on=False):
-        if parname == "bPe":
-            latex = "bP_e"
-        elif parname == "Omth":
-            latex = "Omega_th"
-        else:
-            latex = None
+    def plot_tomo(self, models, parname, keep_on=False):
+        latex = self.latex_names[parname]
 
-        fig, ax = plt.subplots()
-        ax.set_xlabel("z", fontsize=16)
-        ax.set_ylabel(latex, fontsize=16)
+        fig, ax = plt.subplots(figsize=(9,7))
+        ax.tick_params(axis='both', which='major', labelsize=12)
+        ax.tick_params(axis='both', which='minor', labelsize=12)
+        ax.set_xlabel("$z$", fontsize=16)
+        ax.set_ylabel(f"${latex}$", fontsize=16)
         ax.set_xlim(0.05, 0.40)
         fig.tight_layout()
         colors = ["k", "grey", "r", "brown", "orange",
@@ -204,11 +219,12 @@ class ChainCalculator(object):
             theory(ax=ax)
 
         for i, model in enumerate(models):
+            label = self.latex_labels[model]
             BF = self.get_summary(model=model, parname=parname, latex=latex)
             ax.errorbar(self.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
-                        fmt="o", color=colors[i], label=labels[i])
+                        fmt="o", color=colors[i], label=label)
 
-        ax.legend(loc="upper right", fontsize=12)
+        ax.legend(loc="upper right", fontsize=12, ncol=2, frameon=False)
 
         fname_out = f"figs/tomo_{parname}.pdf"
         if not os.path.isfile(fname_out):
