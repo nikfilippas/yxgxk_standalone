@@ -12,7 +12,8 @@ class ChainCalculator(object):
     def __init__(self, *, new_interps=False):
         self.cosmo = ccl.Cosmology(
             Omega_c=0.26066676, Omega_b=0.048974682,
-            h=0.6766, n_s=0.9665, sigma8=0.8102)
+            h=0.6766, n_s=0.9665, sigma8=0.8102,
+            mass_function="tinker")
         self.cM = ccl.halos.ConcentrationDuffy08M500c()
         self.prof_g = ccl.halos.HaloProfileHOD(c_m_relation=self.cM)
         self.prof_k = ccl.halos.HaloProfileNFW(c_m_relation=self.cM)
