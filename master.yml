@@ -345,7 +345,7 @@ params:
 
 theory:
   yxgxk_like.CCL:
-    transfer_function: arico21
+    transfer_function: bacco
     matter_pk: halofit
     baryons_pk: nobaryons
 

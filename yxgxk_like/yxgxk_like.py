@@ -22,7 +22,7 @@ class HalomodCorrection(object):
                  z_range=[0., 1.], nz=16):
         from scipy.interpolate import interp2d
 
-        cosmo = ccl.CosmologyVanillaLCDM(transfer_function="arico21")
+        cosmo = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
         lkarr = np.linspace(np.log10(k_range[0]),
                             np.log10(k_range[1]),
                             nlk)
@@ -208,7 +208,7 @@ class YxGxKLike(Likelihood):
 
         s = sacc.Sacc.load_fits(self.input_file)
         self.bin_properties = {}
-        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="arico21")
+        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
         kmax_default = self.defaults.get('kmax', 0.1)
         for b in self.bins:
             if b['name'] not in s.tracers:
