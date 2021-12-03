@@ -15,3 +15,5 @@ c.plot_tomo(m_bh, "Omth", keep_on=True)
 
 m_tri = ["yxgxksig", "yxgxk_b_uniform", "yxgxk_b_gauss"]
 c.plot_triangles(m_tri)
+
+c.plot_best_fit("yxgxksig", keep_on=True)

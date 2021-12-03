@@ -1,8 +1,11 @@
 import os
 import numpy as np
+import sacc
+import yaml
 import pyccl as ccl
+from cobaya.model import get_model
 from tqdm import tqdm
-from scipy.interpolate import RectBivariateSpline
+from scipy.interpolate import RectBivariateSpline, interp1d
 import getdist.mcsamples as gmc
 import getdist.plots as gplot
 import matplotlib.pyplot as plt
@@ -27,9 +30,6 @@ class ChainCalculator(object):
         self.names = ["2mpz"] + ["wisc%d" % i for i in range(1, 6)]
         self.DIR = dict.fromkeys(self.names)
         self.get_z_arr()
-
-        # MC samples
-        self.mcsamples = np.empty(len(self.names), dtype=object)
 
         # interpolators
         self.interp_param_names = ["bPe", "Omth"]
@@ -135,13 +135,14 @@ class ChainCalculator(object):
 
         return F_interp
 
-    def get_summary(self, model, parname, latex=None):
+    def get_summary(self, model, parname):
+        latex = self.latex_names[parname]
+
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
             fname = f"chains/{model}/{model}_{ibin}/cobaya"
 
             s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
-            self.mcsamples[ibin] = s
             p = s.getParams()
 
             if parname in self.interpolators:
@@ -220,7 +221,7 @@ class ChainCalculator(object):
 
         for i, model in enumerate(models):
             label = self.latex_labels[model]
-            BF = self.get_summary(model=model, parname=parname, latex=latex)
+            BF = self.get_summary(model=model, parname=parname)
             ax.errorbar(self.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
                         fmt="o", color=colors[i], label=label)
 
@@ -228,7 +229,7 @@ class ChainCalculator(object):
 
         fname_out = f"figs/tomo_{parname}.pdf"
         if not os.path.isfile(fname_out):
-            plt.savefig(fname_out, bbox_inches="tight")
+            fig.savefig(fname_out, bbox_inches="tight")
         if not keep_on:
             plt.close()
 
@@ -257,3 +258,72 @@ class ChainCalculator(object):
                 plt.savefig(fname_out, bbox_inches="tight")
             if not keep_on:
                 plt.close()
+
+    def plot_best_fit(self, model, keep_on=False):
+        fname_data = "cls_cov.fits"
+        s_data = sacc.Sacc.load_fits(fname_data)
+
+        fig, axes = plt.subplots(3, self.z_arr.size,
+                                 sharey="row", figsize=(17, 10))
+        [ax.set_xlabel(r"$\ell$", fontsize=16) for ax in axes[-1]]
+        [ax.set_ylabel(r"$C_{\ell}$", fontsize=16) for ax in axes[:, 0]]
+        fig.tight_layout(w_pad=0, h_pad=0)
+
+        for ibin, axcol in enumerate(tqdm(axes.T)):
+            # get cobaya model
+            fname = f"chains/{model}/{model}_{ibin}/params.yml"
+            with open(fname, "r") as stream:
+                info = yaml.safe_load(stream)
+            mod = get_model(info)
+
+            # get best fit
+            fname = f"chains/{model}/{model}_{ibin}/cobaya"
+            s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            p = s.getParams()
+            p_bf = dict.fromkeys(
+                par for par in p.__dict__.keys() if "chi2" not in par)
+
+            for par in p_bf:
+                dens = s.get1DDensity(par)
+                vbf = dens.getLimits(0.001)[0]
+                p_bf[par] = vbf
+
+            # get theory sacc object
+            loglikes, derived = mod.loglikes(p_bf)
+            l = mod.likelihood['yxgxk_like.YxGxKLike']
+            params = l.current_state['params'].copy()
+            params.update(p_bf)
+            s_pred = l.get_sacc_file(**params)
+
+            # get and plot arrays
+            chi2 = 0
+            for ax, (t1, t2) in zip(axcol, s_pred.get_tracer_combinations()):
+                l_t, cl_t = s_pred.get_ell_cl(None, t1, t2)
+                l_d, cl_d, cov = s_data.get_ell_cl(None, t1, t2,
+                                                   return_cov=True)
+                err = np.sqrt(np.diag(cov))
+
+                # scale cuts
+                lmin, lmax = l_t.min(), l_t.max()
+                idx = np.where((lmax >= l_d) & (l_d >= lmin))[0]
+                l_d, cl_d, err = l_d[idx], cl_d[idx], err[idx]
+
+                # TODO: measure chi2
+                F = interp1d(np.log(l_t), np.log(cl_t),
+                             kind="cubic",
+                             bounds_error=False,
+                             fill_value="extrapolate")
+                F_t = np.exp(F(np.log(l_d)))
+                chi2 += np.sum((F_t - cl_d)**2/(F_t*err))
+
+                # plot
+                ax.loglog()
+                ax.errorbar(l_d, cl_d, err, fmt="ro", ms=2)
+                ax.plot(l_t, cl_t, "k-")
+
+        fname_out = "figs/best_fit.pdf"
+        if not os.path.isfile(fname_out):
+            fig.savefig(fname_out, bbox_inches="tight")
+
+        if not keep_on:
+            plt.close()
