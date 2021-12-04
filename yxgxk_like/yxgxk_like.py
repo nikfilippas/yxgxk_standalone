@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from scipy.interpolate import interp1d
 import pyccl as ccl
@@ -11,13 +12,15 @@ class HalomodCorrection(object):
     model in the 1h - 2h transition regime.
 
     Args:
-        cosmo (:obj:`ccl.Cosmology`): cosmology.
+        mass_function, halo_bias, mass_def, concentration: halo model params
         k_range (list): range of k to use (in Mpc^-1).
         nlk (int): number of samples in log(k) to use.
         z_range (list): range of redshifts to use.
         nz (int): number of samples in redshift to use.
     """
     def __init__(self,
+                 mass_function=None, halo_bias=None,
+                 mass_def=None, concentration=None,
                  k_range=[1E-1, 5], nlk=20,
                  z_range=[0., 1.], nz=16):
         from scipy.interpolate import interp2d
@@ -29,8 +32,25 @@ class HalomodCorrection(object):
         karr = 10.**lkarr
         zarr = np.linspace(z_range[0], z_range[1], nz)
 
-        pk_hm = np.array([ccl.halomodel_matter_power(cosmo, karr, a)
-                          for a in 1. / (1 + zarr)])
+        # halo model power spectrum
+        if None in [mass_function, halo_bias, mass_def, concentration]:
+            # CCL default
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")  # CCL deprecation warning
+                pk_hm = np.array([ccl.halomodel_matter_power(cosmo, karr, a)
+                                  for a in 1. / (1 + zarr)])
+        else:
+            hmc = ccl.halos.HMCalculator(mass_function=mass_function,
+                                         halo_bias=halo_bias,
+                                         mass_def=mass_def)
+            hmd = ccl.halos.mass_def_from_name(mass_def)()
+            cMc = ccl.halos.concentration_from_name(concentration)
+            cM = cMc(mass_def=hmd)
+            prof = ccl.halos.HaloProfileNFW(c_m_relation=cM)
+            pk_hm = np.array([ccl.halos.halomod_power_spectrum(
+                cosmo, hmc, karr, a, prof, normprof=True)
+                for a in 1/(1+zarr)])
+
         pk_hf = np.array([ccl.nonlin_matter_power(cosmo, karr, a)
                           for a in 1. / (1 + zarr)])
         ratio = pk_hf / pk_hm
@@ -127,6 +147,8 @@ class YxGxKLike(Likelihood):
     mf_name: str = "Tinker08"
     # Halo bias name
     hb_name: str = "Tinker10"
+    # Mass definition
+    mdef_name: str = "500c"
     # Concentration name
     cm_name: str = "Duffy08M500c"
     # zmax for HM calculator
@@ -171,7 +193,7 @@ class YxGxKLike(Likelihood):
 
         # Initialize parameterless HM stuff
         if self.bz_model == 'HaloModel':
-            self.massdef = ccl.halos.MassDef(500, 'critical')
+            self.massdef = ccl.halos.mass_def_from_name(self.mdef_name)()
             self.mfc = ccl.halos.mass_function_from_name(self.mf_name)
             self.hbc = ccl.halos.halo_bias_from_name(self.hb_name)
             cmc = ccl.halos.concentration_from_name(self.cm_name)

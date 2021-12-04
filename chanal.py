@@ -1,4 +1,5 @@
 import os
+import warnings
 import numpy as np
 import sacc
 import yaml
@@ -259,18 +260,62 @@ class ChainCalculator(object):
             if not keep_on:
                 plt.close()
 
+    def _get_MxN_axes(self, nrows, ncols):
+        from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+
+        figsize = (3*ncols, 3*nrows)
+        fig = plt.figure(figsize=figsize)
+        gs_main = GridSpec(nrows, ncols, figure=fig)
+
+        axes = np.empty((ncols, nrows, 2), dtype=object)
+        for col in range(ncols):
+            for row in range(nrows):
+                gs = GridSpecFromSubplotSpec(
+                    2, 1, subplot_spec=gs_main[row, col],
+                    height_ratios=[3, 1], hspace=0)
+                for s in range(2):
+                    ax = fig.add_subplot(gs[s])
+                    axes[col, row, s] = ax
+
+                    if (col, s) == (0, 0):
+                        ax.set_ylabel(r"$C_{\ell}$", fontsize=16)
+                    elif (col, s) == (0, 1):
+                        ax.set_ylabel(r"$\Delta \ell$", fontsize=16)
+                    else:
+                        ax.yaxis.set_visible(False)
+                    if (row == nrows-1) and (s == 1):
+                        ax.set_xlabel(r"$\ell$", fontsize=16)
+                    else:
+                        ax.xaxis.set_visible(False)
+                    if s == 0:
+                        ax.loglog()
+                    elif s == 1:
+                        ax.semilogx()
+                        ax.axhline(0, c="k", ls=":", lw=3)
+
+                    if col > 0:
+                        ax.sharey(axes[0, row, s])
+                    if (row, s) != (0, 0):
+                        ax.sharex(axes[col, 0, 0])
+
+        for row in range(nrows):
+            ax_cl = axes[:, row, 0].tolist()
+            ax_dl = axes[:, row, 1]
+            axes[0, row, 0].get_shared_y_axes().join(*ax_cl)
+            axes[0, row, 1].get_shared_y_axes().join(*ax_dl)
+        for col in range(ncols):
+            ax_ell = axes[col, :, :].flatten()
+            axes[col, 0, 0].get_shared_x_axes().join(*ax_ell)
+
+        fig.tight_layout(w_pad=0, h_pad=0)
+        return fig, axes
+
     def plot_best_fit(self, model, keep_on=False):
         fname_data = "cls_cov.fits"
         s_data = sacc.Sacc.load_fits(fname_data)
+        fig, axes = self._get_MxN_axes(nrows=3, ncols=6)
 
-        fig, axes = plt.subplots(3, self.z_arr.size,
-                                 sharey="row", figsize=(17, 10))
-        [ax.set_xlabel(r"$\ell$", fontsize=16) for ax in axes[-1]]
-        [ax.set_ylabel(r"$C_{\ell}$", fontsize=16) for ax in axes[:, 0]]
-        fig.tight_layout(w_pad=0, h_pad=0)
-
-        for ibin, axcol in enumerate(tqdm(axes.T)):
-            # get cobaya model
+        for ibin, _ in enumerate(tqdm(self.z_arr)):
             fname = f"chains/{model}/{model}_{ibin}/params.yml"
             with open(fname, "r") as stream:
                 info = yaml.safe_load(stream)
@@ -289,7 +334,9 @@ class ChainCalculator(object):
                 p_bf[par] = vbf
 
             # get theory sacc object
-            loglikes, derived = mod.loglikes(p_bf)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                loglikes, derived = mod.loglikes(p_bf)
             l = mod.likelihood['yxgxk_like.YxGxKLike']
             params = l.current_state['params'].copy()
             params.update(p_bf)
@@ -297,7 +344,8 @@ class ChainCalculator(object):
 
             # get and plot arrays
             chi2 = 0
-            for ax, (t1, t2) in zip(axcol, s_pred.get_tracer_combinations()):
+
+            for nc, (t1, t2) in enumerate(s_pred.get_tracer_combinations()):
                 l_t, cl_t = s_pred.get_ell_cl(None, t1, t2)
                 l_d, cl_d, cov = s_data.get_ell_cl(None, t1, t2,
                                                    return_cov=True)
@@ -316,10 +364,13 @@ class ChainCalculator(object):
                 F_t = np.exp(F(np.log(l_d)))
                 chi2 += np.sum((F_t - cl_d)**2/(F_t*err))
 
-                # plot
-                ax.loglog()
-                ax.errorbar(l_d, cl_d, err, fmt="ro", ms=2)
-                ax.plot(l_t, cl_t, "k-")
+                # residuals
+                res = (cl_d - cl_t) / err
+
+                ax_cl, ax_dl = axes[ibin, nc]
+                ax_cl.errorbar(l_d, cl_d, err, fmt="ro", ms=3)
+                ax_cl.plot(l_t, cl_t, "k-")
+                ax_dl.errorbar(l_d, res, np.ones_like(res), fmt="ro", ms=3)
 
         fname_out = "figs/best_fit.pdf"
         if not os.path.isfile(fname_out):
