@@ -6,7 +6,7 @@ import yaml
 import pyccl as ccl
 from cobaya.model import get_model
 from tqdm import tqdm
-from scipy.interpolate import RectBivariateSpline, interp1d
+from scipy.interpolate import RectBivariateSpline
 import getdist.mcsamples as gmc
 import getdist.plots as gplot
 import matplotlib.pyplot as plt
@@ -37,6 +37,9 @@ class ChainCalculator(object):
         self.interpolators = self.get_interpolators(new_interps)
 
         # latex
+        self.latex_bins = [r"$\mathrm{2MPZ}$"] + \
+            [r"$\mathrm{WI \times SC}$ - $\mathrm{%d}$" % i
+             for i in range(1, 6)]
         self.latex_names = {
             "bPe": "\\langle bP_e \\rangle\\ [\\mathrm{meV\\,cm^{-3}}]",
             "Omth": "\\Omega_{th}",
@@ -202,7 +205,7 @@ class ChainCalculator(object):
         ax.plot(z_arr,ot5,'-.',label='$r_{\\rm max}=5\\,r_{200c}$',c='k')
         ax.plot(z_arr,otinf,':',label='$r_{\\rm max}=\\infty$',c='k')
 
-    def plot_tomo(self, models, parname, keep_on=False):
+    def plot_tomo(self, models, parname, keep_on=False, overwrite=False):
         latex = self.latex_names[parname]
 
         fig, ax = plt.subplots(figsize=(9,7))
@@ -229,12 +232,13 @@ class ChainCalculator(object):
         ax.legend(loc="upper right", fontsize=12, ncol=2, frameon=False)
 
         fname_out = f"figs/tomo_{parname}.pdf"
-        if not os.path.isfile(fname_out):
+        if overwrite or not os.path.isfile(fname_out):
             fig.savefig(fname_out, bbox_inches="tight")
         if not keep_on:
             plt.close()
 
-    def plot_triangles(self, models, parnames="all", keep_on=False):
+    def plot_triangles(self, models, parnames="all",
+                       keep_on=False, overwrite=False):
         for ibin, z in enumerate(self.z_arr):
             fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
                       for model in models]
@@ -255,7 +259,7 @@ class ChainCalculator(object):
                 fname_out = f"figs/triang_{models[0]}_{ibin}.pdf"
             else:
                 fname_out = f"figs/triang_{ibin}.pdf"
-            if not os.path.isfile(fname_out):
+            if overwrite or not os.path.isfile(fname_out):
                 plt.savefig(fname_out, bbox_inches="tight")
             if not keep_on:
                 plt.close()
@@ -274,13 +278,16 @@ class ChainCalculator(object):
                     2, 1, subplot_spec=gs_main[row, col],
                     height_ratios=[3, 1], hspace=0)
                 for s in range(2):
-                    ax = fig.add_subplot(gs[s])
+                    sharey = None if col == 0 else axes[0, row, s]
+                    sharex = None if row == 0 else axes[col, 0, 0]
+
+                    ax = fig.add_subplot(gs[s], sharex=sharex, sharey=sharey)
                     axes[col, row, s] = ax
 
                     if (col, s) == (0, 0):
                         ax.set_ylabel(r"$C_{\ell}$", fontsize=16)
                     elif (col, s) == (0, 1):
-                        ax.set_ylabel(r"$\Delta \ell$", fontsize=16)
+                        ax.set_ylabel(r"$\Delta_{\ell}$", fontsize=16)
                     else:
                         ax.yaxis.set_visible(False)
                     if (row == nrows-1) and (s == 1):
@@ -293,24 +300,19 @@ class ChainCalculator(object):
                         ax.semilogx()
                         ax.axhline(0, c="k", ls=":", lw=3)
 
-                    if col > 0:
-                        ax.sharey(axes[0, row, s])
-                    if (row, s) != (0, 0):
-                        ax.sharex(axes[col, 0, 0])
-
-        for row in range(nrows):
-            ax_cl = axes[:, row, 0].tolist()
-            ax_dl = axes[:, row, 1]
-            axes[0, row, 0].get_shared_y_axes().join(*ax_cl)
-            axes[0, row, 1].get_shared_y_axes().join(*ax_dl)
-        for col in range(ncols):
-            ax_ell = axes[col, :, :].flatten()
-            axes[col, 0, 0].get_shared_x_axes().join(*ax_ell)
+        axcol = axes[-1, :, 0]  # last column
+        corr_names = ["g", "y", "\kappa"]  # correlation names
+        for ax, name in zip(axcol, corr_names):
+            ax.text(1.1, 0.33, r"$\mathbf{g \times %s}$" % name,
+                    fontsize=16, rotation=-90,
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                    transform=ax.transAxes)
 
         fig.tight_layout(w_pad=0, h_pad=0)
         return fig, axes
 
-    def plot_best_fit(self, model, keep_on=False):
+    def plot_best_fit(self, model, keep_on=False, overwrite=False, out=False):
         fname_data = "cls_cov.fits"
         s_data = sacc.Sacc.load_fits(fname_data)
         fig, axes = self._get_MxN_axes(nrows=3, ncols=6)
@@ -328,10 +330,9 @@ class ChainCalculator(object):
             p_bf = dict.fromkeys(
                 par for par in p.__dict__.keys() if "chi2" not in par)
 
+            argmin = p.chi2.argmin()
             for par in p_bf:
-                dens = s.get1DDensity(par)
-                vbf = dens.getLimits(0.001)[0]
-                p_bf[par] = vbf
+                p_bf[par] = getattr(p, par)[argmin]
 
             # get theory sacc object
             with warnings.catch_warnings():
@@ -343,9 +344,10 @@ class ChainCalculator(object):
             s_pred = l.get_sacc_file(**params)
 
             # get and plot arrays
-            chi2 = 0
-
-            for nc, (t1, t2) in enumerate(s_pred.get_tracer_combinations()):
+            chi2 = p.chi2.min()
+            dof = 0
+            xcorrs = s_pred.get_tracer_combinations()
+            for nc, (t1, t2) in enumerate(xcorrs):
                 l_t, cl_t = s_pred.get_ell_cl(None, t1, t2)
                 l_d, cl_d, cov = s_data.get_ell_cl(None, t1, t2,
                                                    return_cov=True)
@@ -356,14 +358,6 @@ class ChainCalculator(object):
                 idx = np.where((lmax >= l_d) & (l_d >= lmin))[0]
                 l_d, cl_d, err = l_d[idx], cl_d[idx], err[idx]
 
-                # TODO: measure chi2
-                F = interp1d(np.log(l_t), np.log(cl_t),
-                             kind="cubic",
-                             bounds_error=False,
-                             fill_value="extrapolate")
-                F_t = np.exp(F(np.log(l_d)))
-                chi2 += np.sum((F_t - cl_d)**2/(F_t*err))
-
                 # residuals
                 res = (cl_d - cl_t) / err
 
@@ -372,9 +366,20 @@ class ChainCalculator(object):
                 ax_cl.plot(l_t, cl_t, "k-")
                 ax_dl.errorbar(l_d, res, np.ones_like(res), fmt="ro", ms=3)
 
+                dof += len(cl_d)
+
+            # display stats for this bin
+            ax = axes[ibin, 0, 0]
+            this_bin = self.latex_bins[ibin]
+            this_stats = "$\\chi^2/N_{\\rm{d}}=%.2lf/%d$" % (chi2, dof)
+            text = "\n".join([this_bin, this_stats])
+            ax.text(0.02, 0.04, text, transform=ax.transAxes)
+
         fname_out = "figs/best_fit.pdf"
-        if not os.path.isfile(fname_out):
+        if overwrite or not os.path.isfile(fname_out):
             fig.savefig(fname_out, bbox_inches="tight")
 
         if not keep_on:
             plt.close()
+        if out:
+            return fig, axes
