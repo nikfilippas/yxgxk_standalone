@@ -591,7 +591,7 @@ class YxGxKLike(Likelihood):
                 normprof2=norm2,
                 get_1h=get_1h, get_2h=get_2h,
                 smooth_transition=fsmooth,
-                supress_1h=fsuppress)
+                suppress_1h=fsuppress)
 
             # halo model correction
             if get_1h and get_2h:
