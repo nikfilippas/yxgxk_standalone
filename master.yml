@@ -380,7 +380,7 @@ likelihood:
     hb_name: Tinker10
     mdef_name: 500c
     cm_name: Duffy08M500c
-    input_file: /mnt/extraspace/damonge/yxgxk/cls_cov.fits
+    input_file: /mnt/extraspace/nikfilippas/yxgxk_standalone/cls_cov.fits
     nside: 1024
     M0_track: True
     HM_correction: halofit
