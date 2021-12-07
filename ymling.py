@@ -1,6 +1,6 @@
 from make_yml import make_yml
 
-run_name = 'yxgxk_mf_despali16'
+run_name = 'yxgxksig_mf_despali16'
 fname_data = 'cls_cov.fits'
 
 for i in range(6):
