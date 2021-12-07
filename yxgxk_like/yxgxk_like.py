@@ -517,7 +517,9 @@ class YxGxKLike(Likelihood):
             raise LoggedError(self.log,
                               "Unknown bias model %s" % self.bz_model)
 
-    def _get_pkxy(self, cosmo, clm, pkd, trs, **pars):
+    def _get_pkxy(self, cosmo, clm, pkd, trs,
+                  get_1h=True, get_2h=True,
+                  **pars):
         """ Get the P(k) between two tracers. """
         q1 = self.used_tracers[clm['bin_1']]
         q2 = self.used_tracers[clm['bin_2']]
@@ -553,32 +555,43 @@ class YxGxKLike(Likelihood):
                 r = pars.get(self.input_params_prefix + '_rho' + comb, 0.)
                 prof2pt = ccl.halos.Profile2pt(r_corr=r)
 
-            if self.HM_correction == "HMCode":
-                alpha = pars.get(self.input_params_prefix +
-                                 '_alpha' + comb, None)
-                if alpha is None:
-                    alpha = pars.get(self.input_params_prefix + '_alpha', 1.)
-
-                def fsmooth(a): return alpha
+            # halo model correction
+            if not (get_1h and get_2h):
+                fsmooth = fsuppress = None
             else:
-                fsmooth = None
+                if self.HM_correction == "HMCode":
+                    alpha = pars.get(self.input_params_prefix +
+                                     '_alpha' + comb, None)
+                    if alpha is None:
+                        alpha = pars.get(self.input_params_prefix + '_alpha', 1.)
 
-            def fsuppress(a): return self.k_1h_suppress
+                    def fsmooth(a): return alpha
+                else:
+                    fsmooth = None
 
-            pkt = ccl.halos.halomod_power_spectrum(cosmo, pkd['hmc'], k_s, a_s,
-                                                   p1,
-                                                   prof_2pt=prof2pt, prof2=p2,
-                                                   normprof=norm1,
-                                                   normprof2=norm2,
-                                                   smooth_transition=fsmooth,
-                                                   supress_1h=fsuppress)
-            if self.HM_correction == 'halofit':
-                A = pars.get(self.input_params_prefix +
-                             '_Ahmc' + comb, None)
-                if A is None:
-                    A = pars.get(self.input_params_prefix + '_Ahmc', 1.)
-                ratio = np.array([1+A*self.hmcorr.rk_interp(k_s, a) for a in a_s])
-                pkt *= ratio
+                def fsuppress(a): return self.k_1h_suppress
+
+            pkt = ccl.halos.halomod_power_spectrum(
+                cosmo, pkd['hmc'], k_s, a_s,
+                p1,
+                prof_2pt=prof2pt, prof2=p2,
+                normprof=norm1,
+                normprof2=norm2,
+                get_1h=get_1h, get_2h=get_2h,
+                smooth_transition=fsmooth,
+                supress_1h=fsuppress)
+
+            # halo model correction
+            if get_1h and get_2h:
+                if self.HM_correction == 'halofit':
+                    A = pars.get(self.input_params_prefix +
+                                 '_Ahmc' + comb, None)
+                    if A is None:
+                        A = pars.get(self.input_params_prefix + '_Ahmc', 1.)
+                    ratio = np.array([1+A*self.hmcorr.rk_interp(k_s, a)
+                                      for a in a_s])
+                    pkt *= ratio
+
             pk = ccl.Pk2D(a_arr=a_s, lk_arr=np.log(k_s), pk_arr=np.log(pkt),
                           extrap_order_lok=1, extrap_order_hik=2,
                           cosmo=cosmo, is_logp=True)
@@ -599,7 +612,7 @@ class YxGxKLike(Likelihood):
             pixwin *= self.beam_pix
         return pixwin
 
-    def _get_cl_all(self, cosmo, pk, **pars):
+    def _get_cl_all(self, cosmo, pk, get_1h=True, get_2h=True, **pars):
         """ Compute all C_ells."""
         # Gather all tracers
         trs = self._get_tracers(cosmo, **pars)
@@ -607,7 +620,9 @@ class YxGxKLike(Likelihood):
         # Correlate all needed pairs of tracers
         cls = []
         for clm in self.cl_meta:
-            pkxy = self._get_pkxy(cosmo, clm, pk, trs, **pars)
+            pkxy = self._get_pkxy(cosmo, clm, pk, trs,
+                                  get_1h=get_1h, get_2h=get_2h,
+                                  **pars)
             cl = ccl.angular_cl(cosmo,
                                 trs[clm['bin_1']]['ccl_tracer'],
                                 trs[clm['bin_2']]['ccl_tracer'],
@@ -637,7 +652,7 @@ class YxGxKLike(Likelihood):
                 prefac = (1+m1) * (1+m2)
                 cls[i] *= prefac
 
-    def get_cls_theory(self, **pars):
+    def get_cls_theory(self, get_1h=True, get_2h=True, **pars):
         # Get cosmological model
         res = self.provider.get_CCL()
         cosmo = res['cosmo']
@@ -646,7 +661,9 @@ class YxGxKLike(Likelihood):
         pkd = res['pk_data']
 
         # Then pass them on to convert them into C_ells
-        cls = self._get_cl_all(cosmo, pkd, **pars)
+        cls = self._get_cl_all(cosmo, pkd,
+                               get_1h=get_1h, get_2h=get_2h,
+                               **pars)
 
         # Multiplicative bias if needed
         self._apply_shape_systematics(cls, **pars)
@@ -672,10 +689,26 @@ class YxGxKLike(Likelihood):
                              ell=np.arange(10), beam=np.ones(10))
 
         # Calculate power spectra
-        cls = self.get_cls_theory(**pars)
-        for clm, cl in zip(self.cl_meta, cls):
+        cells = self.get_cls_theory(**pars)
+        for clm, cl in zip(self.cl_meta, cells):
             s.add_ell_cl('cl_00', clm['bin_1'], clm['bin_2'], clm['l_eff'], cl)
 
+        if self.bz_model == "HaloModel":
+            # include the 1h/2h contributions
+            cells_1h = self.get_cls_theory(get_2h=False, **pars)
+            cells_2h = self.get_cls_theory(get_1h=False, **pars)
+            for clm, cl1, cl2 in zip(self.cl_meta, cells_1h, cells_2h):
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    s.add_ell_cl('cl_1h', clm['bin_1'], clm['bin_2'],
+                                 clm["l_eff"], cl1)
+                    s.add_ell_cl('cl_2h', clm['bin_1'], clm['bin_2'],
+                                 clm["l_eff"], cl2)
+
+        size = len(self.cov)
+        cov = np.zeros((3*size, 3*size)) + 1e-16  # avoid zeros
+        cov[:size, :size] = self.cov
+        self.cov = cov
         s.add_covariance(self.cov)
         return s
 

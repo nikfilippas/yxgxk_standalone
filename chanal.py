@@ -321,6 +321,7 @@ class ChainCalculator(object):
             fname = f"chains/{model}/{model}_{ibin}/params.yml"
             with open(fname, "r") as stream:
                 info = yaml.safe_load(stream)
+            _ = [info.pop(key) for key in ["output", "sampler"]]
             mod = get_model(info)
 
             # get best fit
@@ -348,7 +349,9 @@ class ChainCalculator(object):
             dof = 0
             xcorrs = s_pred.get_tracer_combinations()
             for nc, (t1, t2) in enumerate(xcorrs):
-                l_t, cl_t = s_pred.get_ell_cl(None, t1, t2)
+                l_t, cl_t = s_pred.get_ell_cl("cl_00", t1, t2)
+                l_t_1h, cl_t_1h = s_pred.get_ell_cl("cl_1h", t1, t2)
+                l_t_2h, cl_t_2h = s_pred.get_ell_cl("cl_2h", t1, t2)
                 l_d, cl_d, cov = s_data.get_ell_cl(None, t1, t2,
                                                    return_cov=True)
                 err = np.sqrt(np.diag(cov))
@@ -363,8 +366,14 @@ class ChainCalculator(object):
 
                 ax_cl, ax_dl = axes[ibin, nc]
                 ax_cl.errorbar(l_d, cl_d, err, fmt="ro", ms=3)
-                ax_cl.plot(l_t, cl_t, "k-")
+                ax_cl.plot(l_t_1h, cl_t_1h, "darkred", alpha=0.3,
+                           label=r"$\mathrm{1}$-$\mathrm{halo}$")
+                ax_cl.plot(l_t_2h, cl_t_2h, "navy", alpha=0.3,
+                           label=r"$\mathrm{2}$-$\mathrm{halo}$")
+                ax_cl.plot(l_t, cl_t, "k-",
+                           label=r"$\mathrm{1h+2h}$")
                 ax_dl.errorbar(l_d, res, np.ones_like(res), fmt="ro", ms=3)
+                handles, labels = ax_cl.get_legend_handles_labels()
 
                 dof += len(cl_d)
 
@@ -374,6 +383,9 @@ class ChainCalculator(object):
             this_stats = "$\\chi^2/N_{\\rm{d}}=%.2lf/%d$" % (chi2, dof)
             text = "\n".join([this_bin, this_stats])
             ax.text(0.02, 0.04, text, transform=ax.transAxes)
+
+        fig.legend(handles, labels, fontsize="xx-large", ncol=3,
+                   loc="center", bbox_to_anchor=(0.5, 1.0), frameon=False)
 
         fname_out = "figs/best_fit.pdf"
         if overwrite or not os.path.isfile(fname_out):
