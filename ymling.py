@@ -1,6 +1,6 @@
 from make_yml import make_yml
 
-run_name = 'yxgxk'
+run_name = 'yxgxk_mf_despali16'
 fname_data = 'cls_cov.fits'
 
 for i in range(6):
@@ -15,7 +15,7 @@ for i in range(6):
                     (tname, 'KAPPA')],
              bias_model='HaloModel',
              kmax=1.0,
-             mass_function="Tinker08",
+             mass_function="Despali16",
              hm_correction="halofit",
              ns_independent=False,
              fname_data=fname_data,
