@@ -171,6 +171,8 @@ class YxGxKLike(Likelihood):
     M0_track: bool = True
     # HM correction
     HM_correction: str = "HMCode"
+    # allow satellites to form when no central is present
+    ns_independent: bool = False
 
     def initialize(self):
         # Read SACC file
@@ -180,15 +182,27 @@ class YxGxKLike(Likelihood):
         # Other global parameters
         self._init_globals()
 
+    def _par(self, name, default, pars, altname=None, altdefault=None):
+        """Helper method for quick parameter extraction."""
+        prefix = self.input_params_prefix
+        parname = "_".join(filter(None, [prefix, name]))
+        par = pars.get(parname, default)
+        if par is None:
+            parname = "_".join(filter(None, [prefix, altname]))
+            par = pars.get(parname, altdefault)
+        return par
+
     def _init_globals(self):
         self.qabbr = {'galaxy_density': 'g',
                       'galaxy_shear': 'm',
                       'cmb_convergence': 'm',
                       'cmb_tSZ': 'y'}
         self.beam_pix = beam_hpix(self.l_sample, self.nside)
+
         if self.HM_correction == 'halofit':
             self.hmcorr = HalomodCorrection()
         else:
+            # this includes all other options
             self.hmcorr = None
 
         # Initialize parameterless HM stuff
@@ -198,10 +212,14 @@ class YxGxKLike(Likelihood):
             self.hbc = ccl.halos.halo_bias_from_name(self.hb_name)
             cmc = ccl.halos.concentration_from_name(self.cm_name)
             self.cm = cmc(mass_def=self.massdef)
-            self.profs = {'galaxy_density': ccl.halos.HaloProfileHOD(c_m_relation=self.cm),
-                          'galaxy_shear': ccl.halos.HaloProfileNFW(c_m_relation=self.cm),
-                          'cmb_convergence': ccl.halos.HaloProfileNFW(c_m_relation=self.cm),
-                          'cmb_tSZ': ccl.halos.HaloProfilePressureGNFW()}
+            hal = ccl.halos
+            self.profs = {
+                'galaxy_density': hal.HaloProfileHOD(
+                    c_m_relation=self.cm,
+                    ns_independent=self.ns_independent),
+                'galaxy_shear': hal.HaloProfileNFW(c_m_relation=self.cm),
+                'cmb_convergence': hal.HaloProfileNFW(c_m_relation=self.cm),
+                'cmb_tSZ': hal.HaloProfilePressureGNFW()}
             self.p2pt_HOD = ccl.halos.Profile2ptHOD()
 
     def _read_data(self):
@@ -350,9 +368,10 @@ class YxGxKLike(Likelihood):
             l_min_sample_here = self.l_min_sample
         nl_sample = int(np.log10(self.l_max_sample / l_min_sample_here) *
                         nl_per_decade)
-        l_sample = np.unique(np.geomspace(l_min_sample_here,
-                                          self.l_max_sample+1,
-                                          nl_sample).astype(int)).astype(float)
+        l_sample = np.unique(
+            np.geomspace(l_min_sample_here,
+                         self.l_max_sample+1,
+                         nl_sample).astype(int)).astype(float)
 
         if self.l_min_sample == 0:
             self.l_sample = np.concatenate((np.array([0.]), l_sample))
@@ -375,9 +394,9 @@ class YxGxKLike(Likelihood):
         dz = 0.
         wz = 1.
         if (self.nz_model == 'NzShift') or (self.nz_model == 'NzShiftWidth'):
-            dz = pars.get(self.input_params_prefix + '_' + name + '_dz', 0.)
+            dz = self._par(f"{name}_dz", 0., pars)
         if (self.nz_model == 'NzShiftWidth') or (self.nz_model == 'NzWidth'):
-            wz = pars.get(self.input_params_prefix + '_' + name + '_wz', 1.)
+            wz = self._par(f"{name}_wz", 1., pars)
         z = zm+dz+(z-zm)/wz
         msk = z >= 0
         z = z[msk]
@@ -391,8 +410,8 @@ class YxGxKLike(Likelihood):
         zmean = self.bin_properties[name]['zmean_fid']
         bz = np.ones_like(z)
         if self.bz_model == 'Linear':
-            b0 = pars[self.input_params_prefix + '_' + name + '_b0']
-            bp = pars.get(self.input_params_prefix + '_' + name + '_bp', 0.)
+            b0 = self._par(f"{name}_b0", None, pars)
+            bp = self._par(f"{name}_bp", 0., pars)
             bz = b0 + bp * (z - zmean)
         return (z, bz)
 
@@ -404,12 +423,11 @@ class YxGxKLike(Likelihood):
         else:
             z = self.bin_properties[name]['z_fid']
             if self.ia_model == 'IAPerBin':
-                A = pars.get(self.input_params_prefix +
-                             '_' + name + '_A_IA', 0.)
+                A = self._par(f"{name}_A_IA", 0., pars)
                 A_IA = np.ones_like(z) * A
             elif self.ia_model == 'IADESY1':
-                A0 = pars.get(self.input_params_prefix + '_A_IA', 0.)
-                eta = pars.get(self.input_params_prefix + '_eta_IA', 0.)
+                A0 = self._par("A_IA", 0., pars)
+                eta = self._par("eta_IA", 0., pars)
                 A_IA = A0 * ((1+z)/1.62)**eta
             else:
                 raise LoggedError(self.log, "Unknown IA model %s" %
@@ -449,7 +467,7 @@ class YxGxKLike(Likelihood):
                         hod_pars['lM0_0'] = pars[prefix + '_lM0_0']
                     slM = pars.get(prefix + '_siglM_0', None)
                     if slM is None:
-                        slM = pars[self.input_params_prefix + '_siglM_0']
+                        slM = self._par("siglM_0", None, pars)
                     hod_pars['siglM_0'] = slM
                     prof.update_parameters(**hod_pars)
             elif q == 'galaxy_shear':
@@ -466,8 +484,7 @@ class YxGxKLike(Likelihood):
             elif q == 'cmb_tSZ':
                 t = ccl.tSZTracer(cosmo, z_max=3.)
                 if self.bz_model == 'HaloModel':
-                    o_m_b = pars.get(self.input_params_prefix +
-                                     '_mass_bias', 1.)
+                    o_m_b = self._par("mass_bias", 1., pars)
                     prof.update_parameters(mass_bias=o_m_b)
                     normed = False
                 else:
@@ -552,24 +569,19 @@ class YxGxKLike(Likelihood):
             if q1 == q2 == 'galaxy_density':
                 prof2pt = self.p2pt_HOD
             else:
-                r = pars.get(self.input_params_prefix + '_rho' + comb, 0.)
+                r = self._par(f"rho{comb}", 0., pars)
                 prof2pt = ccl.halos.Profile2pt(r_corr=r)
 
             # halo model correction
-            if not (get_1h and get_2h):
-                fsmooth = fsuppress = None
-            else:
-                if self.HM_correction == "HMCode":
-                    alpha = pars.get(self.input_params_prefix +
-                                     '_alpha' + comb, None)
-                    if alpha is None:
-                        alpha = pars.get(self.input_params_prefix + '_alpha', 1.)
+            if not (get_1h and get_2h) or self.HM_correction != "HMCode":
+                fsmooth = None
+            elif self.HM_correction == "HMCode":
+                alpha = self._par(f"alpha{comb}", None, pars, "alpha", 1.)
+                fsmooth = lambda a: alpha
 
-                    def fsmooth(a): return alpha
-                else:
-                    fsmooth = None
-
-                def fsuppress(a): return self.k_1h_suppress
+            # 1-halo suppression
+            k_1h_suppress = self._par("k_1h_suppress", self.k_1h_suppress, pars)
+            fsuppress = (lambda a: k_1h_suppress) if get_1h else None
 
             pkt = ccl.halos.halomod_power_spectrum(
                 cosmo, pkd['hmc'], k_s, a_s,
@@ -584,12 +596,8 @@ class YxGxKLike(Likelihood):
             # halo model correction
             if get_1h and get_2h:
                 if self.HM_correction == 'halofit':
-                    A = pars.get(self.input_params_prefix +
-                                 '_Ahmc' + comb, None)
-                    if A is None:
-                        A = pars.get(self.input_params_prefix + '_Ahmc', 1.)
-                    ratio = np.array([1+A*self.hmcorr.rk_interp(k_s, a)
-                                      for a in a_s])
+                    A = self._par(f"Ahmc{comb}", None, pars, "Ahmc", 1.)
+                    ratio = 1 + A*self.hmcorr.rk_interp(k_s, a_s)
                     pkt *= ratio
 
             pk = ccl.Pk2D(a_arr=a_s, lk_arr=np.log(k_s), pk_arr=np.log(pkt),
@@ -618,7 +626,7 @@ class YxGxKLike(Likelihood):
         trs = self._get_tracers(cosmo, **pars)
 
         # Correlate all needed pairs of tracers
-        cls = []
+        cells = []
         for clm in self.cl_meta:
             pkxy = self._get_pkxy(cosmo, clm, pk, trs,
                                   get_1h=get_1h, get_2h=get_2h,
@@ -630,29 +638,27 @@ class YxGxKLike(Likelihood):
             # Pixel window function
             cl *= self._get_pixel_window(clm)
             clb = self._eval_interp_cl(cl, clm['l_bpw'], clm['w_bpw'])
-            cls.append(clb)
-        return cls
+            cells.append(clb)
+        return cells
 
-    def _apply_shape_systematics(self, cls, **pars):
+    def _apply_shape_systematics(self, cells, **pars):
         if self.shape_model == 'ShapeMultiplicative':
             # Multiplicative shear bias
             for i, clm in enumerate(self.cl_meta):
                 q1 = self.used_tracers[clm['bin_1']]
                 q2 = self.used_tracers[clm['bin_2']]
                 if q1 == 'galaxy_shear':
-                    m1 = pars.get(self.input_params_prefix + '_' +
-                                  clm['bin_1'] + '_m', 0.)
+                    m1 = self._par(f"{clm['bin_1']}_m", 0., pars)
                 else:
                     m1 = 0.
                 if q2 == 'galaxy_shear':
-                    m2 = pars.get(self.input_params_prefix + '_' +
-                                  clm['bin_2'] + '_m', 0.)
+                    m2 = self._par(f"{clm['bin_2']}_m", 0., pars)
                 else:
                     m2 = 0.
                 prefac = (1+m1) * (1+m2)
-                cls[i] *= prefac
+                cells[i] *= prefac
 
-    def get_cls_theory(self, get_1h=True, get_2h=True, **pars):
+    def get_cells_theory(self, get_1h=True, get_2h=True, **pars):
         # Get cosmological model
         res = self.provider.get_CCL()
         cosmo = res['cosmo']
@@ -661,14 +667,14 @@ class YxGxKLike(Likelihood):
         pkd = res['pk_data']
 
         # Then pass them on to convert them into C_ells
-        cls = self._get_cl_all(cosmo, pkd,
+        cells = self._get_cl_all(cosmo, pkd,
                                get_1h=get_1h, get_2h=get_2h,
                                **pars)
 
         # Multiplicative bias if needed
-        self._apply_shape_systematics(cls, **pars)
+        self._apply_shape_systematics(cells, **pars)
 
-        return cls
+        return cells
 
     def get_sacc_file(self, **pars):
         import sacc
@@ -689,14 +695,14 @@ class YxGxKLike(Likelihood):
                              ell=np.arange(10), beam=np.ones(10))
 
         # Calculate power spectra
-        cells = self.get_cls_theory(**pars)
+        cells = self.get_cells_theory(**pars)
         for clm, cl in zip(self.cl_meta, cells):
             s.add_ell_cl('cl_00', clm['bin_1'], clm['bin_2'], clm['l_eff'], cl)
 
         if self.bz_model == "HaloModel":
             # include the 1h/2h contributions
-            cells_1h = self.get_cls_theory(get_2h=False, **pars)
-            cells_2h = self.get_cls_theory(get_1h=False, **pars)
+            cells_1h = self.get_cells_theory(get_2h=False, **pars)
+            cells_2h = self.get_cells_theory(get_1h=False, **pars)
             for clm, cl1, cl2 in zip(self.cl_meta, cells_1h, cells_2h):
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
@@ -714,11 +720,11 @@ class YxGxKLike(Likelihood):
 
     def _get_theory(self, **pars):
         """ Computes theory vector."""
-        cls = self.get_cls_theory(**pars)
+        cells = self.get_cells_theory(**pars)
 
         # Flattening into a 1D array
         cl_out = np.zeros(self.ndata)
-        for clm, cl in zip(self.cl_meta, cls):
+        for clm, cl in zip(self.cl_meta, cells):
             cl_out[clm['inds']] = cl
 
         return cl_out
