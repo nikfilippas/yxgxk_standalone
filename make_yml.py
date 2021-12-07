@@ -1,11 +1,13 @@
 import yaml
 import os
 
-def make_yml(params_vary, corrs, bias_model,
-             kmax, fname_data, dirname_out, sampler,
+def make_yml(params_vary, corrs, bias_model, kmax,
+             mass_function, hm_correction, ns_independent,
+             fname_data, dirname_out, sampler,
              debug=True, nsamples=10000):
-    samplers = {'minimize': {'ignore_prior': True, 'max_evals': nsamples},
-                'mcmc': {'learn_proposal': True, 'burn_in': 10, 'max_samples': nsamples}}
+    samplers = {
+        'minimize': {'ignore_prior': True, 'max_evals': nsamples},
+        'mcmc': {'learn_proposal': True, 'burn_in': 10, 'max_samples': nsamples}}
 
     # Open master file
     with open('master.yml', "r") as f:
@@ -24,7 +26,10 @@ def make_yml(params_vary, corrs, bias_model,
     dout['params'] = pars
     dout['likelihood']['yxgxk_like.YxGxKLike']['twopoints'] = twopts
     dout['likelihood']['yxgxk_like.YxGxKLike']['bz_model'] = bias_model
+    dout['likelihood']['yxgxk_like.YxGxKLike']['mf_name'] = mass_function
+    dout['likelihood']['yxgxk_like.YxGxKLike']['HM_correction'] = hm_correction
     dout['likelihood']['yxgxk_like.YxGxKLike']['defaults']['kmax'] = kmax
+    dout['likelihood']['yxgxk_like.YxGxKLike']['ns_independent'] = ns_independent
     dout['likelihood']['yxgxk_like.YxGxKLike']['input_file'] = fname_data
     dout['debug'] = debug
     dout['output'] = f'{dirname_out}/cobaya'

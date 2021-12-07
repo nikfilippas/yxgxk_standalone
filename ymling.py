@@ -15,6 +15,9 @@ for i in range(6):
                     (tname, 'KAPPA')],
              bias_model='HaloModel',
              kmax=1.0,
+             mass_function="Tinker08",
+             hm_correction="halofit",
+             ns_independent=False,
              fname_data=fname_data,
              dirname_out=f'chains/{run_name}/{run_name}_{i}',
              sampler='mcmc', nsamples=30000, debug=False)

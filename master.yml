@@ -342,6 +342,31 @@ params:
     ref: {dist: norm, scale: 0.01, loc: 1.}
     proposal: 0.01
     latex: A^{gm}_{\rm HMC}
+  ygk_k_1h_suppress:
+    prior: {min: 0.001, 0.05}
+    ref: {dist: norm, scale: 0.01, loc: 0.01}
+    proposal: 0.01
+    latex: k_{\rm sup}
+  ygk_alpha:
+    prior: {min: 0.001, 5.}
+    ref: {dist: norm, scale: 0.01, loc: 0.01}
+    proposal: 0.04
+    latex: \alpha_{\rm HMC}
+  ygk_alphagg:
+    prior: {min: 0.001, 5.}
+    ref: {dist: norm, scale: 0.01, loc: 0.01}
+    proposal: 0.04
+    latex: \alpha_{\rm HMC}
+  ygk_alphagy:
+    prior: {min: 0.001, 5.}
+    ref: {dist: norm, scale: 0.01, loc: 0.01}
+    proposal: 0.04
+    latex: \alpha_{\rm HMC}
+  ygk_alphagm:
+    prior: {min: 0.001, 5.}
+    ref: {dist: norm, scale: 0.01, loc: 0.01}
+    proposal: 0.04
+    latex: \alpha_{\rm HMC}
 
 theory:
   yxgxk_like.CCL:
@@ -359,6 +384,7 @@ likelihood:
     nside: 1024
     M0_track: True
     HM_correction: halofit
+    ns_independent: False
     bins:
       - name: LOWZ__0
       - name: LOWZ__1
@@ -369,6 +395,7 @@ likelihood:
       - name: YMILCA
       - name: KAPPA
     twopoints:
+      # example
       - bins: [LOWZ__4, LOWZ__4]
       - bins: [LOWZ__4, YMILCA]
 
