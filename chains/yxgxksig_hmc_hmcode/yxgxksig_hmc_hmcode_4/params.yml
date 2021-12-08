@@ -141,10 +141,16 @@ params:
   ygk_LOWZ__5_lM1_0: 13.035974
   ygk_LOWZ__5_lMmin_0: 12.09721
   ygk_LOWZ__5_wz: 1.0
-  ygk_alpha: 0.01
-  ygk_alphagg: 0.01
-  ygk_alphagm: 0.01
-  ygk_alphagy: 0.01
+  ygk_alpha:
+    latex: \alpha_{\rm HMC}
+    prior:
+      min: 0.1
+      2.0: null
+    proposal: 1.0
+    ref:
+      dist: norm
+      loc: 1.0
+      scale: 0.01
   ygk_k_1h_suppress: 0.01
   ygk_mass_bias:
     latex: 1-b_H
