@@ -42,7 +42,7 @@ class ChainCalculator(object):
              for i in range(1, 6)]
         self.latex_names = {
             "bPe": "\\langle bP_e \\rangle\\ [\\mathrm{meV\\,cm^{-3}}]",
-            "Omth": "\\Omega_{th}",
+            "Omth": "\\Omega_{\mathrm{th}}",
             "ygk_mass_bias": "1-b_{\\mathrm{H}}",
             "sigma8": "\\sigma_8"
             }
@@ -55,7 +55,11 @@ class ChainCalculator(object):
             "gxk": r"$2 \times 2\mathrm{pt}$ \,g,k",
             "gxk_kmax05": r"$2 \times 2\mathrm{pt}$ \,g,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
             "yxg": r"Koukoufilippas et al., 2020",
-            "dam_yxg": r"damonge Koukoufilippas et al., 2020"
+            "dam_yxg": r"damonge Koukoufilippas et al., 2020",
+            "yxgxksig_hmc_hmcode": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HMCode 1h/2h transition",
+            "yxgxksig_kmax05": r"$3 \times 2\mathrm{pt}$, \,g,y,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
+            "yxgxksig_mf_despali15": r"$3 \times 2\mathrm{pt}$, \,g,y,k; Despali 2016 mass function",
+            "yxgxksig_ns_independent": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HOD $N_{\mathrm{sat}}$ independent of $N_{\mathrm{cen}}$",
             }
 
     def get_z_arr(self):
@@ -158,14 +162,14 @@ class ChainCalculator(object):
                         in zip(p.sigma8, p.ygk_mass_bias)]).squeeze()
                 else:
                     # fixed sigma8
-                    deriv_chain = np.array([rel(0.81, by)
+                    deriv_chain = np.array([rel(self.cosmo["sigma8"], by)
                         for by in p.ygk_mass_bias]).squeeze()
 
                 s.addDerived(deriv_chain, name=parname, label=latex)
 
             dens = s.get1DDensity(parname)
             vmin, vmax = dens.getLimits(0.68)[:2]
-            vbf = dens.getLimits(0.001)[0]
+            vbf = np.average(dens.getLimits(0.01)[:2])
             summary = vbf, vbf-vmin, vmax-vbf
             BF_arr[ibin] = summary
 
