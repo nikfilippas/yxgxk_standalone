@@ -348,25 +348,25 @@ params:
     proposal: 0.01
     latex: k_{\rm sup}
   ygk_alpha:
-    prior: {min: 0.001, 5.}
-    ref: {dist: norm, scale: 0.01, loc: 0.01}
-    proposal: 0.04
+    prior: {min: 0.1, 2.}
+    ref: {dist: norm, scale: 0.01, loc: 1.}
+    proposal: 1.
     latex: \alpha_{\rm HMC}
-  ygk_alphagg:
-    prior: {min: 0.001, 5.}
-    ref: {dist: norm, scale: 0.01, loc: 0.01}
-    proposal: 0.04
-    latex: \alpha^{gg}_{\rm HMC}
-  ygk_alphagy:
-    prior: {min: 0.001, 5.}
-    ref: {dist: norm, scale: 0.01, loc: 0.01}
-    proposal: 0.04
-    latex: \alpha^{gy}_{\rm HMC}
-  ygk_alphagm:
-    prior: {min: 0.001, 5.}
-    ref: {dist: norm, scale: 0.01, loc: 0.01}
-    proposal: 0.04
-    latex: \alpha^{gm}_{\rm HMC}
+  # ygk_alphagg:
+  #   prior: {min: 0.1, 2.}
+  #   ref: {dist: norm, scale: 0.01, loc: 1.}
+  #   proposal: 1.
+  #   latex: \alpha^{gg}_{\rm HMC}
+  # ygk_alphagy:
+  #   prior: {min: 0.1, 2.}
+  #   ref: {dist: norm, scale: 0.01, loc: 1.}
+  #   proposal: 1.
+  #   latex: \alpha^{gy}_{\rm HMC}
+  # ygk_alphagm:
+  #   prior: {min: 0.1, 2.}
+  #   ref: {dist: norm, scale: 0.01, loc: 1.}
+  #   proposal: 1.
+  #   latex: \alpha^{gm}_{\rm HMC}
 
 theory:
   yxgxk_like.CCL:
