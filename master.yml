@@ -356,17 +356,17 @@ params:
     prior: {min: 0.001, 5.}
     ref: {dist: norm, scale: 0.01, loc: 0.01}
     proposal: 0.04
-    latex: \alpha_{\rm HMC}
+    latex: \alpha^{gg}_{\rm HMC}
   ygk_alphagy:
     prior: {min: 0.001, 5.}
     ref: {dist: norm, scale: 0.01, loc: 0.01}
     proposal: 0.04
-    latex: \alpha_{\rm HMC}
+    latex: \alpha^{gy}_{\rm HMC}
   ygk_alphagm:
     prior: {min: 0.001, 5.}
     ref: {dist: norm, scale: 0.01, loc: 0.01}
     proposal: 0.04
-    latex: \alpha_{\rm HMC}
+    latex: \alpha^{gm}_{\rm HMC}
 
 theory:
   yxgxk_like.CCL:
