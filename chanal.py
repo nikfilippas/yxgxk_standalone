@@ -58,7 +58,7 @@ class ChainCalculator(object):
             "dam_yxg": r"damonge Koukoufilippas et al., 2020",
             "yxgxksig_hmc_hmcode": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HMCode 1h/2h transition",
             "yxgxksig_kmax05": r"$3 \times 2\mathrm{pt}$, \,g,y,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
-            "yxgxksig_mf_despali15": r"$3 \times 2\mathrm{pt}$, \,g,y,k; Despali 2016 mass function",
+            "yxgxksig_mf_despali16": r"$3 \times 2\mathrm{pt}$, \,g,y,k; Despali 2016 mass function",
             "yxgxksig_ns_independent": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HOD $N_{\mathrm{sat}}$ independent of $N_{\mathrm{cen}}$",
             }
 
