@@ -1,6 +1,6 @@
 from make_yml import make_yml
 
-run_name = 'yxgxksig_hmc_hmcode'
+run_name = 'yxgxksig'
 fname_data = 'cls_cov.fits'
 
 for i in range(6):
@@ -17,7 +17,7 @@ for i in range(6):
              bias_model='HaloModel',
              kmax=1.0,
              mass_function="Tinker08",
-             hm_correction="HMCode",
+             hm_correction="halofit",
              ns_independent=False,
              fname_data=fname_data,
              dirname_out=f'chains/{run_name}/{run_name}_{i}',
