@@ -1,4 +1,4 @@
-import os
+import os, sys
 import warnings
 import numpy as np
 import sacc
@@ -23,9 +23,7 @@ class ChainCalculator(object):
         self.prof_g = ccl.halos.HaloProfileHOD(c_m_relation=self.cM)
         self.prof_k = ccl.halos.HaloProfileNFW(c_m_relation=self.cM)
         self.prof_y = ccl.halos.HaloProfilePressureGNFW()
-        self.hmc = ccl.halos.HMCalculator(mass_function="Tinker08",
-                                          halo_bias="Tinker10",
-                                          mass_def="500c")
+        self.hmc = None
 
         # redshift distributions
         self.names = ["2mpz"] + ["wisc%d" % i for i in range(1, 6)]
@@ -126,20 +124,27 @@ class ChainCalculator(object):
         func = getattr(self, f"calculate_{parname}")
 
         # define interpolation boundaries
+        mass_functions = ["Tinker08", "Despali16"]
         s8_arr = np.linspace(s8_min, s8_max, N_s8)
         bH_arr = np.linspace(bH_min, bH_max, N_bH)
 
         # loop through all redshifts within the boundaries
-        F_interp = dict.fromkeys(self.names)
-        for name, z in tqdm(zip(self.names, self.z_arr)):
-            Arr = np.zeros((N_s8, N_bH))
-            for i, s8 in enumerate(s8_arr):
-                self.update_parameters(sigma8=s8)
-                for j, bH in enumerate(bH_arr):
-                    self.update_parameters(mass_bias=bH)
-                    Arr[i, j] = func(z)
+        F_interp = dict.fromkeys(mass_functions)
+        for mf in mass_functions:
+            self.hmc = ccl.halos.HMCalculator(mass_function=mf,
+                                              halo_bias="Tinker10",
+                                              mass_def="500c")
+            F_temp = dict.fromkeys(self.names)
+            for name, z in tqdm(zip(self.names, self.z_arr)):
+                Arr = np.zeros((N_s8, N_bH))
+                for i, s8 in enumerate(s8_arr):
+                    self.update_parameters(sigma8=s8)
+                    for j, bH in enumerate(bH_arr):
+                        self.update_parameters(mass_bias=bH)
+                        Arr[i, j] = func(z)
 
-            F_interp[name] = RectBivariateSpline(s8_arr, bH_arr, Arr)
+                F_temp[name] = RectBivariateSpline(s8_arr, bH_arr, Arr)
+            F_interp[mf] = F_temp
 
         return F_interp
 
@@ -148,13 +153,19 @@ class ChainCalculator(object):
 
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
-            fname = f"chains/{model}/{model}_{ibin}/cobaya"
+            # load set-up
+            fname_setup = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
+            with open(fname_setup, "r") as f:
+                config = yaml.safe_load(f)
+            mf = config["likelihood"]["yxgxk_like.YxGxKLike"]["mf_name"]
 
-            s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            # load chain
+            fname_chains = f"chains/{model}/{model}_{ibin}/cobaya"
+            s = gmc.loadMCSamples(fname_chains, settings={'ignore_rows': 0.3})
             p = s.getParams()
 
             if parname in self.interpolators:
-                rel = self.interpolators[parname][self.names[ibin]]
+                rel = self.interpolators[parname][mf][self.names[ibin]]
 
                 if hasattr(p, "sigma8"):
                     # free sigma8
@@ -235,7 +246,8 @@ class ChainCalculator(object):
 
         ax.legend(loc="upper right", fontsize=12, ncol=2, frameon=False)
 
-        fname_out = f"figs/tomo_{parname}.pdf"
+        hash_ = hash("".join(models)) + sys.maxsize + 1
+        fname_out = f"figs/tomo_{parname}_{hash_}.pdf"
         if overwrite or not os.path.isfile(fname_out):
             fig.savefig(fname_out, bbox_inches="tight")
         if not keep_on:
@@ -260,9 +272,11 @@ class ChainCalculator(object):
                                  legend_labels=models)
 
             if len(models) == 1:
-                fname_out = f"figs/triang_{models[0]}_{ibin}.pdf"
+                hash_ = hash(models[0]) + sys.maxsize + 1
+                fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             else:
-                fname_out = f"figs/triang_{ibin}.pdf"
+                hash_ = hash("".join(models) + sys.maxsize + 1)
+                fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             if overwrite or not os.path.isfile(fname_out):
                 plt.savefig(fname_out, bbox_inches="tight")
             if not keep_on:
@@ -322,7 +336,7 @@ class ChainCalculator(object):
         fig, axes = self._get_MxN_axes(nrows=3, ncols=6)
 
         for ibin, _ in enumerate(tqdm(self.z_arr)):
-            fname = f"chains/{model}/{model}_{ibin}/params.yml"
+            fname = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
             with open(fname, "r") as stream:
                 info = yaml.safe_load(stream)
             _ = [info.pop(key) for key in ["output", "sampler"]]
@@ -391,7 +405,8 @@ class ChainCalculator(object):
         fig.legend(handles, labels, fontsize="xx-large", ncol=3,
                    loc="center", bbox_to_anchor=(0.5, 1.0), frameon=False)
 
-        fname_out = "figs/best_fit.pdf"
+        hash_ = hash(model) + sys.maxsize + 1
+        fname_out = f"figs/bestfit_{hash_}.pdf"
         if overwrite or not os.path.isfile(fname_out):
             fig.savefig(fname_out, bbox_inches="tight")
 
