@@ -1,7 +1,9 @@
 from make_yml import make_yml
 
-run_name = 'yxgxksig'
+run_name = 'yxgxksig_hmc_Ahmc'
 fname_data = 'cls_cov.fits'
+
+kmax_arr = [0.5, 1., 1., 1., 1., 1.]
 
 for i in range(6):
     tname = f'LOWZ__{i}'
@@ -10,12 +12,12 @@ for i in range(6):
                           'ygk_rhogy',
                           'ygk_mass_bias',
                           'sigma8',
-                          'ygk_alpha'],
+                          'ygk_Ahmc'],
              corrs=[(tname, tname),
                     (tname, 'YMILCA'),
                     (tname, 'KAPPA')],
              bias_model='HaloModel',
-             kmax=1.0,
+             kmax=kmax_arr[i],
              mass_function="Tinker08",
              hm_correction="halofit",
              ns_independent=False,
