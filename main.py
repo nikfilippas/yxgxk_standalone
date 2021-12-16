@@ -31,3 +31,6 @@ c.plot_triangles(m_tri_sys, keep_on=True)
 # best fits
 c.plot_best_fit("yxgxksig", keep_on=True)
 c.plot_best_fit("yxgxksig_mf_despali16", keep_on=True)
+
+# dndz
+c.plot_nz(compare=True, keep_on=True, overwrite=True)

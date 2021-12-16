@@ -28,6 +28,7 @@ class ChainCalculator(object):
         # redshift distributions
         self.names = ["2mpz"] + ["wisc%d" % i for i in range(1, 6)]
         self.DIR = dict.fromkeys(self.names)
+        self.pz_old = dict.fromkeys(self.names)
         self.get_z_arr()
 
         # interpolators
@@ -67,8 +68,14 @@ class ChainCalculator(object):
         for name, fname in zip(self.names, fnames):
             z, nz = np.loadtxt(fname).T
             z_arr.append(np.average(z, weights=nz))
-            self.DIR[name] = [np.column_stack((z, nz))]
+            self.DIR[name] = np.column_stack((z, nz))
         self.z_arr = np.array(z_arr)
+
+        # get old dndz
+        names = ["2MPZ_bin1"] + ["WISC_bin%d" % n for n in range(1, 6)]
+        fnames = [f"data/dndz/{name}.txt" for name in names]
+        for name, fname in zip(self.names, fnames):
+            self.pz_old[name] = np.loadtxt(fname)
 
     def update_parameters(self, *, lMmin_0=None, lM1_0=None,
                           mass_bias=None, sigma8=None):
@@ -285,7 +292,7 @@ class ChainCalculator(object):
     def _get_MxN_axes(self, nrows, ncols):
         from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 
-        figsize = (3*ncols, 3*nrows)
+        figsize = (3*ncols, 4*nrows)
         fig = plt.figure(figsize=figsize)
         gs_main = GridSpec(nrows, ncols, figure=fig)
 
@@ -405,8 +412,7 @@ class ChainCalculator(object):
         fig.legend(handles, labels, fontsize="xx-large", ncol=3,
                    loc="center", bbox_to_anchor=(0.5, 1.0), frameon=False)
 
-        hash_ = hash(model) + sys.maxsize + 1
-        fname_out = f"figs/bestfit_{hash_}.pdf"
+        fname_out = f"figs/bestfit_{model}.pdf"
         if overwrite or not os.path.isfile(fname_out):
             fig.savefig(fname_out, bbox_inches="tight")
 
@@ -414,3 +420,48 @@ class ChainCalculator(object):
             plt.close()
         if out:
             return fig, axes
+
+    def plot_nz(self, normed=False, compare=True, keep_on=False, overwrite=False):
+        if not normed:
+            import healpy as hp
+            sizes = [476422, 3458260, 3851322, 4000017, 3412366, 1296810]
+            fsky = np.mean(hp.read_map("data/maps/mask_v3.fits.gz",
+                                       dtype=float))
+            area = 4*np.pi*fsky*(180/np.pi)**2
+
+        # set-up figure
+        from matplotlib import cm
+        cols = ['r']
+        cm_wisc = cm.get_cmap('Blues')
+        for i in np.arange(5) :
+            cols.append(cm_wisc(0.2+((i+1.)/5.)*0.8))
+
+        fig, ax = plt.subplots(tight_layout=True)
+        ax.set_xlabel('$z$', fontsize=14)
+        ax.set_ylabel('$dN/dz\\,d\\Omega\\,\\,[10^2\\,{\\rm deg}^{-2}]$',
+                      fontsize=14)
+        ax.tick_params(labelsize="large")
+
+        # plot
+        for i, name in enumerate(self.names):
+            z, nz = self.DIR[name].T.copy()
+            if not normed:
+                nz *= sizes[i] / area
+            ax.plot(z, nz/100, lw=2, c=cols[i], label=self.latex_bins[i])
+
+            if compare:
+                z, nz = self.pz_old[name].T.copy()
+                if not normed:
+                    nz *= sizes[i] / area
+                ax.plot(z, nz/100, lw=1.5, c=cols[i], ls="--")
+
+        ax.set_xlim(0, 0.5)
+        ax.set_ylim(0, )
+        ax.legend(loc='upper right', ncol=1, frameon=False, fontsize=14)
+
+        fname_out = f"figs/nzs_{compare}.pdf"
+        if overwrite or not os.path.isfile(fname_out):
+            fig.savefig(fname_out, bbox_inches="tight")
+
+        if not keep_on:
+            plt.close()
