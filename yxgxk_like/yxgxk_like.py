@@ -43,8 +43,8 @@ class HalomodCorrection(object):
             hmc = ccl.halos.HMCalculator(mass_function=mass_function,
                                          halo_bias=halo_bias,
                                          mass_def=mass_def)
-            hmd = ccl.halos.mass_def_from_name(mass_def)()
-            cMc = ccl.halos.concentration_from_name(concentration)
+            hmd = ccl.halos.MassDef.from_name(mass_def)()
+            cMc = ccl.halos.Concentration.from_name(concentration)
             cM = cMc(mass_def=hmd)
             prof = ccl.halos.HaloProfileNFW(c_m_relation=cM)
             pk_hm = np.array([ccl.halos.halomod_power_spectrum(
@@ -207,10 +207,10 @@ class YxGxKLike(Likelihood):
 
         # Initialize parameterless HM stuff
         if self.bz_model == 'HaloModel':
-            self.massdef = ccl.halos.mass_def_from_name(self.mdef_name)()
-            self.mfc = ccl.halos.mass_function_from_name(self.mf_name)
-            self.hbc = ccl.halos.halo_bias_from_name(self.hb_name)
-            cmc = ccl.halos.concentration_from_name(self.cm_name)
+            self.massdef = ccl.halos.MassDef.from_name(self.mdef_name)()
+            self.mfc = ccl.halos.MassFunc.from_name(self.mf_name)
+            self.hbc = ccl.halos.HaloBias.from_name(self.hb_name)
+            cmc = ccl.halos.Concentration.from_name(self.cm_name)
             self.cm = cmc(mass_def=self.massdef)
             hal = ccl.halos
             self.profs = {
