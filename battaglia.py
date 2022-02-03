@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from scipy.integrate import simps, quad
 import pyccl as ccl
@@ -60,12 +61,14 @@ class BattagliaSchockHeating(object):
 
         et = self.get_Eth_logmass(z, n_r, delta, nmass=nmass)
         marr = 10**et[1]
-        mfunc = ccl.massfunc(cosmo, marr, a, Dm)
-        bh = ccl.halo_bias(cosmo, marr, a, Dm)
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")
+            mfunc = ccl.massfunc(cosmo, marr, a, Dm)
+            bh = ccl.halo_bias(cosmo, marr, a, Dm)
         return simps(et[0]*bh*mfunc,x=et[1])
 
     def get_Om_th(self, z, n_r, delta):
-        E_th = self.get_thermal_energy(z, n_r, delta)  # meV/cm^2
+        E_th = self.get_thermal_energy(z, n_r, delta)  # meV/cm^3
         rho_crit = 1.054e4 * self.cosmo["h"]**2  # eV/cm^3
         return 1e-3*E_th/rho_crit
 
