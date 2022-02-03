@@ -59,6 +59,7 @@ class ChainCalculator(object):
             "yxgxksig_kmax05": r"$3 \times 2\mathrm{pt}$, \,g,y,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
             "yxgxksig_mf_despali16": r"$3 \times 2\mathrm{pt}$, \,g,y,k; Despali 2016 mass function",
             "yxgxksig_ns_independent": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HOD $N_{\mathrm{sat}}$ independent of $N_{\mathrm{cen}}$",
+            "yxgxksig_szdeproj": r"$2 \times 2\mathrm{pt}$ \,g,y,k,\,\textrm{SZ-deprojected}",
             }
 
     def get_z_arr(self):
