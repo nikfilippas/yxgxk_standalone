@@ -1,7 +1,7 @@
 from make_yml import make_yml
 
-run_name = 'yxgxksig_szdeproj'
-fname_data = 'cls_cov_szdeproj.fits'
+run_name = 'yxgxksig'
+fname_data = 'cls_cov.fits'
 
 kmax_arr = [0.5, 1., 1., 1., 1., 1.]
 
