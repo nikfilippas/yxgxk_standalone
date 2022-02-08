@@ -83,8 +83,6 @@ def get_devs():
     for i in tqdm(range(6)):
         fname = get_fname(i)
         z, nz, bz = get_nz_bz(fname)
-        zmid = get_zmid(z, nz)
-        lmax = get_lmax_from_kmax(cosmoP18, kmax=kmaxs[i], zmid=zmid)
 
         for j, s8 in enumerate(s8_arr):
             cosmo = cosmos[j]
