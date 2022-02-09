@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="yxgxk_like",
+    name="ygk_like",
     version="0.0",
     description="Multi-tracer LSS angular C_ell likelihood",
     zip_safe=True,
@@ -11,5 +11,5 @@ setup(
         "cobaya>=3.0",
         "sacc>=0.4.2",
     ],
-    package_data={"yxgxk_like": ["YxGxKLike.yaml"]},
+    package_data={"ygk_like": ["ygkLike.yaml"]},
 )
