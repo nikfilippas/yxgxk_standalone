@@ -165,7 +165,7 @@ class ChainCalculator(object):
             fname_setup = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
             with open(fname_setup, "r") as f:
                 config = yaml.safe_load(f)
-            mf = config["likelihood"]["yxgxk_like.YxGxKLike"]["mf_name"]
+            mf = config["likelihood"]["ygk_like.ygkLike"]["mf_name"]
 
             # load chain
             fname_chains = f"chains/{model}/{model}_{ibin}/cobaya"
@@ -365,7 +365,7 @@ class ChainCalculator(object):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 loglikes, derived = mod.loglikes(p_bf)
-            l = mod.likelihood['yxgxk_like.YxGxKLike']
+            l = mod.likelihood['ygk_like.ygkLike']
             params = l.current_state['params'].copy()
             params.update(p_bf)
             s_pred = l.get_sacc_file(**params)
