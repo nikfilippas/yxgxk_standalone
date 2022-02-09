@@ -1,178 +1,44 @@
 import warnings
+
 import numpy as np
 from scipy.interpolate import interp1d
+
 import pyccl as ccl
 import pyccl.nl_pt as pt
 from cobaya.likelihood import Likelihood
 from cobaya.log import LoggedError
 
-
-class HalomodCorrection(object):
-    """Provides methods to estimate the correction to the halo
-    model in the 1h - 2h transition regime.
-
-    Args:
-        mass_function, halo_bias, mass_def, concentration: halo model params
-        k_range (list): range of k to use (in Mpc^-1).
-        nlk (int): number of samples in log(k) to use.
-        z_range (list): range of redshifts to use.
-        nz (int): number of samples in redshift to use.
-    """
-    def __init__(self,
-                 mass_function=None, halo_bias=None,
-                 mass_def=None, concentration=None,
-                 k_range=[1E-1, 5], nlk=20,
-                 z_range=[0., 1.], nz=16):
-        from scipy.interpolate import interp2d
-
-        cosmo = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
-        lkarr = np.linspace(np.log10(k_range[0]),
-                            np.log10(k_range[1]),
-                            nlk)
-        karr = 10.**lkarr
-        zarr = np.linspace(z_range[0], z_range[1], nz)
-
-        # halo model power spectrum
-        if None in [mass_function, halo_bias, mass_def, concentration]:
-            # CCL default
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")  # CCL deprecation warning
-                pk_hm = np.array([ccl.halomodel_matter_power(cosmo, karr, a)
-                                  for a in 1. / (1 + zarr)])
-        else:
-            hmc = ccl.halos.HMCalculator(mass_function=mass_function,
-                                         halo_bias=halo_bias,
-                                         mass_def=mass_def)
-            hmd = ccl.halos.MassDef.from_name(mass_def)()
-            cMc = ccl.halos.Concentration.from_name(concentration)
-            cM = cMc(mass_def=hmd)
-            prof = ccl.halos.HaloProfileNFW(c_m_relation=cM)
-            pk_hm = np.array([ccl.halos.halomod_power_spectrum(
-                cosmo, hmc, karr, a, prof, normprof=True)
-                for a in 1/(1+zarr)])
-
-        pk_hf = np.array([ccl.nonlin_matter_power(cosmo, karr, a)
-                          for a in 1. / (1 + zarr)])
-        ratio = pk_hf / pk_hm
-
-        self.rk_func = interp2d(lkarr, 1/(1+zarr), ratio,
-                                bounds_error=False, fill_value=1)
-
-    def rk_interp(self, k, a):
-        """
-        Returns the halo model correction for an array of k
-        values at a given redshift.
-
-        Args:
-            k (float or array): wavenumbers in units of Mpc^-1.
-            a (float): value of the scale factor.
-        """
-        return self.rk_func(np.log10(k), a)-1
+from .halomod_correction import HalomodCorrection
+from .beams import beam_hpix
 
 
-def beam_gaussian(ll, fwhm_amin):
-    """
-    Returns the SHT of a Gaussian beam.
-    Args:
-        l (float or array): multipoles.
-        fwhm_amin (float): full-widht half-max in arcmins.
-    Returns:
-        float or array: beam sampled at `l`.
-    """
-    sigma_rad = np.radians(fwhm_amin / 2.355 / 60)
-    return np.exp(-0.5 * ll * (ll + 1) * sigma_rad**2)
+class ygkLike(Likelihood):
+    input_params_prefix: str = ""  # prefix for params related to this like
+    input_file: str = ""  # input sacc file
+    nside: int = -1  # angular resolution
 
+    ia_model: str = "IANone"  # IA model
+    nz_model: str = "NzNone"  # N(z) model
+    bz_model: str = "BzNone"  # b(z) model
+    shape_model: str = "ShapeNone"  # shape model
 
-def beam_hpix(ll, ns):
-    """
-    Returns the SHT of the beam associated with a HEALPix
-    pixel size.
-    Args:
-        l (float or array): multipoles.
-        ns (int): HEALPix resolution parameter.
-    Returns:
-        float or array: beam sampled at `l`.
-    """
-    fwhm_hp_amin = 60 * 41.7 / ns
-    return beam_gaussian(ll, fwhm_hp_amin)
+    mdef_name: str = "500c"  # halo mass definition
+    cm_name: str = "Ishiyama21"  # halo mass-concentration relation
+    mf_name: str = "Tinker08"  # halo mass function
+    hb_name: str = "Tinker10"  # halo bias function
 
+    zmax_hmc: float = 0.6  # zmax for HM Calculator
+    nz_hmc: int = 16  # z-points for HM Calculator
+    nk_hmc: int = 256  # k-points for HM Calculator
 
-class ConcentrationDuffy08M500c(ccl.halos.Concentration):
-    """ Concentration-mass relation by Duffy et al. 2008
-    (arXiv:0804.2486) extended to Delta = 500-critical.
-    Args:
-        mass_def (:class:`~pyccl.halos.massdef.MassDef`): a mass
-            definition object that fixes
-            the mass definition used by this c(M)
-            parametrization.
-    """
-    name = 'Duffy08M500c'
+    bins: list = []  # list of bin names
+    defaults: dict = {}  # list of default settings
+    twopoints: list = []  # list of two-point functions for the data vector
 
-    def __init__(self, mass_def=None):
-        super(ConcentrationDuffy08M500c, self).__init__(mass_def=mass_def)
-
-    def _default_mass_def(self):
-        self.mass_def = ccl.halos.MassDef(500, 'critical')
-
-    def _check_mass_def(self, mass_def):
-        if (mass_def.Delta != 500) or (mass_def.rho_type != 'critical'):
-            return True
-        return False
-
-    def _setup(self):
-        self.A = 3.67
-        self.B = -0.0903
-        self.C = -0.51
-
-    def _concentration(self, cosmo, M, a):
-        M_pivot_inv = cosmo.cosmo.params.h * 5E-13
-        return self.A * (M * M_pivot_inv)**self.B * a**(-self.C)
-
-
-class YxGxKLike(Likelihood):
-    # All parameters starting with this will be
-    # identified as belonging to this stage.
-    input_params_prefix: str = ""
-    # Input sacc file
-    input_file: str = ""
-    # IA model
-    ia_model: str = "IANone"
-    # N(z) model name
-    nz_model: str = "NzNone"
-    # b(z) model name
-    bz_model: str = "BzNone"
-    # Shape systamatics
-    shape_model: str = "ShapeNone"
-    # Mass function name
-    mf_name: str = "Tinker08"
-    # Halo bias name
-    hb_name: str = "Tinker10"
-    # Mass definition
-    mdef_name: str = "500c"
-    # Concentration name
-    cm_name: str = "Duffy08M500c"
-    # zmax for HM calculator
-    zmax_hmc: float = 0.6
-    # #z for HM calculator
-    nz_hmc: int = 16
-    # #k for HM calculator
-    nk_hmc: int = 256
-    # k HM shot noise suppression
-    k_1h_suppress: float = 0.01
-    # List of bin names
-    bins: list = []
-    # List of default settings (currently only scale cuts)
-    defaults: dict = {}
-    # List of two-point functions that make up the data vector
-    twopoints: list = []
-    # Angular resolution
-    nside: int = -1
-    # M0-mode
-    M0_track: bool = True
-    # HM correction
-    HM_correction: str = "HMCode"
-    # allow satellites to form when no central is present
-    ns_independent: bool = False
+    HM_correction: str = "halofit"  # HM correction model
+    k_1h_suppress: float = 0.01  # HM 1-halo shot noise suppression
+    M0_track: bool = True  # couple M0 := Mmin
+    ns_independent: bool = False  # decopule satellite formation from centrals
 
     def initialize(self):
         # Read SACC file
@@ -621,10 +487,9 @@ class YxGxKLike(Likelihood):
         return pixwin
 
     def _get_cl_all(self, cosmo, pk, get_1h=True, get_2h=True, **pars):
-        """ Compute all C_ells."""
+        """Compute all C_ells."""
         # Gather all tracers
         trs = self._get_tracers(cosmo, **pars)
-
         # Correlate all needed pairs of tracers
         cells = []
         for clm in self.cl_meta:
@@ -662,18 +527,13 @@ class YxGxKLike(Likelihood):
         # Get cosmological model
         res = self.provider.get_CCL()
         cosmo = res['cosmo']
-
         # First, gather all the necessary ingredients for the different P(k)
         pkd = res['pk_data']
-
         # Then pass them on to convert them into C_ells
-        cells = self._get_cl_all(cosmo, pkd,
-                               get_1h=get_1h, get_2h=get_2h,
-                               **pars)
-
+        cells = self._get_cl_all(
+            cosmo, pkd, get_1h=get_1h, get_2h=get_2h, **pars)
         # Multiplicative bias if needed
         self._apply_shape_systematics(cells, **pars)
-
         return cells
 
     def get_sacc_file(self, **pars):
@@ -719,7 +579,7 @@ class YxGxKLike(Likelihood):
         return s
 
     def _get_theory(self, **pars):
-        """ Computes theory vector."""
+        """Compute theory vector."""
         cells = self.get_cells_theory(**pars)
 
         # Flattening into a 1D array
@@ -736,9 +596,7 @@ class YxGxKLike(Likelihood):
         return {'CCL': {'methods': {'pk_data': self._get_pk_data}}}
 
     def logp(self, **pars):
-        """
-        Simple Gaussian likelihood.
-        """
+        """Negative gaussian likelihood."""
         t = self._get_theory(**pars)
         r = t - self.data_vec
         chi2 = np.dot(r, np.dot(self.inv_cov, r))
