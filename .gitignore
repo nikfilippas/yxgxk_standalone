@@ -8,8 +8,6 @@ build/
 dist/
 *.egg-info/
 .bashrc
-
-# cache dirs
 __pycache__/
 
 # results
@@ -18,3 +16,6 @@ cobaya-run-*.out
 triangles/*
 figs/
 glamdring_out/
+
+# old chains
+chains/chains_bak/
