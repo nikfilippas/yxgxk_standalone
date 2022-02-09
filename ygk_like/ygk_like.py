@@ -140,8 +140,7 @@ class ygkLike(Likelihood):
                     kmax = self.defaults[b['name']]['kmax']
                 else:
                     kmax = kmax_default
-                lmax = get_lmax_from_kmax(cosmo_lcdm,
-                                          kmax, zmid)
+                lmax = get_lmax_from_kmax(cosmo_lcdm, kmax, zmid)
                 self.defaults[b['name']]['lmax'] = lmax
             else:
                 # Make sure everything else has an ell_max
@@ -215,9 +214,9 @@ class ygkLike(Likelihood):
         if np.any(w <= 0):
             print(w)
             exit(1)
-            #iw = 1./w
-            #iw[w <= 0] = 0
-            #self.inv_cov = np.dot(v, np.dot(np.diag(iw), v.T))
+            # iw = 1./w
+            # iw[w <= 0] = 0
+            # self.inv_cov = np.dot(v, np.dot(np.diag(iw), v.T))
             self.inv_cov = np.linalg.inv(self.cov)
         else:
             self.inv_cov = np.linalg.inv(self.cov)
@@ -313,8 +312,8 @@ class ygkLike(Likelihood):
             if q == 'galaxy_density':
                 nz = self._get_nz(cosmo, name, **pars)
                 bz = self._get_bz(cosmo, name, **pars)
-                t = ccl.NumberCountsTracer(cosmo, dndz=nz,
-                                           bias=bz, has_rsd=False)
+                t = ccl.NumberCountsTracer(
+                    cosmo, dndz=nz, bias=bz, has_rsd=False)
                 if self.bz_model == 'EulerianPT':
                     z = self.bin_properties[name]['z_fid']
                     zmean = self.bin_properties[name]['zmean_fid']
@@ -390,8 +389,8 @@ class ygkLike(Likelihood):
             cosmo.compute_nonlin_power()
             cosmo.compute_sigma()
             pkmm = cosmo.get_nonlin_power(name='delta_matter:delta_matter')
-            mf = self.mfc(cosmo, mass_def=self.massdef)
-            hb = self.hbc(cosmo, mass_def=self.massdef)
+            mf = self.mfc(mass_def=self.massdef)
+            hb = self.hbc(mass_def=self.massdef)
             hmc = ccl.halos.HMCalculator(mass_function=mf,
                                          halo_bias=hb,
                                          mass_def=self.massdef)
@@ -443,10 +442,11 @@ class ygkLike(Likelihood):
                 fsmooth = None
             elif self.HM_correction == "HMCode":
                 alpha = self._par(f"alpha{comb}", None, pars, "alpha", 1.)
-                fsmooth = lambda a: alpha
+                fsmooth = lambda a: alpha  # noqa
 
             # 1-halo suppression
-            k_1h_suppress = self._par("k_1h_suppress", self.k_1h_suppress, pars)
+            k_1h_suppress = self._par(
+                "k_1h_suppress", self.k_1h_suppress, pars)
             fsuppress = (lambda a: k_1h_suppress) if get_1h else None
 
             pkt = ccl.halos.halomod_power_spectrum(

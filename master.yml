@@ -308,8 +308,10 @@ params:
     latex: \Delta z
     proposal: 0.002
   ygk_mass_bias:
+    # prior: {min: 0.6, max: 0.9}                  # hydro sims
+    # prior: {dist: norm, loc: 0.73, scale: 0.10}  # Penna-Lima et al.
     prior: {min: 0.005, max: 1.15}
-    ref: {dist: norm, scale: 0.002, loc: 0.6}
+    ref: {dist: norm, scale: 0.002, loc: 0.75}
     latex: 1-b_H
     proposal: 0.005
   ygk_rhogm:
@@ -369,18 +371,18 @@ params:
   #   latex: \alpha^{gm}_{\rm HMC}
 
 theory:
-  yxgxk_like.CCL:
+  ygk_like.CCL:
     transfer_function: bacco
     matter_pk: halofit
     baryons_pk: nobaryons
 
 likelihood:
-  yxgxk_like.YxGxKLike:
+  ygk_like.ygkLike:
     mf_name: Tinker08
     hb_name: Tinker10
     mdef_name: 500c
     cm_name: Duffy08M500c
-    input_file: /mnt/extraspace/nikfilippas/yxgxk_standalone/cls_cov.fits
+    input_file: None
     nside: 1024
     M0_track: True
     HM_correction: halofit

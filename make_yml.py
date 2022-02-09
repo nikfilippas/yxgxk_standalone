@@ -2,7 +2,7 @@ import yaml
 import os
 
 def make_yml(params_vary, corrs, bias_model, kmax,
-             mass_function, hm_correction, ns_independent,
+             mass_function, concentration, hm_correction, ns_independent,
              fname_data, dirname_out, sampler,
              debug=True, nsamples=10000):
     samplers = {
@@ -24,13 +24,14 @@ def make_yml(params_vary, corrs, bias_model, kmax,
     # Create dictionary
     dout = dflt.copy()
     dout['params'] = pars
-    dout['likelihood']['yxgxk_like.YxGxKLike']['twopoints'] = twopts
-    dout['likelihood']['yxgxk_like.YxGxKLike']['bz_model'] = bias_model
-    dout['likelihood']['yxgxk_like.YxGxKLike']['mf_name'] = mass_function
-    dout['likelihood']['yxgxk_like.YxGxKLike']['HM_correction'] = hm_correction
-    dout['likelihood']['yxgxk_like.YxGxKLike']['defaults']['kmax'] = kmax
-    dout['likelihood']['yxgxk_like.YxGxKLike']['ns_independent'] = ns_independent
-    dout['likelihood']['yxgxk_like.YxGxKLike']['input_file'] = fname_data
+    dout['likelihood']['ygk_like.ygkLike']['twopoints'] = twopts
+    dout['likelihood']['ygk_like.ygkLike']['bz_model'] = bias_model
+    dout['likelihood']['ygk_like.ygkLike']['mf_name'] = mass_function
+    dout['likelihood']['ygk_like.ygkLike']['cm_name'] = concentration
+    dout['likelihood']['ygk_like.ygkLike']['HM_correction'] = hm_correction
+    dout['likelihood']['ygk_like.ygkLike']['defaults']['kmax'] = kmax
+    dout['likelihood']['ygk_like.ygkLike']['ns_independent'] = ns_independent
+    dout['likelihood']['ygk_like.ygkLike']['input_file'] = fname_data
     dout['debug'] = debug
     dout['output'] = f'{dirname_out}/cobaya'
     dout['sampler'] = {sampler: samplers[sampler]}

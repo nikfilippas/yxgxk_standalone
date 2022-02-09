@@ -1,4 +1,6 @@
+import warnings
 import pyccl as ccl
+import numpy as np
 from scipy.interpolate import interp2d
 
 
@@ -20,6 +22,7 @@ class HalomodCorrection(object):
                  k_range=[1E-1, 5], nlk=20,
                  z_range=[0., 1.], nz=16):
 
+        cosmo = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
         lkarr = np.linspace(np.log10(k_range[0]),
                             np.log10(k_range[1]),
                             nlk)
