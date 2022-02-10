@@ -15,6 +15,8 @@ import getdist.plots as gplot
 import matplotlib.pyplot as plt
 plt.rcParams['text.usetex'] = True
 
+import _names
+
 
 class ChainCalculator(object):
     def __init__(self, *, new_interps=False):
@@ -39,31 +41,9 @@ class ChainCalculator(object):
         self.interpolators = self.get_interpolators(new_interps)
 
         # latex
-        self.latex_bins = [r"$\mathrm{2MPZ}$"] + \
-            [r"$\mathrm{WI \times SC}$ - $\mathrm{%d}$" % i
-             for i in range(1, 6)]
-        self.latex_names = {
-            "bPe": "\\langle bP_e \\rangle\\ [\\mathrm{meV\\,cm^{-3}}]",
-            "Omth": "\\Omega_{\mathrm{th}}",
-            "ygk_mass_bias": "1-b_{\\mathrm{H}}",
-            "sigma8": "\\sigma_8"
-            }
-        self.latex_labels = {
-            "yxgxksig": r"fiducial $3 \times 2\mathrm{pt}$ \,g,y,k",
-            "yxgxk": r"$3 \times 2\mathrm{pt}$, \,g,y,k; fixed $\sigma_8=0.8122$",
-            "yxgxk_b08": r"$3 \times 2\mathrm{pt}$ \,g,y,k; fixed $b_{\mathrm{H}}=0.80$",
-            "yxgxk_b_uniform": r"$3 \times 2\mathrm{pt}$ \,g,y,k; $b_{\mathrm{H}} \sim U(0.60,0.90)$",
-            "yxgxk_b_gauss": r"$3 \times 2\mathrm{pt}$ \,g,y,k; $b_{\mathrm{H}} \sim N(0.73,0.10)$",
-            "gxk": r"$2 \times 2\mathrm{pt}$ \,g,k",
-            "gxk_kmax05": r"$2 \times 2\mathrm{pt}$ \,g,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
-            "yxg": r"Koukoufilippas et al., 2020",
-            "dam_yxg": r"damonge Koukoufilippas et al., 2020",
-            "yxgxksig_hmc_hmcode": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HMCode 1h/2h transition",
-            "yxgxksig_kmax05": r"$3 \times 2\mathrm{pt}$, \,g,y,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$",
-            "yxgxksig_mf_despali16": r"$3 \times 2\mathrm{pt}$, \,g,y,k; Despali 2016 mass function",
-            "yxgxksig_ns_independent": r"$3 \times 2\mathrm{pt}$, \,g,y,k; HOD $N_{\mathrm{sat}}$ independent of $N_{\mathrm{cen}}$",
-            "yxgxksig_szdeproj": r"$2 \times 2\mathrm{pt}$ \,g,y,k,\,\textrm{SZ-deprojected}",
-            }
+        self.latex_bins = _names.latex_bins
+        self.latex_names = _names.latex_names
+        self.latex_labels = _names.latex_labels
 
     def get_z_arr(self):
         fnames = [f"data/dndz/{name}_DIR.txt" for name in self.names]
@@ -96,7 +76,7 @@ class ChainCalculator(object):
 
     def get_interpolators(self, new_interps=False):
         import os
-        if not os.path.isfile("interpolators.npy") or new_interps:
+        if not os.path.isfile("data/interpolators.npy") or new_interps:
             I = dict.fromkeys(self.interp_param_names)
             for par in tqdm(self.interp_param_names):
                 I[par] = self.interpolate_param(par)
@@ -160,18 +140,24 @@ class ChainCalculator(object):
         return F_interp
 
     def get_summary(self, model, parname):
+        path = model
+        model = model.split("/")[-1]
         latex = self.latex_names[parname]
 
         BF_arr = np.zeros((6, 3))
         for ibin, z in enumerate(tqdm(self.z_arr)):
             # load set-up
-            fname_setup = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
+            fname_setup = f"chains/{path}/{model}_{ibin}/cobaya.input.yaml"
             with open(fname_setup, "r") as f:
                 config = yaml.safe_load(f)
-            mf = config["likelihood"]["ygk_like.ygkLike"]["mf_name"]
+            try:
+                mf = config["likelihood"]["ygk_like.ygkLike"]["mf_name"]
+            except KeyError:
+                # old chains
+                mf = config["likelihood"]["yxgxk_like.YxGxKLike"]["mf_name"]
 
             # load chain
-            fname_chains = f"chains/{model}/{model}_{ibin}/cobaya"
+            fname_chains = f"chains/{path}/{model}_{ibin}/cobaya"
             s = gmc.loadMCSamples(fname_chains, settings={'ignore_rows': 0.3})
             p = s.getParams()
 
@@ -250,8 +236,10 @@ class ChainCalculator(object):
             theory(ax=ax)
 
         for i, model in enumerate(models):
-            label = self.latex_labels[model]
+            print(model)
             BF = self.get_summary(model=model, parname=parname)
+            model = model.split("/")[-1]
+            label = self.latex_labels[model]
             ax.errorbar(self.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
                         fmt="o", color=colors[i], label=label)
 
@@ -368,7 +356,11 @@ class ChainCalculator(object):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 loglikes, derived = mod.loglikes(p_bf)
-            l = mod.likelihood['ygk_like.ygkLike']
+            try:
+                l = mod.likelihood['ygk_like.ygkLike']
+            except KeyError:
+                # old chains
+                l = mod.likelihood['yxgxk_like.YxGxKLike']
             params = l.current_state['params'].copy()
             params.update(p_bf)
             s_pred = l.get_sacc_file(**params)

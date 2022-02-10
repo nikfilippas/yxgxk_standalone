@@ -62,7 +62,7 @@ class BattagliaSchockHeating(object):
         et = self.get_Eth_logmass(z, n_r, delta, nmass=nmass)
         marr = 10**et[1]
         with warnings.catch_warnings():
-            warnings.simplefilter("always")
+            warnings.simplefilter("ignore")
             mfunc = ccl.massfunc(cosmo, marr, a, Dm)
             bh = ccl.halo_bias(cosmo, marr, a, Dm)
         return simps(et[0]*bh*mfunc,x=et[1])
