@@ -1,12 +1,15 @@
-import os, sys
+import os
+import sys
 import warnings
-import numpy as np
+from tqdm import tqdm
+
 import sacc
 import yaml
+import numpy as np
 import pyccl as ccl
 from cobaya.model import get_model
-from tqdm import tqdm
 from scipy.interpolate import RectBivariateSpline
+
 import getdist.mcsamples as gmc
 import getdist.plots as gplot
 import matplotlib.pyplot as plt
@@ -95,11 +98,11 @@ class ChainCalculator(object):
         import os
         if not os.path.isfile("interpolators.npy") or new_interps:
             I = dict.fromkeys(self.interp_param_names)
-            for par in self.interp_param_names:
+            for par in tqdm(self.interp_param_names):
                 I[par] = self.interpolate_param(par)
-            np.save("interpolators.npy", I)
+            np.save("data/interpolators.npy", I)
         else:
-            I = np.load("interpolators.npy", allow_pickle=True).item()
+            I = np.load("data/interpolators.npy", allow_pickle=True).item()
         return I
 
     def calculate_bPe(self, z):
@@ -132,7 +135,7 @@ class ChainCalculator(object):
         func = getattr(self, f"calculate_{parname}")
 
         # define interpolation boundaries
-        mass_functions = ["Tinker08", "Despali16"]
+        mass_functions = ["Tinker08", "Despali16", "Tinker10", "Bocquet16"]
         s8_arr = np.linspace(s8_min, s8_max, N_s8)
         bH_arr = np.linspace(bH_min, bH_max, N_bH)
 
