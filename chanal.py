@@ -44,6 +44,7 @@ class ChainCalculator(object):
         self.latex_bins = _names.latex_bins
         self.latex_names = _names.latex_names
         self.latex_labels = _names.latex_labels
+        self.latex_labels.update(_names.latex_labels_new)
 
     def get_z_arr(self):
         fnames = [f"data/dndz/{name}_DIR.txt" for name in self.names]
@@ -330,20 +331,36 @@ class ChainCalculator(object):
         return fig, axes
 
     def plot_best_fit(self, model, keep_on=False, overwrite=False, out=False):
-        fname_data = "cls_cov.fits"
+        fname_data = "data/saccfiles/cls_cov.fits"
         s_data = sacc.Sacc.load_fits(fname_data)
         fig, axes = self._get_MxN_axes(nrows=3, ncols=6)
 
         for ibin, _ in enumerate(tqdm(self.z_arr)):
-            fname = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
-            with open(fname, "r") as stream:
-                info = yaml.safe_load(stream)
+            try:
+                fname = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
+                with open(fname, "r") as stream:
+                    info = yaml.safe_load(stream)
+            except FileNotFoundError:
+                # the following lines provide backwards compatibility
+                fname = f"chains/chains_bak/{model}/{model}_{ibin}/cobaya.input.yaml"
+                with open(fname, "r") as stream:
+                    info = yaml.safe_load(stream)
+                    info["likelihood"]["ygk_like.ygkLike"] = \
+                        info["likelihood"].pop("yxgxk_like.YxGxKLike")
+                    info["theory"]["ygk_like.CCL"] = \
+                        info["theory"].pop("yxgxk_like.CCL")
+                    info["likelihood"]["ygk_like.ygkLike"]["input_file"] = \
+                        fname_data
             _ = [info.pop(key) for key in ["output", "sampler"]]
             mod = get_model(info)
 
             # get best fit
-            fname = f"chains/{model}/{model}_{ibin}/cobaya"
-            s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            try:
+                fname = f"chains/{model}/{model}_{ibin}/cobaya"
+                s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
+            except FileNotFoundError:
+                fname = f"chains/chains_bak/{model}/{model}_{ibin}/cobaya"
+                s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
             p = s.getParams()
             p_bf = dict.fromkeys(
                 par for par in p.__dict__.keys() if "chi2" not in par)
@@ -356,11 +373,7 @@ class ChainCalculator(object):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 loglikes, derived = mod.loglikes(p_bf)
-            try:
-                l = mod.likelihood['ygk_like.ygkLike']
-            except KeyError:
-                # old chains
-                l = mod.likelihood['yxgxk_like.YxGxKLike']
+            l = mod.likelihood['ygk_like.ygkLike']
             params = l.current_state['params'].copy()
             params.update(p_bf)
             s_pred = l.get_sacc_file(**params)
