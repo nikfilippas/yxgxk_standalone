@@ -13,10 +13,12 @@ from scipy.interpolate import RectBivariateSpline
 import getdist.mcsamples as gmc
 import getdist.plots as gplot
 import matplotlib.pyplot as plt
-plt.rcParams['text.usetex'] = True
 
 import _names
 
+plt.rcParams["text.usetex"] = True
+plt.rcParams["xtick.labelsize"] = "x-large"
+plt.rcParams["ytick.labelsize"] = "x-large"
 
 class ChainCalculator(object):
     def __init__(self, *, new_interps=False):
@@ -40,11 +42,12 @@ class ChainCalculator(object):
         self.interp_param_names = ["bPe", "Omth"]
         self.interpolators = self.get_interpolators(new_interps)
 
-        # latex
+        # plotting
         self.latex_bins = _names.latex_bins
         self.latex_names = _names.latex_names
         self.latex_labels = _names.latex_labels
         self.latex_labels.update(_names.latex_labels_new)
+        self.colors = _names.colors
 
     def get_z_arr(self):
         fnames = [f"data/dndz/{name}_DIR.txt" for name in self.names]
@@ -228,8 +231,6 @@ class ChainCalculator(object):
         ax.set_ylabel(f"${latex}$", fontsize=16)
         ax.set_xlim(0.05, 0.40)
         fig.tight_layout()
-        colors = ["k", "grey", "r", "brown", "orange",
-                  "navy", "forestgreen", "crimson"]
 
         # First, plot theoretical models
         if parname in ["sigma8", "bPe"]:
@@ -242,9 +243,10 @@ class ChainCalculator(object):
             model = model.split("/")[-1]
             label = self.latex_labels[model]
             ax.errorbar(self.z_arr+0.005*i, BF[:, 0], BF[:, 1:].T,
-                        fmt="o", color=colors[i], label=label)
+                        fmt="o", color=self.colors[model], label=label)
 
-        ax.legend(loc="upper right", fontsize=12, ncol=2, frameon=False)
+        ncol = 1 if len(models) < 4 else 2
+        ax.legend(loc="best", fontsize=12, ncol=ncol, frameon=False)
 
         hash_ = hash("".join(models)) + sys.maxsize + 1
         fname_out = f"figs/tomo_{parname}_{hash_}.pdf"
@@ -268,14 +270,15 @@ class ChainCalculator(object):
                 params = [par for par in p.__dict__ if exclude not in par]
 
             gdplot = gplot.get_subplot_plotter()
-            gdplot.triangle_plot(s, params, filled=True,
-                                 legend_labels=models)
+            gdplot.triangle_plot(
+                s, params, filled=True,
+                legend_labels=[self.latex_labels[model] for model in models])
 
             if len(models) == 1:
-                hash_ = hash(models[0]) + sys.maxsize + 1
+                hash_ = hash(str(models[0])) + sys.maxsize + 1
                 fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             else:
-                hash_ = hash("".join(models) + sys.maxsize + 1)
+                hash_ = hash("".join(models)) + sys.maxsize + 1
                 fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             if overwrite or not os.path.isfile(fname_out):
                 plt.savefig(fname_out, bbox_inches="tight")
@@ -474,3 +477,7 @@ class ChainCalculator(object):
 
         if not keep_on:
             plt.close()
+
+
+    def close_plots(self):
+        plt.close("all")

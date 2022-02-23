@@ -97,3 +97,20 @@ latex_labels_new = {
     "gyksrA_SZ_T08": "Planck 2018 SZ-deprojected map",
     "gyksrAAA_T08" : r"decoupled $A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$",
     }
+
+
+colors = {
+    "gyksrA_T08": "k",
+    "gksrA_T08" : "grey",
+    "gyksrA_bf075_T08": "r",
+    "gyksrA_bG073_T08": "brown",
+    "gyksrA_bU075_T08": "orangered",
+    "gykrA_T08" : "forestgreen",
+    "gyksr_T08" : "crimson",
+    "gyksrA_B16": "navy",
+    "gyksrA"    : "royalblue",
+    "gyksrA_D16": "deepskyblue",
+    "gyksrA_Nsat_T08": "darkslategrey",
+    "gyksrA_SZ_T08": "magenta",
+    "gyksrAAA_T08" : "orange",
+    }
