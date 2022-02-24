@@ -23,6 +23,7 @@ class HalomodCorrection(object):
                  z_range=[0., 1.], nz=16):
 
         cosmo = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
+        cosmo.compute_growth()
         lkarr = np.linspace(np.log10(k_range[0]),
                             np.log10(k_range[1]),
                             nlk)

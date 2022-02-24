@@ -1,6 +1,6 @@
 from make_yml import make_yml
 
-run_name = 'gyksrA'
+run_name = 'gyksrA_T08'
 fname_data = 'data/saccfiles/cls_cov.fits'
 
 kmax_arr = [0.5, 1., 1., 1., 1., 1.]
@@ -18,7 +18,7 @@ for i in range(6):
                     (tname, 'KAPPA')],
              bias_model='HaloModel',
              kmax=kmax_arr[i],
-             mass_function="Tinker10",
+             mass_function="Tinker08",
              concentration="Ishiyama21",
              hm_correction="halofit",
              ns_independent=False,
