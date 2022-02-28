@@ -1,4 +1,5 @@
 from chanal import ChainCalculator
+from chanal2 import Container
 from _names import names_new as names
 
 c = ChainCalculator()
@@ -44,3 +45,7 @@ c.close_plots()
 # dndz
 c.plot_nz(compare=keep_on, keep_on=keep_on, overwrite=overwrite)
 c.close_plots()
+
+# correlation matrices
+c = Container()
+c.build_corr_matrices()

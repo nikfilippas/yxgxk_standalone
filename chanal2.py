@@ -108,6 +108,3 @@ class Container:
     def build_corr_matrices(self):
         for name in self.zbin_names:
             self._mpl_corr_block(name, save=True)
-
-c = Container()
-c.build_corr_matrices()
