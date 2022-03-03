@@ -3,8 +3,8 @@ from chanal2 import Container
 from _names import names_new as names
 
 c = ChainCalculator()
-keep_on = True
-overwrite=True
+keep_on = False
+overwrite = True
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
@@ -48,4 +48,4 @@ c.close_plots()
 
 # correlation matrices
 c = Container()
-c.build_corr_matrices()
+c.plot_corr_matrices()

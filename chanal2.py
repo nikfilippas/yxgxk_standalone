@@ -17,6 +17,7 @@ class Container:
 
     def _setup(self):
         self.zbin_names = [f"LOWZ__{i}" for i in range(6)]
+        self.corrmats = dict.fromkeys(self.zbin_names)
         self._names = ["2mpz"] + [f"wisc{i}" for i in range(1, 6)]
         self._get_dndz()  # defines self.dndz
         self._get_zmid()  # defines self.zmid
@@ -73,9 +74,14 @@ class Container:
         cov = self._build_cov_block(tracer)
         diag = np.diag(cov)
         corr = cov/np.sqrt(diag[:, None] * diag[None, :])
-        return corr
+        self.corrmats[tracer] = corr
 
     def _mpl_corr_block(self, tracer, save=False, close=True):
+        # build correlation matrix if it's not there
+        if self.corrmats[tracer] is None:
+            self._build_corr_block(tracer)
+        corr = self.corrmats[tracer]
+
         import matplotlib.pyplot as plt
         from matplotlib import cm
         fig, ax = plt.subplots()
@@ -96,8 +102,9 @@ class Container:
         ax.text(-o, 0.50, r"$g \times y$", **kw(True))
         ax.text(-o, 0.17, r"$g \times \kappa$", **kw(True))
 
-        corr = self._build_corr_block(tracer)
-        ax.imshow(corr, cmap=cm.gray, interpolation="nearest", aspect="equal")
+        ax.imshow(corr,
+                  cmap=cm.gray, vmin=0, vmax=1,
+                  interpolation="nearest", aspect="equal")
 
         if save:
             fname = f"figs/corr_{tracer}.pdf"
@@ -105,6 +112,6 @@ class Container:
         if close:
             plt.close()
 
-    def build_corr_matrices(self):
-        for name in self.zbin_names:
-            self._mpl_corr_block(name, save=True)
+    def plot_corr_matrices(self):
+        for tracer in self.corrmats.keys():
+            self._mpl_corr_block(tracer, save=True)
