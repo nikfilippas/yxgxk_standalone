@@ -4,8 +4,6 @@ import healpy as hp
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-hp.disable_warnings()
-
 fnames = {"mask_g": 'mask_v3.fits.gz',
           "mask_y": 'mask_planck60.fits.gz',
           "mask_k": 'COM_Lensing_4096_R3.00_mask.fits.gz'}

@@ -58,7 +58,7 @@ class Plotter(ChainCalculator):
         bPe = BattagliaCalculator().get_bPe
         func = lambda n_r: bPe(self._zplot, n_r, 200)
 
-        et2, et3, et5, etinf = [func(n_r) for n_r in [2, 3, 5, 20]]
+        et2, et3, et5, etinf = [func(n_r) for n_r in [2, 3, 5, 100]]
 
         ax.plot(self._zplot, et2, '-',label='$r_{\\rm max}=2\\,r_{200c}$', c='k')
         ax.plot(self._zplot, et3, '--',label='$r_{\\rm max}=3\\,r_{200c}$', c='k')
@@ -75,14 +75,14 @@ class Plotter(ChainCalculator):
         ax.axhline(0.58, ls=":", color="grey")
         ax.axhspan(0.58-0.04, 0.58+0.06, color="grey", alpha=0.3)
         props = {"boxstyle": "round", "facecolor": "w", "alpha": 0.5}
-        ax.text(0.990, 0.36, "CMB + N.C.",
+        ax.text(0.396, 0.73, "CMB + N.C.",
                 fontsize=10, fontweight="bold",
-                horizontalalignment="right", verticalalignment="center",
-                bbox=props, transform=ax.transAxes)
-        ax.text(0.990, 0.51, "CMB $\\kappa$ + N.C.",
+                horizontalalignment="right", verticalalignment="bottom",
+                bbox=props, transform=ax.transData)
+        ax.text(0.396, 0.59, "CMB $\\kappa$ + N.C.",
                 fontsize=10, fontweight="bold",
-                horizontalalignment="right", verticalalignment="center",
-                bbox=props, transform=ax.transAxes)
+                horizontalalignment="right", verticalalignment="bottom",
+                bbox=props, transform=ax.transData)
 
     def tomographic(self, models, par, keep_on=False, overwrite=False):
         fig, ax = plt.subplots(figsize=(9,7))
@@ -106,14 +106,17 @@ class Plotter(ChainCalculator):
             ax.errorbar(self._zarr+0.005*i, BF[:, 0], BF[:, 1:].T,
                         fmt="o", color=self._colors[model], label=label)
 
-        ncol = 1 if len(models) < 4 else 2
-        if par != "ygk_mass_bias":
-            ax.legend(loc="best", fontsize=12, ncol=ncol, frameon=False)
-        else:  # patch for ygk_mass_bias
-            handles, labels = ax.get_legend_handles_labels()
-            ax.legend([object]+handles, ["Planck15"]+labels,
-                      handler_map={object: AnyObjectHandler()},
-                      loc="best", fontsize=12, ncol=ncol, frameon=False)
+        # sophisticated legend
+        handles, labels = ax.get_legend_handles_labels()
+        handler_map = None
+        if par == "ygk_mass_bias":
+            handles = [object] + handles
+            labels = ["Planck 2015"] + labels
+            handler_map = {object: AnyObjectHandler()}
+        ncol = 1 if len(handles) < 5 else 2
+        kw = {"handles": handles, "labels": labels, "handler_map": handler_map,
+              "loc": "best", "fontsize": 12, "ncol": ncol, "frameon": False}
+        ax.legend(**kw)
 
         hash_ = hash("".join(models)) + sys.maxsize + 1
         fname_out = f"figs/tomo_{par}_{hash_}.pdf"
@@ -140,7 +143,8 @@ class Plotter(ChainCalculator):
             gdplot = gplot.get_subplot_plotter()
             gdplot.triangle_plot(
                 s, params, filled=True,
-                legend_labels=[self._latex_labels[model] for model in models])
+                legend_labels=[self._latex_labels[model] for model in models],
+                contour_colors=[self._colors[model] for model in models])
 
             if len(models) == 1:
                 hash_ = hash(str(models[0])) + sys.maxsize + 1
