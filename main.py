@@ -1,51 +1,52 @@
-from chanal import ChainCalculator
-from chanal2 import Container
+from plotting import Plotter
 from _names import names_new as names
 
-c = ChainCalculator()
-keep_on = False
-overwrite = True
+p = Plotter()
+kwargs = {"keep_on": True, "overwrite": False}
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
-c.plot_tomo(m_s8, "sigma8", keep_on=keep_on, overwrite=overwrite)
+p.tomographic(m_s8, "sigma8", **kwargs)
 
 # gastrophysics
 m_bh = [names[key] for key in [0, 4, 8]]
-c.plot_tomo(m_bh, "ygk_mass_bias", keep_on=keep_on, overwrite=overwrite)
-c.plot_tomo(m_bh, "bPe", keep_on=keep_on, overwrite=overwrite)
-c.plot_tomo(m_bh, "Omth", keep_on=keep_on, overwrite=overwrite)
-c.close_plots()
+p.tomographic(m_bh, "ygk_mass_bias", **kwargs)
+p.tomographic(m_bh, "bPe", **kwargs)
+p.tomographic(m_bh, "Omth", **kwargs)
+p.close_plots()
 
 # gastrophysics mass functions
 m_bh = [names[key] for key in [0, 10, 11, 7]]
-c.plot_tomo(m_bh, "ygk_mass_bias", keep_on=keep_on, overwrite=overwrite)
-c.plot_tomo(m_bh, "bPe", keep_on=keep_on, overwrite=overwrite)
-c.plot_tomo(m_bh, "Omth", keep_on=keep_on, overwrite=overwrite)
-c.close_plots()
+p.tomographic(m_bh, "ygk_mass_bias", **kwargs)
+p.tomographic(m_bh, "bPe", **kwargs)
+p.tomographic(m_bh, "Omth", **kwargs)
+p.close_plots()
 
 # systematics
 m_sys = [names[key] for key in [0, 1, 5, 6, 10]]
-c.plot_tomo(m_sys, "sigma8", keep_on=keep_on, overwrite=overwrite)
-c.plot_tomo(m_sys, "ygk_mass_bias", keep_on=keep_on, overwrite=overwrite)
-c.plot_tomo(m_sys, "bPe", keep_on=keep_on, overwrite=overwrite)
-c.close_plots()
+p.tomographic(m_sys, "sigma8", **kwargs)
+p.tomographic(m_sys, "ygk_mass_bias", **kwargs)
+p.tomographic(m_sys, "bPe", **kwargs)
+p.close_plots()
 
-# triangles
-m_tri = [names[key] for key in [1, 7]]
-c.plot_triangles(m_tri, keep_on=keep_on, overwrite=overwrite)
-c.close_plots()
+# triangles fiducial
+m_tri = [names[key] for key in [0, 6, 8]]
+p.posterior(m_tri, **kwargs)
+p.posterior(m_tri, params=["ygk_mass_bias", "sigma8"], **kwargs)
+p.close_plots()
+
+# triangles s8/bH mass functions
+m_tri = [names[key] for key in [0, 10, 11, 7]]
+p.posterior(m_tri, params=["ygk_mass_bias", "sigma8"], **kwargs)
+p.close_plots()
 
 # best fits
-c.plot_best_fit(names[0], keep_on=keep_on, overwrite=overwrite)
-c.plot_best_fit(names[7], keep_on=keep_on, overwrite=overwrite)
-c.plot_best_fit(names[3], keep_on=keep_on, overwrite=overwrite)
-c.close_plots()
+p.best_fit(names[0], **kwargs)
+p.close_plots()
 
 # dndz
-c.plot_nz(compare=keep_on, keep_on=keep_on, overwrite=overwrite)
-c.close_plots()
+p.nz(compare=True, **kwargs)
+p.close_plots()
 
 # correlation matrices
-c = Container()
-c.plot_corr_matrices()
+p.corr_matrices()

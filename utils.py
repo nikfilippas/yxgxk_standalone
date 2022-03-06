@@ -1,34 +1,216 @@
+import os
+import yaml
 import numpy as np
-import sacc
 import pyccl as ccl
+import sacc
 from itertools import product
+from tqdm import tqdm
+from scipy.interpolate import RectBivariateSpline
 
 
-class Container:
-    """
-    """
+class CosmologyPlanck18(ccl.Cosmology):
+    """Planck 2018 cosmological parameters."""
+
+    def __init__(self, **kwargs):
+        cosmo_pars = {"Omega_c": 0.26066676,
+                      "Omega_b": 0.048974682,
+                      "h": 0.6766,
+                      "n_s": 0.9665,
+                      "sigma8": 0.8102}
+        super().__init__(**{**cosmo_pars, **kwargs})
+
+
+class CosmoHaloModel:
+    """Internally define all cosmology and halo model, given a setup file."""
+
+    def __init__(self, base_model):
+        fname = f"chains/{base_model}/{base_model}_0/cobaya.input.yaml"
+        with open(fname, "r") as stream:
+            info = yaml.safe_load(stream)
+            like = next(iter(info["likelihood"].values()))
+            theo = next(iter(info["theory"].values()))
+            info = {**like, **theo}
+
+        # setup halo model objects
+        hal = ccl.halos
+        cM_class = hal.Concentration.from_name(info["cm_name"])
+        mf_class = hal.MassFunc.from_name(info["mf_name"])
+        hb_class = hal.HaloBias.from_name(info["hb_name"])
+
+        self.mass_def = hal.MassDef.from_name(info["mdef_name"])()
+        self.c_m_relation = cM_class(mass_def=self.mass_def)
+        self.prof_g = hal.HaloProfileHOD(c_m_relation=self.c_m_relation)
+        self.prof_k = hal.HaloProfileNFW(c_m_relation=self.c_m_relation)
+        self.prof_y = hal.HaloProfilePressureGNFW()
+        self.mass_function = mf_class(mass_def=self.mass_def)
+        self.halo_bias = hb_class(mass_def=self.mass_def)
+        self.hmc = hal.HMCalculator(
+            mass_function=self.mass_function,
+            halo_bias=self.halo_bias,
+            mass_def=self.mass_def)
+
+        # set up cosmology
+        tf = info["transfer_function"]
+        self.cosmo = CosmologyPlanck18(transfer_function=tf)
+
+    def update_parameters(self, *, lMmin_0=None, lM1_0=None,
+                          mass_bias=None, sigma8=None, mass_function=None):
+        if sigma8 is not None:
+            self.cosmo = ccl.CosmologyPlanck18(sigma8=sigma8)
+        if lMmin_0 is not None:
+            self.prof_g.update_parameters(lMmin_0=lMmin_0, lM0_0=lMmin_0)
+        if lM1_0 is not None:
+            self.prof_g.update_parameters(lM1_0=lM1_0)
+        if mass_bias is not None:
+            self.prof_y.update_parameters(mass_bias=mass_bias)
+        if mass_function is not None:
+            mf_class = ccl.halos.MassFunc.from_name(mass_function)
+            self.mass_function = mf_class(c_m_relation=self.c_m_relation)
+            self.hmc = ccl.halos.HMCalculator(
+                mass_function=self.mass_function,
+                halo_bias=self.halo_bias,
+                mass_def=self.mass_def)
+
+
+class Interpolator:
+    """Enhanced dict type storing interpolators."""
+
+    def __init__(self, dic):
+        self.dic = dic
+        self.parameters = set(self.dic.keys())
+        self.mass_functions = set()
+        self.tracers = set()
+
+        for par in self.parameters:
+            if not self.mass_functions:
+                self.mass_functions = set(self.dic[par].keys())
+            else:
+                assert set(self.dic[par].keys()) == self.mass_functions
+                for mf in self.mass_functions:
+                    if not self.tracers:
+                        self.tracers = set(self.dic[par][mf].keys())
+                    else:
+                        assert set(self.dic[par][mf].keys()) == self.tracers
+
+    def validate(self, parameter=None, mass_function=None, tracer=None):
+        """Validate that the input columns have been interpolated."""
+        flag = True
+        if parameter is not None:
+            flag = flag and (set([parameter]) <= self.parameters)
+        if mass_function is not None:
+            flag = flag and (set([mass_function]) <= self.mass_functions)
+        if tracer is not None:
+            flag = flag and (set([tracer]) <= self.tracers)
+        return flag
+
+
+class Interpolate(CosmoHaloModel):
+    """Handles interpolation of expensive parameters."""
+
+    def __init__(self, base_model="gyksrA_T08"):
+        super().__init__(base_model=base_model)
+        self._save = "data/interpolators.npy"
+        self._load()
+
+    def _load(self):
+        if os.path.isfile(self._save):
+            dic = np.load(self._save, allow_pickle=True).item()
+            self.interps = Interpolator(dic)
+        else:
+            pass  # TODO
+
+    def _interp_bPe(self, z):
+        bpe = ccl.halos.halomod_bias_1pt(
+            self.cosmo, self.hmc,
+            k=1e-3, a=1/(1+z),
+            prof=self.prof_y, normprof=False)
+        return 1e3 * bpe
+
+    def _interp_Pe(self, z):
+        pe = ccl.halos.halomod_mean_profile_1pt(
+            self.cosmo ,self.hmc,
+            k=1e-3, a=1/(1+z),
+            prof=self.prof_y, normprof=False)
+        return pe
+
+    def _interp_Omth(self, z):
+        pe = self.calculate_Pe(z)
+        Y = 0.24
+        prefac = (8-5*Y)/(4-2*Y)
+        rho_th = pe*prefac/(1+z)**3
+        # rho_critical in eV/cm^3
+        rho_crit = 10537.0711*self.cosmo['h']**2
+        return rho_th/rho_crit
+
+    def _interpolate(self, par, mass_functions,
+                    s8_min=0.2, s8_max=1.5, N_s8=16,
+                    bH_min=0.005, bH_max=1.15, N_bH=16,):
+        """Interpolate input parameter in the s8/bH grid over all input
+        mass functions.
+        """
+        func = getattr(self, f"_interp_{par}")  # get derived par function
+        s8_arr = np.linspace(s8_min, s8_max, N_s8)
+        bH_arr = np.linspace(bH_min, bH_max, N_bH)
+
+        # F_interp is the outer dictionary which will hold the interp grids
+        # categorized by mass function
+        F_interp = dict.fromkeys(mass_functions)
+        for mf in mass_functions:
+            self.update_parameters(mass_function=mf)
+
+            F_temp = dict.fromkeys(self.names)
+            for name, z in tqdm(zip(self.names, self.z_arr)):
+                Arr = np.zeros((N_s8, N_bH))
+                for i, s8 in enumerate(s8_arr):
+                    self.update_parameters(sigma8=s8)
+                    for j, bH in enumerate(bH_arr):
+                        self.update_parameters(mass_bias=bH)
+                        Arr[i, j] = func(z)
+
+                F_temp[name] = RectBivariateSpline(s8_arr, bH_arr, Arr)
+            F_interp[mf] = F_temp
+
+        return F_interp
+
+    def get_interpolator(self, parameter, mass_function, tracer):
+        if self.interps.validate(parameter, mass_function, tracer):
+            return self.interps.dic[parameter][mass_function][tracer]
+        else:
+            pass  # TODO
+
+
+class Container(Interpolate):
+    """Populate subclasses with useful parameters."""
 
     def __init__(self,
+                 base_model="gyksrA_T08",
                  fname_sacc="data/saccfiles/cls_cov.fits",
                  secondaries=["YMILCA", "KAPPA"]):
         self._secondaries = secondaries
         self._saccfile = sacc.Sacc.load_fits(fname_sacc)
-        self._setup()
 
-    def _setup(self):
-        self.zbin_names = [f"LOWZ__{i}" for i in range(6)]
-        self.corrmats = dict.fromkeys(self.zbin_names)
-        self._names = ["2mpz"] + [f"wisc{i}" for i in range(1, 6)]
-        self._get_dndz()  # defines self.dndz
-        self._get_zmid()  # defines self.zmid
-        self._get_lmax()  # defines self.lmax
+        self.cosmo = CosmologyPlanck18()
+        self.tracers = [f"LOWZ__{i}" for i in range(6)]
+        self._get_dndz()        # defines self.dndz
+        self._get_zmid()        # defines self.zmid
+        self._get_lmax()        # defines self.lmax
+        self._build_corrmats()  # defines self.corrmats
+        super().__init__(base_model=base_model)
 
     def _get_dndz(self):
-        dic = dict.fromkeys(self.zbin_names)
-        for name, store in zip(self._names, dic.keys()):
+        # new dndz
+        self.dndz = dict.fromkeys(self.tracers)
+        names = ["2mpz"] + [f"wisc{i}" for i in range(1, 6)]
+        for name, store in zip(names, self.dndz.keys()):
             fname = f"data/dndz/{name}_DIR.txt"
-            dic[store] = np.loadtxt(fname)
-        self.dndz = dic
+            self.dndz[store] = np.loadtxt(fname)
+
+        # old dndz
+        self.dndz_old = dict.fromkeys(self.tracers)
+        names = ["2MPZ_bin1"] + ["WISC_bin%d" % n for n in range(1, 6)]
+        for name, store in zip(names, self.dndz_old.keys()):
+            fname = f"data/dndz/{name}.txt"
+            self.dndz_old[store] = np.loadtxt(fname)
 
     def _get_zmid(self):
         dic = self.dndz.copy()
@@ -38,12 +220,10 @@ class Container:
         self.zmid = dic
 
     def _get_lmax(self):
-        kmax = dict(zip(self.zbin_names, [0.5, 1., 1., 1., 1., 1.]))
-        self._cosmo = ccl.Cosmology(
-            Omega_c=0.25, Omega_b=0.045, h=0.67, n_s=0.96, sigma8=0.81)
+        kmax = dict(zip(self.tracers, [0.5, 1., 1., 1., 1., 1.]))
         dic = self.zmid.copy()
         for name, zmid in self.zmid.items():
-            chi = self._cosmo.comoving_radial_distance(1/(1+zmid))
+            chi = self.cosmo.comoving_radial_distance(1/(1+zmid))
             dic[name] = np.floor(kmax[name] * chi - 0.5)
         self.lmax = dic
 
@@ -76,42 +256,7 @@ class Container:
         corr = cov/np.sqrt(diag[:, None] * diag[None, :])
         self.corrmats[tracer] = corr
 
-    def _mpl_corr_block(self, tracer, save=False, close=True):
-        # build correlation matrix if it's not there
-        if self.corrmats[tracer] is None:
+    def _build_corrmats(self):
+        self.corrmats = dict.fromkeys(self.tracers)
+        for tracer in self.corrmats:
             self._build_corr_block(tracer)
-        corr = self.corrmats[tracer]
-
-        import matplotlib.pyplot as plt
-        from matplotlib import cm
-        fig, ax = plt.subplots()
-        ax.axes.get_xaxis().set_visible(False)
-        ax.axes.get_yaxis().set_visible(False)
-
-        kw = lambda vert: {"fontsize": 24,
-                           "horizontalalignment": "center",
-                           "verticalalignment": "center",
-                           "rotation": "vertical" if vert else "horizontal",
-                           "transform": ax.transAxes}
-
-        o = 0.05
-        ax.text(0.17, 1+o, r"$g \times g$", **kw(False))
-        ax.text(0.50, 1+o, r"$g \times y$", **kw(False))
-        ax.text(0.83, 1+o, r"$g \times \kappa$", **kw(False))
-        ax.text(-o, 0.83, r"$g \times g$", **kw(True))
-        ax.text(-o, 0.50, r"$g \times y$", **kw(True))
-        ax.text(-o, 0.17, r"$g \times \kappa$", **kw(True))
-
-        ax.imshow(corr,
-                  cmap=cm.gray, vmin=0, vmax=1,
-                  interpolation="nearest", aspect="equal")
-
-        if save:
-            fname = f"figs/corr_{tracer}.pdf"
-            fig.savefig(fname, bbox_inches="tight")
-        if close:
-            plt.close()
-
-    def plot_corr_matrices(self):
-        for tracer in self.corrmats.keys():
-            self._mpl_corr_block(tracer, save=True)
