@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.integrate import quad
-import pyccl as ccl
 import pyccl.halos as hal
 
 from utils import Container
@@ -106,18 +105,30 @@ class ArnaudCalculator(Container):
         self.cosmo.compute_growth()
         self.prof_y.update_parameters(mass_bias=0.73)  # sensible value
 
-    def _get_bPe(self, z):
-        bpe = hal.halomod_bias_1pt(self.cosmo, self.hmc,
+    def _get_hmc_eff(self, Delta):
+        """Effective CCL Halo Model Calculator for given oDelta."""
+        mass_def = hal.MassDef.from_name(f"{Delta}c")()
+        mf_class = hal.MassFunc.from_name(self.hmc.mass_function.name)
+        hb_class = hal.HaloBias.from_name(self.hmc.halo_bias.name)
+        mass_function = mf_class(mass_def=mass_def)
+        halo_bias = hb_class(mass_def=mass_def)
+        return hal.HMCalculator(mass_function=mass_function,
+                                halo_bias=halo_bias, mass_def=mass_def)
+
+    def _get_bPe(self, z, n_r, Delta=500):
+        self.prof_y.update_parameters(x_out=n_r)
+        hmc = self._get_hmc_eff(Delta)  # TODO: translate between Deltas
+        bpe = hal.halomod_bias_1pt(self.cosmo, hmc,
                                    k=1e-3, a=1/(1+z),
                                    prof=self.prof_y, normprof=False)
         return bpe
 
-    def get_bPe(self, z_arr):
+    def get_bPe(self, z_arr, n_r, Delta):
         """Vectorized version of `_get_bPe`.
         Units: meV/cm^3.
         Note: Not used in this pipeline.
         """
-        return np.array([self._get_bPe(z) for z in z_arr])*1e3
+        return np.array([self._get_bPe(z, n_r, Delta) for z in z_arr])*1e3
 
     def _get_Pe(self, z):
         pe = hal.halomod_mean_profile_1pt(self.cosmo ,self.hmc,
