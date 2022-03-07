@@ -1,4 +1,4 @@
-names_new = {
+names = {
     0: 'gyksrA_T08',        # Mmin, M1, 1-b, sigma8, rhogy, A
     1: 'gyksr_T08',         # Mmin, M1, 1-b, sigma8, rhogy
     2: 'gksrA_T08',         # Mmin, M1, sigma8, A
@@ -32,7 +32,7 @@ gxg = r'$g \times g$'
 gxy = r'$g \times y$'
 gxk = r'$g \times \kappa$'
 
-latex_labels_new = {
+latex_labels = {
     'gyksrA_T08': rf'fiducial: {gxg}, {gxy}, {gxk}',
     'gksrA_T08' : rf'no tSZ: {gxg}, {gxk}',
     'gyksrA_bf075_T08': r'fixed $1-b_{\rm H} = 0.75$',
@@ -43,9 +43,25 @@ latex_labels_new = {
     'gyksrA_B16': 'Bocquet et al. 2016 mass function',
     'gyksrA'    : 'Tinker et al. 2010 mass function',
     'gyksrA_D16': 'Despali et al. 2016 mass function',
-    'gyksrA_Nsat_T08': r'',
+    'gyksrA_Nsat_T08': r'$N_{rm sat}$ independent from $N_{\rm cen}$',
     'gyksrA_SZ_T08': 'Planck 2018 SZ-deprojected map',
     'gyksrAAA_T08' : r'decoupled $A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
+    }
+
+latex_labels_short = {
+    'gyksrA_T08': 'fiducial',
+    'gksrA_T08' : 'no tSZ',
+    'gyksrA_bf075_T08': r'$1-b_{\rm H} = 0.75$',
+    'gyksrA_bG073_T08': r'$1-b_{\rm H} \sim \rm Gauss$',
+    'gyksrA_bU075_T08': r'$1-b_{\rm H} \sum \rm Uniform$',
+    'gykrA_T08' : r'$\sigma_8 = 0.8102$',
+    'gyksr_T08' : r'$A_{\rm HM} = 1$',
+    'gyksrA_B16': 'Bocquet et al. 2016',
+    'gyksrA'    : 'Tinker et al. 2010',
+    'gyksrA_D16': 'Despali et al. 2016',
+    'gyksrA_Nsat_T08': r'independent $N_{\rm sat}$',
+    'gyksrA_SZ_T08': 'SZ-deprojected',
+    'gyksrAAA_T08' : r'$A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
     }
 
 colors = {
@@ -63,52 +79,3 @@ colors = {
     'gyksrA_SZ_T08': 'magenta',
     'gyksrAAA_T08' : 'orange',
     }
-
-
-'''
-names_old = {
-    0: 'yxgxksig_hmc_Ahmc',       # Mmin, M1, 1-b, sigma8, rhogy, A
-    1: 'yxgxksig',                # Mmin, M1, 1-b, sigma8, rhogy
-    2: 'gxk',                     # Mmin, M1, sigma8
-    3: 'yxgxk_b08',               # Mmin, M1, sigma8, rhogy
-
-    # robustness checks (include)
-    4: 'yxgxk',                   # Mmin, M1, 1-b, rhogy
-    5: 'yxgxksig_decouple_Ahmc',  # Mmin, M1, 1-b, sigma8, rhogy, Agg, Agy, Agm
-    6: 'yxgxksig_szdeproj',       # SZdeproj : Mmin, M1, 1-b, sigma8, rhogy, A
-    7: 'yxgxksig_mf_despali16',   # Despali16: Mmin, M1, 1-b, sigma8, rhogy
-    8: 'yxgxk_b_gauss',           # b_gauss : Mmin, M1, 1-b, sigma8, rhogy
-
-    # robustness checks (do not include)
-    9: 'yxgxk_b_uniform',         # b_narrow: Mmin, M1, 1-b, sigma8, rhogy
-    10: 'yxgxksig_ns_independent',# ns_indep: Mmin, M1, 1-b, sigma8, rhogy
-
-    # others
-    11: 'yxg',
-    12: 'dam_yxg',
-    13: 'gxk_kmax05',
-    14: 'yxgxksig_kmax05',
-    15: 'yxgxk_hmc_hmcode',
-    16: 'yxg_Ahmc',
-}
-names_old = {k: f'chains_bak/{v}' for k, v in names_old.items()}
-
-latex_labels = {
-    'yxgxksig': r'fiducial $3 \times 2\mathrm{pt}$ \,g,y,k',
-    'yxgxk': r'$3 \times 2\mathrm{pt}$, \,g,y,k; fixed $\sigma_8=0.8122$',
-    'yxgxk_b08': r'$3 \times 2\mathrm{pt}$ \,g,y,k; fixed $1-b_{\mathrm{H}}=0.80$',
-    'yxgxk_b_uniform': r'$3 \times 2\mathrm{pt}$ \,g,y,k; $1-b_{\mathrm{H}} \sim U(0.60,0.90)$',
-    'yxgxk_b_gauss': r'$3 \times 2\mathrm{pt}$ \,g,y,k; $1-b_{\mathrm{H}} \sim N(0.73,0.10)$',
-    'gxk': r'$2 \times 2\mathrm{pt}$ \,g,k',
-    'gxk_kmax05': r'$2 \times 2\mathrm{pt}$ \,g,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$',
-    'yxg': r'Koukoufilippas et al., 2020',
-    'dam_yxg': r'damonge Koukoufilippas et al., 2020',
-    'yxgxksig_hmc_Ahmc': r'$3 \times 2\mathrm{pt}$, \,g,y,k; HALOFIT 1h/2h transition',
-    'yxgxksig_hmc_hmcode': r'$3 \times 2\mathrm{pt}$, \,g,y,k; HMCode 1h/2h transition',
-    'yxgxksig_kmax05': r'$3 \times 2\mathrm{pt}$, \,g,y,k; $k_{\mathrm{max}}=0.5\,\mathrm{Mpc}^{-1}$',
-    'yxgxksig_mf_despali16': r'$3 \times 2\mathrm{pt}$, \,g,y,k; Despali 2016 mass function',
-    'yxgxksig_ns_independent': r'$3 \times 2\mathrm{pt}$, \,g,y,k; HOD $N_{\mathrm{sat}}$ independent of $N_{\mathrm{cen}}$',
-    'yxgxksig_szdeproj': r'$3 \times 2\mathrm{pt}$ \,g,y,k,\,\textrm{SZ-deprojected}',
-    'yxgxksig_decouple_Ahmc': r'$3 \times 2\mathrm{pt}$, \,g,y,k; decoupled HALOFIT 1h/2h transitions',
-    }
-'''
