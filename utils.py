@@ -53,8 +53,8 @@ class CosmoHaloModel:
         tf = info["transfer_function"]
         self.cosmo = CosmologyPlanck18(transfer_function=tf)
 
-    def update_parameters(self, *, lMmin_0=None, lM1_0=None,
-                          mass_bias=None, sigma8=None, mass_function=None):
+    def update_parameters(self, *, sigma8=None, lMmin_0=None, lM1_0=None,
+                          mass_bias=None, x_out=None, mass_function=None):
         if sigma8 is not None:
             self.cosmo = ccl.CosmologyPlanck18(sigma8=sigma8)
         if lMmin_0 is not None:
@@ -63,6 +63,8 @@ class CosmoHaloModel:
             self.prof_g.update_parameters(lM1_0=lM1_0)
         if mass_bias is not None:
             self.prof_y.update_parameters(mass_bias=mass_bias)
+        if x_out is not None:
+            self.prof_y.update_parameters(x_out=x_out)
         if mass_function is not None:
             mf_class = ccl.halos.MassFunc.from_name(mass_function)
             self.mass_function = mf_class(c_m_relation=self.c_m_relation)
@@ -226,6 +228,7 @@ class Container(Interpolate):
             chi = self.cosmo.comoving_radial_distance(1/(1+zmid))
             dic[name] = np.floor(kmax[name] * chi - 0.5)
         self.lmax = dic
+        self.lmin = dict(zip(self.lmax.keys(), [0., 10., 10., 10., 10., 10.]))
 
     def _get_cov(self, tracer1, tracer2, tracer3, scalecut=False):
         ell, _, ind_AB = self._saccfile.get_ell_cl(
@@ -234,9 +237,12 @@ class Container(Interpolate):
             None, tracer1, tracer3, return_ind=True)
         cov_ABCD = self._saccfile.covariance.covmat[ind_AB][:, ind_CD]
         # impose scalecut
-        lmax = self.lmax[tracer1]
-        idx = -1 if not scalecut else np.argmin(ell <= lmax)
-        return cov_ABCD[:idx, :idx]
+        lmin, lmax = self.lmin[tracer1], self.lmax[tracer1]
+        if scalecut:
+            idx = np.where((lmin <= ell) & (ell <= lmax))[0]
+            return cov_ABCD[idx[0]: idx[-1], idx[0]: idx[-1]]
+        else:
+            return cov_ABCD
 
     def _build_cov_block(self, tracer):
         names = [tracer] + self._secondaries

@@ -1,10 +1,8 @@
 import os
 import sys
-import warnings
-import yaml
+import copy
 import numpy as np
 from tqdm import tqdm
-from cobaya.model import get_model
 import getdist.mcsamples as gmc
 
 import matplotlib.pyplot as plt
@@ -47,7 +45,8 @@ class Plotter(ChainCalculator):
         self._corr_names = _names.gxg, _names.gxy, _names.gxk
         self._latex_bins = _names.latex_bins
         self._latex_names = _names.latex_names
-        self._latex_labels = _names.latex_labels_new
+        self._latex_labels = _names.latex_labels
+        self._latex_short = _names.latex_labels_short
         self._colors = _names.colors
 
     def _overlay_sigma8(self, ax):
@@ -56,7 +55,7 @@ class Plotter(ChainCalculator):
 
     def _overlay_bPe(self, ax):
         bPe = BattagliaCalculator().get_bPe
-        func = lambda n_r: bPe(self._zplot, n_r, 200)
+        func = lambda n_r: bPe(self._zplot, n_r)
 
         et2, et3, et5, etinf = [func(n_r) for n_r in [2, 3, 5, 100]]
 
@@ -66,7 +65,8 @@ class Plotter(ChainCalculator):
         ax.plot(self._zplot, etinf, ':',label='$r_{\\rm max}=\\infty$', c='k')
 
     def _overlay_Omth(self, ax):
-        Omth = ArnaudCalculator().get_Omth(self._zplot)
+        Omth = ArnaudCalculator().get_Omth(self._zplot, n_r=100)
+        # Omth = BattagliaCalculator().get_Omth(self._zplot, n_r=100)  # TODO: use Battaglia
         ax.plot(self._zplot, Omth, '-', label='GNFW profile', c='k')
 
     def _overlay_ygk_mass_bias(self, ax):
@@ -140,11 +140,13 @@ class Plotter(ChainCalculator):
                 p = s[0].getParams()
                 params = [par for par in p.__dict__ if exclude not in par]
 
+            lbl = self._latex_labels if len(params) > 2 else self._latex_short
             gdplot = gplot.get_subplot_plotter()
             gdplot.triangle_plot(
                 s, params, filled=True,
-                legend_labels=[self._latex_labels[model] for model in models],
-                contour_colors=[self._colors[model] for model in models])
+                legend_labels=[lbl[model] for model in models],
+                contour_colors=[self._colors[model] for model in models],
+                frameon=False)
 
             if len(models) == 1:
                 hash_ = hash(str(models[0])) + sys.maxsize + 1
@@ -204,36 +206,12 @@ class Plotter(ChainCalculator):
         return fig, axes
 
     def best_fit(self, model, keep_on=False, overwrite=False, out=False):
-        fig, axes = self._setup_MxN_axes(nrows=3, ncols=6)
+        fig, axes = self._setup_MxN_axes(nrows=3, ncols=len(self.tracers))
 
-        for ibin, _ in enumerate(tqdm(self.tracers)):
-            fname = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
-            with open(fname, "r") as stream:
-                info = yaml.safe_load(stream)
-            mod = get_model(info)
+        for ibin, tracer in enumerate(tqdm(self.tracers)):
+            s_pred = self.get_sacc_file(model, tracer)
 
-            # get best fit
-            fname = f"chains/{model}/{model}_{ibin}/cobaya"
-            s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
-            p = s.getParams()
-            p_bf = dict.fromkeys(
-                par for par in p.__dict__.keys() if "chi2" not in par)
-
-            argmin = p.chi2.argmin()
-            for par in p_bf:
-                p_bf[par] = getattr(p, par)[argmin]
-
-            # get theory sacc object
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                loglikes, derived = mod.loglikes(p_bf)
-            l = mod.likelihood['ygk_like.ygkLike']
-            params = l.current_state['params'].copy()
-            params.update(p_bf)
-            s_pred = l.get_sacc_file(**params)
-
-            # get and plot arrays
-            chi2 = p.chi2.min()
+            chi2 = self.get_best_fit(model)[tracer]["chi2"]
             dof = 0
             xcorrs = s_pred.get_tracer_combinations()
             for nc, (t1, t2) in enumerate(xcorrs):
@@ -368,3 +346,20 @@ class Plotter(ChainCalculator):
 
     def close_plots(self):
         plt.close("all")
+
+    def table(self, model, params):
+        samples = ["2MPZ"] + ["\\wisc-%d" % i for i in range(1, 6)]
+        _ = [self.get_summary(model, par) for par in params]
+        bf = copy.deepcopy(self.summary[model])
+
+        s = ""
+        for i, (sample, tracer) in enumerate(zip(samples, self.tracers)):
+            s += sample + "  & "
+            s += "%.2f" % self.zmid[tracer] + "  & "
+            for par in params:
+                vals = bf[par][i]
+                if par == "Omth":
+                    vals *= 1e8
+                s += "\\vals(%.2f, %.2f, %.2f)" % (vals[0], vals[1], vals[2])
+                s += "  & "
+            s += "\\\\\n"

@@ -1,5 +1,5 @@
 from plotting import Plotter
-from _names import names_new as names
+from _names import names
 
 p = Plotter()
 kwargs = {"keep_on": True, "overwrite": False}
@@ -30,7 +30,13 @@ p.tomographic(m_sys, "bPe", **kwargs)
 p.close_plots()
 
 # triangles fiducial
-m_tri = [names[key] for key in [0, 6, 8]]
+m_tri = [names[key] for key in [0, 8]]
+p.posterior(m_tri, **kwargs)
+p.posterior(m_tri, params=["ygk_mass_bias", "sigma8"], **kwargs)
+p.close_plots()
+
+# SZ-deprojected
+m_tri = [names[key] for key in [0, 6]]
 p.posterior(m_tri, **kwargs)
 p.posterior(m_tri, params=["ygk_mass_bias", "sigma8"], **kwargs)
 p.close_plots()
@@ -50,3 +56,7 @@ p.close_plots()
 
 # correlation matrices
 p.corr_matrices()
+
+# results table
+T = p.table(params=["z", "sigma8", "mass_bias", "bPe", "Omth", "chi2/Nd", "PTE"])
+print(T)
