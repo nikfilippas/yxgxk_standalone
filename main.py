@@ -2,14 +2,14 @@ from plotting import Plotter
 from _names import names
 
 p = Plotter()
-kwargs = {"keep_on": True, "overwrite": False}
+kwargs = {"keep_on": False, "overwrite": True}
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
 p.tomographic(m_s8, "sigma8", **kwargs)
 
 # gastrophysics
-m_bh = [names[key] for key in [0, 4, 8]]
+m_bh = [names[key] for key in [0, 8, 4]]
 p.tomographic(m_bh, "ygk_mass_bias", **kwargs)
 p.tomographic(m_bh, "bPe", **kwargs)
 p.tomographic(m_bh, "Omth", **kwargs)

@@ -1,5 +1,4 @@
 import os
-import sys
 import copy
 import numpy as np
 from tqdm import tqdm
@@ -15,9 +14,10 @@ import _names
 from chanal import ChainCalculator
 from pressure import ArnaudCalculator, BattagliaCalculator
 
+from pyccl import Hashing
+hashF = Hashing._hash_consistent
+
 plt.rcParams["text.usetex"] = True
-plt.rcParams["xtick.labelsize"] = "x-large"
-plt.rcParams["ytick.labelsize"] = "x-large"
 
 
 class AnyObjectHandler(HandlerBase):
@@ -86,10 +86,9 @@ class Plotter(ChainCalculator):
 
     def tomographic(self, models, par, keep_on=False, overwrite=False):
         fig, ax = plt.subplots(figsize=(9,7))
-        ax.tick_params(axis='both', which='major', labelsize=12)
-        ax.tick_params(axis='both', which='minor', labelsize=12)
-        ax.set_xlabel("$z$", fontsize=16)
-        ax.set_ylabel(f"${self._latex_names[par]}$", fontsize=16)
+        ax.tick_params(labelsize=16)
+        ax.set_xlabel("$z$", fontsize=20)
+        ax.set_ylabel(f"${self._latex_names[par]}$", fontsize=20)
         ax.set_xlim(0.05, 0.40)
         fig.tight_layout()
 
@@ -115,10 +114,10 @@ class Plotter(ChainCalculator):
             handler_map = {object: AnyObjectHandler()}
         ncol = 1 if len(handles) < 5 else 2
         kw = {"handles": handles, "labels": labels, "handler_map": handler_map,
-              "loc": "best", "fontsize": 12, "ncol": ncol, "frameon": False}
+              "loc": "best", "fontsize": 14, "ncol": ncol, "frameon": False}
         ax.legend(**kw)
 
-        hash_ = hash("".join(models)) + sys.maxsize + 1
+        hash_ = hashF("".join(models))
         fname_out = f"figs/tomo_{par}_{hash_}.pdf"
         if overwrite or not os.path.isfile(fname_out):
             fig.savefig(fname_out, bbox_inches="tight")
@@ -149,10 +148,10 @@ class Plotter(ChainCalculator):
                 frameon=False)
 
             if len(models) == 1:
-                hash_ = hash(str(models[0])) + sys.maxsize + 1
+                hash_ = hashF(str(models[0]))
                 fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             else:
-                hash_ = hash("".join(models)) + sys.maxsize + 1
+                hash_ = hashF("".join(models))
                 fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             if overwrite or not os.path.isfile(fname_out):
                 plt.savefig(fname_out, bbox_inches="tight")
