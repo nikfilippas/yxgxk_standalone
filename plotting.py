@@ -148,10 +148,10 @@ class Plotter(ChainCalculator):
                 frameon=False)
 
             if len(models) == 1:
-                hash_ = hashF(str(models[0]))
+                hash_ = hashF(str(models[0]) + str(params))
                 fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             else:
-                hash_ = hashF("".join(models))
+                hash_ = hashF("".join(models) + str(params))
                 fname_out = f"figs/triang_{ibin}_{hash_}.pdf"
             if overwrite or not os.path.isfile(fname_out):
                 plt.savefig(fname_out, bbox_inches="tight")
