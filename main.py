@@ -2,7 +2,7 @@ from plotting import Plotter
 from _names import names
 
 p = Plotter()
-kwargs = {"keep_on": False, "overwrite": True}
+kwargs = {"keep_on": True, "overwrite": True}
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
@@ -46,6 +46,9 @@ m_tri = [names[key] for key in [0, 10, 11, 7]]
 p.posterior(m_tri, params=["ygk_mass_bias", "sigma8"], **kwargs)
 p.close_plots()
 
+m_tri = [names[key] for key in [0, 8, 13]]
+p.posterior(m_tri, params=["ygk_mass_bias", "sigma8"], **kwargs)
+
 # best fits
 p.best_fit(names[0], **kwargs)
 p.close_plots()
@@ -58,5 +61,6 @@ p.close_plots()
 p.corr_matrices()
 
 # results table
-T = p.table(params=["z", "sigma8", "mass_bias", "bPe", "Omth", "chi2/Nd", "PTE"])
+tab_params = ["sigma8", "ygk_mass_bias", "bPe", "Omth"]
+T = p.table(model="gyksrA_T08", params=tab_params)
 print(T)

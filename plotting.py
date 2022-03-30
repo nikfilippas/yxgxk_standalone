@@ -362,3 +362,4 @@ class Plotter(ChainCalculator):
                 s += "\\vals(%.2f, %.2f, %.2f)" % (vals[0], vals[1], vals[2])
                 s += "  & "
             s += "\\\\\n"
+        return s
