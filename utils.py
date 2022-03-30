@@ -8,16 +8,17 @@ from tqdm import tqdm
 from scipy.interpolate import RectBivariateSpline
 
 
+COSMO_P18 = {"Omega_c": 0.26066676,
+             "Omega_b": 0.048974682,
+             "h": 0.6766,
+             "n_s": 0.9665,
+             "sigma8": 0.8102}
+
 class CosmologyPlanck18(ccl.Cosmology):
     """Planck 2018 cosmological parameters."""
 
     def __init__(self, **kwargs):
-        cosmo_pars = {"Omega_c": 0.26066676,
-                      "Omega_b": 0.048974682,
-                      "h": 0.6766,
-                      "n_s": 0.9665,
-                      "sigma8": 0.8102}
-        super().__init__(**{**cosmo_pars, **kwargs})
+        super().__init__(**{**COSMO_P18, **kwargs})
 
 
 class CosmoHaloModel:

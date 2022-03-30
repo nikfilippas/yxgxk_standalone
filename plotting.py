@@ -51,6 +51,18 @@ class Plotter(ChainCalculator):
 
     def _overlay_sigma8(self, ax):
         s8 = self.cosmo.sigma8() * self.cosmo.growth_factor(1/(1+self._zplot))
+
+        # get the Planck uncertainty band for sigma8
+        from utils import COSMO_P18, CosmologyPlanck18
+        par_min, par_max = COSMO_P18.copy(), COSMO_P18.copy()
+        par_min["sigma8"] -= 0.0060
+        par_max["sigma8"] += 0.0060
+        cosmo_min = CosmologyPlanck18(**par_min)
+        cosmo_max = CosmologyPlanck18(**par_max)
+        s8_min = cosmo_min.sigma8() * cosmo_min.growth_factor(1/(1+self._zplot))
+        s8_max = cosmo_max.sigma8() * cosmo_max.growth_factor(1/(1+self._zplot))
+
+        ax.fill_between(self._zplot, s8_min, s8_max, color="k", alpha=0.3)
         ax.plot(self._zplot, s8, "k--", lw=2, label="Planck 2018")
 
     def _overlay_bPe(self, ax):
@@ -64,10 +76,28 @@ class Plotter(ChainCalculator):
         ax.plot(self._zplot, et5, '-.',label='$r_{\\rm max}=5\\,r_{200c}$', c='k')
         ax.plot(self._zplot, etinf, ':',label='$r_{\\rm max}=\\infty$', c='k')
 
+        # finally, we plot existing measurements of bPe
+        from data.bpe_data_from_bibliography import bpe_data
+        all_data = np.hstack(bpe_data)
+        err = [all_data[1] - all_data[2], all_data[3] - all_data[1]]
+        ax.errorbar(all_data[0], all_data[1], yerr=err,
+                    fmt="o", markersize=2, color="royalblue", alpha=0.2,
+                    label="bibliography (see caption)")
+        ax.set_ylim(0.07, 0.28)
+
     def _overlay_Omth(self, ax):
         Omth = ArnaudCalculator().get_Omth(self._zplot, n_r=100)
         # Omth = BattagliaCalculator().get_Omth(self._zplot, n_r=100)  # TODO: use Battaglia
         ax.plot(self._zplot, Omth, '-', label='GNFW profile', c='k')
+
+        # Now we overlay the measurement from Fukugita & Peebles
+        # (digitized from Chiang et al. 2020)
+        # Multiply it by 1e8, and transpose it to the smallest redshift we use.
+        ax.errorbar(
+            self._zarr[0], [2.000], yerr=[[0.414], [0.490]],
+            fmt="s", color="b", markersize=8,
+            label=r"FP04, -$(2/3) f_b \Omega_{\mathrm{grav}, 0}$")
+
 
     def _overlay_ygk_mass_bias(self, ax):
         ax.axhline(0.72, ls=":", color="cadetblue")
