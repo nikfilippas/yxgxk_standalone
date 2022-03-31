@@ -1,7 +1,7 @@
 import yaml
 import os
 
-def make_yml(params_vary, corrs, bias_model, kmax,
+def make_yml(params_vary, corrs, bias_model, lmin, kmax,
              mass_function, concentration, hm_correction, ns_independent,
              fname_data, dirname_out, sampler,
              debug=True, nsamples=10000):
@@ -29,6 +29,11 @@ def make_yml(params_vary, corrs, bias_model, kmax,
     dout['likelihood']['ygk_like.ygkLike']['mf_name'] = mass_function
     dout['likelihood']['ygk_like.ygkLike']['cm_name'] = concentration
     dout['likelihood']['ygk_like.ygkLike']['HM_correction'] = hm_correction
+    dic = dout["likelihood"]["ygk_like.ygkLike"]["defaults"]
+    for item in dic:
+        if item.startswith("LOWZ"):
+            dic[item]["lmin"] = lmin
+    dout['likelihood']['ygk_like.ygkLike']['defaults']['lmin'] = lmin
     dout['likelihood']['ygk_like.ygkLike']['defaults']['kmax'] = kmax
     dout['likelihood']['ygk_like.ygkLike']['ns_independent'] = ns_independent
     dout['likelihood']['ygk_like.ygkLike']['input_file'] = fname_data

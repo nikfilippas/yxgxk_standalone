@@ -17,6 +17,7 @@ for i in range(6):
                     (tname, 'YMILCA'),
                     (tname, 'KAPPA')],
              bias_model='HaloModel',
+             lmin=2,
              kmax=kmax_arr[i],
              mass_function="Tinker08",
              concentration="Ishiyama21",
