@@ -16,18 +16,18 @@ likelihood:
     cm_name: Ishiyama21
     defaults:
       LOWZ__1:
-        lmin: 2
+        lmin: 10
       LOWZ__2:
-        lmin: 2
+        lmin: 10
       LOWZ__3:
-        lmin: 2
+        lmin: 10
       LOWZ__4:
-        lmin: 2
+        lmin: 10
       LOWZ__5:
-        lmin: 2
+        lmin: 10
       kmax: 1.0
       lmax: 1024
-      lmin: 2
+      lmin: 0
     hb_name: Tinker10
     ia_model: IANone
     input_file: data/saccfiles/cls_cov.fits
@@ -48,7 +48,7 @@ likelihood:
     - bins:
       - LOWZ__2
       - KAPPA
-output: chains/gyksrA_T08_km4_2/gyksrA_T08_km4_2_2/cobaya
+output: chains/gyksrA_T08/gyksrA_T08_2/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
