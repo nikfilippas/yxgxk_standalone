@@ -91,5 +91,25 @@ colors = {
     'gyksrAAA_T08' : 'orange',
     'gyksrA_T08_km4': 'palegreen',
     'gyksrA_T08_km4_2': 'greenyellow',
+    'gyksrA_T08_w4' : 'lime',
     'gyksrA_T08_l40': 'indigo',
+    }
+
+markers = {
+    'gyksrA_T08': 'o',        # fiducial
+    'gksrA_T08' : 's',        # no tSZ
+    'gyksrA_bf075_T08': 'D',  # fixed bH
+    'gyksrA_bG073_T08': '^',  # Gauss
+    'gykrA_T08' : 'p',        # fixed σ8
+    'gyksr_T08' : 'd',        # fixed Ahmc
+    'gyksrA_SZ_T08': 'P',     # SZ-deproj
+    'gyksrAAA_T08' : 'x',     # Agg Agy Agk
+    'gyksrA_B16': 'v',        # Bocquet16
+    'gyksrA': 'v',            # Tinker10
+    'gyksrA_D16': 'v',        # Despali16
+    'gyksrA_T08_km4': '*',    # kmax4 = 0.50
+    'gyksrA_T08_km4_2': 'H',  # kmax4 = 0.25
+    'gyksrA_T08_w4' : '1',    # w_4(z) prior
+    'gyksrA_T08_l40': '_',    # lmin = 40
+    'gyksrA_bU075_T08': '^',  # Uniform
     }

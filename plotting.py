@@ -48,6 +48,7 @@ class Plotter(ChainCalculator):
         self._latex_labels = _names.latex_labels
         self._latex_short = _names.latex_labels_short
         self._colors = _names.colors
+        self._markers = _names.markers
 
     def _overlay_sigma8(self, ax):
         s8 = self.cosmo.sigma8() * self.cosmo.growth_factor(1/(1+self._zplot))
@@ -80,9 +81,16 @@ class Plotter(ChainCalculator):
         from data.bpe_data_from_bibliography import bpe_data
         all_data = np.hstack(bpe_data)
         err = [all_data[1] - all_data[2], all_data[3] - all_data[1]]
+        # plot error bars without markers
         ax.errorbar(all_data[0], all_data[1], yerr=err,
-                    fmt="o", markersize=2, color="royalblue", alpha=0.2,
+                    fmt="none", color="royalblue", alpha=0.2,
                     label="bibliography (see caption)")
+        # plot name initials from bibliography
+        biblio = ["Pandey19", "Chiang20", "Waerbeke13", "Yan20",
+                  "Koukoufilippas20", "Vikram17"]
+        for dat, bib in zip(bpe_data, biblio):
+            ax.plot(dat[0], dat[1], "o", marker="$%s$" % bib[0],
+                    color="royalblue", alpha=0.3, markersize=7)
         ax.set_ylim(0.07, 0.28)
 
     def _overlay_Omth(self, ax):
@@ -133,7 +141,8 @@ class Plotter(ChainCalculator):
             if par == "Omth": BF *= 1e8
             label = self._latex_labels[model]
             ax.errorbar(self._zarr+0.005*i, BF[:, 0], BF[:, 1:].T,
-                        fmt="o", color=self._colors[model], label=label)
+                        fmt=self._markers[model], color=self._colors[model],
+                        label=label)
 
         # sophisticated legend
         handles, labels = ax.get_legend_handles_labels()
