@@ -16,8 +16,10 @@ names = {
     10: 'gyksrA_B16',       # Bocquet16: Mmin, M1, 1-b, sigma8, rhogy, A
     11: 'gyksrA',           # Tinker10 : Mmin, M1, 1-b, sigma8, rhogy, A
     12: 'gyksrA_Nsat_T08',  # ns_indep : Mmin, M1, 1-b, sigma8, rhogy, A
-    13: 'gyksrA_T08_km4',  # kmax4=0.5 : Mmin, M1, 1-b, sigma8, rhogy, A
-    14: 'gyksrA_T08_l40',  # lmin = 40 : Mmin, M1, 1-b, sigma8, rhogy, A
+    13: 'gyksrA_T08_km4',   # kmax4=0.5 : Mmin, M1, 1-b, sigma8, rhogy, A
+    14: 'gyksrA_T08_l40',   # lmin = 40 : Mmin, M1, 1-b, sigma8, rhogy, A
+    15: 'gyksrA_T08_w4',    # w_4(z) ~ U(20%) : Mmin, M1, 1-b, sigma8, rhogy, A, w
+    16: 'gyksrA_T08_km4_2', # kmax4=0.25 : Mmin, M1, 1-b, sigma8, rhogy, A
 }
 
 latex_bins = [r'$\mathrm{2MPZ}$'] + \
@@ -49,7 +51,9 @@ latex_labels = {
     'gyksrA_SZ_T08': 'Planck 2018 SZ-deprojected map',
     'gyksrAAA_T08' : r'decoupled $A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
     'gyksrA_T08_km4': r'$k_{\rm max}^{\rm wisc\,4} = 0.5\,\rm Mpc^{-1}$',
-    'gyksrA_T08_l40': r'$l_{\rm min} = 40$'
+    'gyksrA_T08_l40': r'$l_{\rm min} = 40$',
+    'gyksrA_T08_w4' : r'$w^{\rm wisc\,4}(z) \sim U(0.80, 1.20)$',
+    'gyksrA_T08_km4_2': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
     }
 
 latex_labels_short = {
@@ -67,6 +71,7 @@ latex_labels_short = {
     'gyksrA_SZ_T08': 'SZ-deprojected',
     'gyksrAAA_T08' : r'$A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
     'gyksrA_T08_km4': r'$k_{\rm max}^{\rm wisc\,4} = 0.5\,\rm Mpc^{-1}$',
+    'gyksrA_T08_km4_2': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
     'gyksrA_T08_l40': r'$l_{\rm min} = 40$'
     }
 
@@ -85,5 +90,6 @@ colors = {
     'gyksrA_SZ_T08': 'magenta',
     'gyksrAAA_T08' : 'orange',
     'gyksrA_T08_km4': 'palegreen',
+    'gyksrA_T08_km4_2': 'greenyellow',
     'gyksrA_T08_l40': 'indigo',
     }

@@ -278,34 +278,34 @@ params:
     latex: \Delta z
     proposal: 0.002
   ygk_LOWZ__0_wz:
-    prior: {min: 0.9, max: 1.1}
+    prior: {min: 0.8, max: 1.2}
     ref: {dist: norm, scale: 0.002, loc: 1.}
-    latex: \Delta z
+    latex: w(z)
     proposal: 0.002
   ygk_LOWZ__1_wz:
-    prior: {min: 0.9, max: 1.1}
+    prior: {min: 0.8, max: 1.2}
     ref: {dist: norm, scale: 0.002, loc: 1.}
-    latex: \Delta z
+    latex: w(z)
     proposal: 0.002
   ygk_LOWZ__2_wz:
-    prior: {min: 0.9, max: 1.1}
+    prior: {min: 0.8, max: 1.2}
     ref: {dist: norm, scale: 0.002, loc: 1.}
-    latex: \Delta z
+    latex: w(z)
     proposal: 0.002
   ygk_LOWZ__3_wz:
-    prior: {min: 0.9, max: 1.1}
+    prior: {min: 0.8, max: 1.2}
     ref: {dist: norm, scale: 0.002, loc: 1.}
-    latex: \Delta z
+    latex: w(z)
     proposal: 0.002
   ygk_LOWZ__4_wz:
-    prior: {min: 0.9, max: 1.1}
+    prior: {min: 0.8, max: 1.2}
     ref: {dist: norm, scale: 0.002, loc: 1.}
-    latex: \Delta z
+    latex: w(z)
     proposal: 0.002
   ygk_LOWZ__5_wz:
-    prior: {min: 0.9, max: 1.1}
+    prior: {min: 0.8, max: 1.2}
     ref: {dist: norm, scale: 0.002, loc: 1.}
-    latex: \Delta z
+    latex: w(z)
     proposal: 0.002
   ygk_mass_bias:
     # prior: {min: 0.6, max: 0.9}                  # hydro sims
