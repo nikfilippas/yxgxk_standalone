@@ -29,11 +29,6 @@ p.tomographic(m_sys, "ygk_mass_bias", **kwargs)
 p.tomographic(m_sys, "bPe", **kwargs)
 p.close_plots()
 
-# wisc4 systematics
-m_sys = [names[key] for key in [0, 13, 16, 14, 15]]
-p.tomographic(m_sys, "sigma8", **kwargs)
-p.tomograpgic(m_sys, "ygk_mass_bias", **kwargs)
-
 # triangles fiducial
 m_tri = [names[key] for key in [0, 8]]
 p.posterior(m_tri, **kwargs)
@@ -71,9 +66,14 @@ T = p.table(model="gyksrA_T08", params=tab_params)
 print(T)
 
 
+# *** wisc4 systematics ***
+from plotting import Plotter
+p = Plotter()
 
-# from plotting import Plotter
-# p = Plotter()
-# mods = [names[key] for key in [0, 15]]
-# p.tomographic(mods, "sigma8", **kwargs)
-# p.posterior(mods, bins=[4], **kwargs)
+mods = [names[key] for key in [0, 15]]
+p.tomographic(mods, "sigma8", **kwargs)
+p.posterior(mods, bins=[4], **kwargs)
+
+m_sys = [names[key] for key in [0, 13, 16, 14, 15]]
+p.tomographic(m_sys, "sigma8", **kwargs)
+p.tomographic(m_sys, "ygk_mass_bias", **kwargs)
