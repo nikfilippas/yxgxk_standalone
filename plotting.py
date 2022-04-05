@@ -113,11 +113,11 @@ class Plotter(ChainCalculator):
         ax.axhline(0.58, ls=":", color="grey")
         ax.axhspan(0.58-0.04, 0.58+0.06, color="grey", alpha=0.3)
         props = {"boxstyle": "round", "facecolor": "w", "alpha": 0.5}
-        ax.text(0.396, 0.73, "CMB + N.C.",
+        ax.text(0.396, 0.73, "CMB $\\kappa$ + N.C.",
                 fontsize=10, fontweight="bold",
                 horizontalalignment="right", verticalalignment="bottom",
                 bbox=props, transform=ax.transData)
-        ax.text(0.396, 0.59, "CMB $\\kappa$ + N.C.",
+        ax.text(0.396, 0.59, "CMB + N.C.",
                 fontsize=10, fontweight="bold",
                 horizontalalignment="right", verticalalignment="bottom",
                 bbox=props, transform=ax.transData)
