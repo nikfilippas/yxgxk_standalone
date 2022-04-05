@@ -122,7 +122,8 @@ class Plotter(ChainCalculator):
                 horizontalalignment="right", verticalalignment="bottom",
                 bbox=props, transform=ax.transData)
 
-    def tomographic(self, models, par, keep_on=False, overwrite=False):
+    def tomographic(self, models, par, violins=[0],
+                    keep_on=False, overwrite=False):
         fig, ax = plt.subplots(figsize=(9,7))
         ax.tick_params(labelsize=16)
         ax.set_xlabel("$z$", fontsize=20)
@@ -144,6 +145,26 @@ class Plotter(ChainCalculator):
                         fmt=self._markers[model], color=self._colors[model],
                         label=label)
 
+        if violins is not None and par not in ["bPe", "Omth"]:
+            vmods = [models[i] for i in violins]
+            for ii, model in enumerate(vmods):
+                chains = np.array(
+                    [ibin[par] for ibin in self.get_chains(model).values()],
+                    dtype=object)
+                # normalize for y-scale if needed
+                if par == "sigma8":
+                    chains *= np.array([self.cosmo.growth_factor(1/(1+z))
+                                        for z in self._zarr])
+                elif par == "Omth": chains *= 1e8
+
+                # plot violins
+                vplot = ax.violinplot(
+                    chains, self._zarr+0.005*violins[ii],
+                    widths=0.01, showextrema=False)
+                for pc in vplot["bodies"]:
+                    pc.set_color(self._colors[model])
+                    pc.set_alpha(0.2)
+
         # sophisticated legend
         handles, labels = ax.get_legend_handles_labels()
         handler_map = None
@@ -164,9 +185,13 @@ class Plotter(ChainCalculator):
         if not keep_on:
             plt.close()
 
-    def posterior(self, models, params="all", keep_on=False, overwrite=False):
+    def posterior(self, models, params="all", bins="all",
+                  keep_on=False, overwrite=False):
         params_in = params
-        for ibin, _ in enumerate(tqdm(self.tracers)):
+        tracers = self.tracers.copy()
+        tracers = tracers if bins == "all" else [tracers[i] for i in bins]
+        ibins = range(len(tracers)) if bins == "all" else bins
+        for ibin in tqdm(ibins):
             fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
                       for model in models]
             s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
