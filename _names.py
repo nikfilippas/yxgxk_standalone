@@ -20,7 +20,8 @@ names = {
     14: 'gyksrA_T08_l40',   # lmin = 40  : Mmin, M1, 1-b, sigma8, rhogy, A
     15: 'gyksrA_T08_w4',    # w_4(z) ~ U(20%) : Mmin, M1, 1-b, sigma8, rhogy, A, w
     16: 'gyksrA_T08_km4_2', # kmax4=0.25 : Mmin, M1, 1-b, sigma8, rhogy, A
-    17: 'gyrA_T08',         # gxg, gxy   : Mmin, M1, 1-b, rhogy, A
+    17: 'yxg',              # gxg, gxy   : Mmin, M1, 1-b, rhogy
+    18: 'yxg_Ahmc',         # gxg, gxy   : Mmin, M1, 1-b, rhogy, Agg, Agy
 }
 
 latex_bins = [r'$\mathrm{2MPZ}$'] + \
@@ -55,7 +56,8 @@ latex_labels = {
     'gyksrA_T08_l40': r'$l_{\rm min} = 40$',
     'gyksrA_T08_w4' : r'$w^{\rm wisc\,4}(z) \sim U(0.80, 1.20)$',
     'gyksrA_T08_km4_2': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
-    'gyrA_T08': rf'no $\kappa$: {gxg}, {gxy}',
+    'yxg': r'no $\kappa$: %s, %s, fixed $A_{\rm hmc}$' % (gxg, gxy),
+    'yxg_Ahmc': r'no CMB$\kappa$: %s, %s, decoup. $A_{\rm hmc}$' % (gxg, gxy),
 }
 
 latex_labels_short = {
@@ -75,7 +77,8 @@ latex_labels_short = {
     'gyksrA_T08_km4': r'$k_{\rm max}^{\rm wisc\,4} = 0.5\,\rm Mpc^{-1}$',
     'gyksrA_T08_km4_2': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
     'gyksrA_T08_l40': r'$l_{\rm min} = 40$',
-    'gyrA_T08': r'no $\kappa$',
+    'yxg': r'g,y, fixed $A_{\rm hmc}$',
+    'yxg_Ahmc': r'g,y, decoup. $A_{\rm hmc}$',
 }
 
 colors = {
@@ -96,7 +99,8 @@ colors = {
     'gyksrA_T08_km4_2': 'greenyellow',
     'gyksrA_T08_w4' : 'lime',
     'gyksrA_T08_l40': 'indigo',
-    'gyrA_T08': 'darkslategrey',
+    'yxg': 'darkslategrey',
+    'yxg_Ahmc': 'darkslategrey',
 }
 
 markers = {
@@ -116,5 +120,6 @@ markers = {
     'gyksrA_T08_w4' : '1',    # w_4(z) prior
     'gyksrA_T08_l40': '_',    # lmin = 40
     'gyksrA_bU075_T08': '^',  # Uniform
-    'gyrA_T08': 's',          # no CMBκ
+    'yxg': 's',               # yxg fixed A
+    'yxg_Ahmc': 's',          # yxg decoup A
 }

@@ -2,7 +2,7 @@ from plotting import Plotter
 from _names import names
 
 p = Plotter()
-kwargs = {"keep_on": True, "overwrite": True}
+kwargs = {"keep_on": True, "overwrite": False}
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
@@ -67,11 +67,11 @@ print(T)
 
 
 # *** wisc4 systematics ***
-from plotting import Plotter
-p = Plotter()
-
-mods = [names[key] for key in [0, 15]]
+mods = [names[key] for key in [0, 15, 18]]
 p.tomographic(mods, "sigma8", **kwargs)
+p.posterior(mods, bins=[4], **kwargs)
+
+mods = [names[key] for key in [17, 18]]
 p.posterior(mods, bins=[4], **kwargs)
 
 m_sys = [names[key] for key in [0, 13, 16, 14, 15]]
