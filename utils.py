@@ -110,8 +110,8 @@ class Interpolator:
 class Interpolate(CosmoHaloModel):
     """Handles interpolation of expensive parameters."""
 
-    def __init__(self, base_model="gyksrA_T08"):
-        super().__init__(base_model=base_model)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._save = "data/interpolators.npy"
         self._load()
 
@@ -186,9 +186,9 @@ class Container(Interpolate):
     """Populate subclasses with useful parameters."""
 
     def __init__(self,
-                 base_model="gyksrA_T08",
-                 fname_sacc="data/saccfiles/cls_cov.fits",
-                 secondaries=["YMILCA", "KAPPA"]):
+                 fname_sacc="data/saccfiles/cls_cov_comb.fits",
+                 secondaries=["YMILCA", "KAPPA"],
+                 **kwargs):
         self._secondaries = secondaries
         self._saccfile = sacc.Sacc.load_fits(fname_sacc)
 
@@ -198,7 +198,7 @@ class Container(Interpolate):
         self._get_zmid()        # defines self.zmid
         self._get_lmax()        # defines self.lmax
         self._build_corrmats()  # defines self.corrmats
-        super().__init__(base_model=base_model)
+        super().__init__(**kwargs)
 
     def _get_dndz(self):
         # new dndz

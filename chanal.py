@@ -10,8 +10,8 @@ import _names
 
 
 class ChainCalculator(Container):
-    def __init__(self, *, base_model="gyksrA_T08", new_interps=False):
-        super().__init__(base_model=base_model)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.chains = {}
         self.summary = {}
         self.best_fits = {}
