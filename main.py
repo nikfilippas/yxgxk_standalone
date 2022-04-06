@@ -1,7 +1,9 @@
 from plotting import Plotter
 from _names import names
 
-p = Plotter()
+settings = {"base_model": "gyksrA_T08_comb",
+            "fname_sacc": "data/saccfiles/cls_cov_comb.fits"}
+p = Plotter(**settings)
 kwargs = {"keep_on": True, "overwrite": False}
 
 # sigma8
@@ -58,7 +60,7 @@ p.nz(compare=True, **kwargs)
 p.close_plots()
 
 # correlation matrices
-p.corr_matrices()
+p.corr_matrices(**kwargs)
 
 # results table
 tab_params = ["sigma8", "ygk_mass_bias", "bPe", "Omth"]

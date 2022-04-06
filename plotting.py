@@ -35,8 +35,8 @@ class AnyObjectHandler(HandlerBase):
 class Plotter(ChainCalculator):
     """Handles plotting."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._zarr = np.asarray(list(self.zmid.values()))
         self._zplot = np.linspace(0.01, 0.40, 64)
         self._setup_plot_names()
@@ -371,7 +371,7 @@ class Plotter(ChainCalculator):
         if not keep_on:
             plt.close()
 
-    def _mpl_corr_block(self, tracer, save=False, close=True):
+    def _mpl_corr_block(self, tracer, overwrite=False, keep_on=True):
         corr = self.corrmats[tracer]
 
         fig, ax = plt.subplots()
@@ -396,16 +396,16 @@ class Plotter(ChainCalculator):
                   cmap=cm.gray, vmin=0, vmax=1,
                   interpolation="nearest", aspect="equal")
 
-        if save:
-            fname = f"figs/corr_{tracer}.pdf"
-            fig.savefig(fname, bbox_inches="tight")
+        fname_out = f"figs/corr_{tracer}.pdf"
+        if overwrite or not os.path.isfile(fname_out):
+            fig.savefig(fname_out, bbox_inches="tight")
         plt.show(block=False)
-        if close:
+        if not keep_on:
             plt.close()
 
-    def corr_matrices(self):
+    def corr_matrices(self, overwrite=False, keep_on=True):
         for tracer in self.corrmats.keys():
-            self._mpl_corr_block(tracer, save=True)
+            self._mpl_corr_block(tracer, overwrite=overwrite, keep_on=keep_on)
 
     def close_plots(self):
         plt.close("all")
