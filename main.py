@@ -1,10 +1,10 @@
 from plotting import Plotter
 from _names import names
 
-settings = {"base_model": "gyksrA_T08_comb",
-            "fname_sacc": "data/saccfiles/cls_cov_comb.fits"}
+settings = {"base_model": "gyksrA_T08_new",
+            "fname_sacc": "data/saccfiles/cls_cov_new.fits"}
 p = Plotter(**settings)
-kwargs = {"keep_on": True, "overwrite": False}
+kwargs = {"keep_on": False, "overwrite": False}
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
