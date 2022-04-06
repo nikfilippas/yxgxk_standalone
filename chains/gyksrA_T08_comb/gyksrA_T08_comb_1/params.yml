@@ -25,12 +25,12 @@ likelihood:
         lmin: 2
       LOWZ__5:
         lmin: 2
-      kmax: 0.5
+      kmax: 1.0
       lmax: 1024
       lmin: 2
     hb_name: Tinker10
     ia_model: IANone
-    input_file: data/saccfiles/cls_cov.fits
+    input_file: data/saccfiles/cls_cov_comb.fits
     input_params_prefix: ygk
     mdef_name: 500c
     mf_name: Tinker08
@@ -40,19 +40,31 @@ likelihood:
     shape_model: ShapeNone
     twopoints:
     - bins:
-      - LOWZ__0
-      - LOWZ__0
+      - LOWZ__1
+      - LOWZ__1
     - bins:
-      - LOWZ__0
+      - LOWZ__1
       - YMILCA
-output: chains/gyrA_T08/gyrA_T08_0/cobaya
+    - bins:
+      - LOWZ__1
+      - KAPPA
+output: chains/gyksrA_T08_comb/gyksrA_T08_comb_1/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
   h: 0.6766
   m_nu: 0.0
   n_s: 0.9665
-  sigma8: 0.8102
+  sigma8:
+    latex: \sigma_8
+    prior:
+      max: 1.5
+      min: 0.2
+    proposal: 0.02
+    ref:
+      dist: norm
+      loc: 0.8102
+      scale: 0.02
   ygk_Ahmc:
     latex: A_{\rm HMC}
     prior:
@@ -69,26 +81,8 @@ params:
   ygk_LOWZ__0_bp: 0.0
   ygk_LOWZ__0_bs: 0.0
   ygk_LOWZ__0_dz: 0.0
-  ygk_LOWZ__0_lM1_0:
-    latex: \log_{10}M_{1}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 14.082529
-      scale: 0.1
-  ygk_LOWZ__0_lMmin_0:
-    latex: \log_{10}M_{\rm min}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 12.602721
-      scale: 0.1
+  ygk_LOWZ__0_lM1_0: 14.082529
+  ygk_LOWZ__0_lMmin_0: 12.602721
   ygk_LOWZ__0_wz: 1.0
   ygk_LOWZ__1_b0: 2.0
   ygk_LOWZ__1_b1: 2.0
@@ -96,8 +90,26 @@ params:
   ygk_LOWZ__1_bp: 0.0
   ygk_LOWZ__1_bs: 0.0
   ygk_LOWZ__1_dz: 0.0
-  ygk_LOWZ__1_lM1_0: 12.9802
-  ygk_LOWZ__1_lMmin_0: 11.653036
+  ygk_LOWZ__1_lM1_0:
+    latex: \log_{10}M_{1}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 12.9802
+      scale: 0.1
+  ygk_LOWZ__1_lMmin_0:
+    latex: \log_{10}M_{\rm min}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 11.653036
+      scale: 0.1
   ygk_LOWZ__1_wz: 1.0
   ygk_LOWZ__2_b0: 2.0
   ygk_LOWZ__2_b1: 2.0

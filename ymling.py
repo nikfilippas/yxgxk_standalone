@@ -1,7 +1,7 @@
 from make_yml import make_yml
 
-run_name = 'gyksrA_T08'
-fname_data = 'data/saccfiles/cls_cov.fits'
+run_name = 'gyksrA_T08_comb'
+fname_data = 'data/saccfiles/cls_cov_comb.fits'
 
 kmax_arr = [0.5, 1., 1., 1., 1., 1.]
 
