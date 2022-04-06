@@ -2,9 +2,6 @@ from cobaya.model import get_model
 from cobaya.run import run
 import yaml
 import os
-import time
-import numpy as np
-import sacc
 import scipy.stats as st
 import sys
 
@@ -44,24 +41,3 @@ chi2 = -2*loglikes[0]
 ndata = l.ndata
 print("chi2 = ", chi2)
 print("p = ", 1-st.chi2.cdf(chi2, ndata))
-
-'''
-l = model.likelihood['yxgxk_like.YxGxKLike']
-p_all.update(pf)
-s_th = l.get_sacc_file(**p_all)
-s_dt = sacc.Sacc.load_fits(l.input_file)
-
-import matplotlib.pyplot as plt
-for t1, t2 in s_th.get_tracer_combinations():
-    plt.figure()
-    plt.title(f'{t1}x{t2}')
-    ld, cld, cov = s_dt.get_ell_cl('cl_00', t1, t2, return_cov=True)
-    lt, clt = s_th.get_ell_cl('cl_00', t1, t2)
-    ids = np.array([l in lt for l in ld])
-    #plt.errorbar(ld, cld, yerr=np.sqrt(np.diag(cov)), fmt='k.')
-    #plt.plot(lt, clt, 'r-')
-    #plt.loglog()
-    plt.errorbar(lt, (cld[ids]-clt)/np.sqrt(np.diag(cov))[ids], yerr=np.ones(len(lt)), fmt='k.')
-    plt.xscale('log')
-plt.show()
-'''

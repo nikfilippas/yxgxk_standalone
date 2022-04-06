@@ -67,11 +67,7 @@ print(T)
 
 
 # *** wisc4 systematics ***
-mods = [names[key] for key in [0, 15, 18]]
-p.tomographic(mods, "sigma8", **kwargs)
-p.posterior(mods, bins=[4], **kwargs)
-
-mods = [names[key] for key in [17, 18]]
+mods = [names[key] for key in [0, 4, 17]]
 p.posterior(mods, bins=[4], **kwargs)
 
 m_sys = [names[key] for key in [0, 13, 16, 14, 15]]
