@@ -365,14 +365,22 @@ sampler:
     oversample_power: 0.4
     oversample_thin: true
     drag: false
-    blocking: null
+    blocking:
+    - - 1
+      - - sigma8
+    - - 1
+      - - ygk_Ahmc
+        - ygk_LOWZ__0_lM1_0
+        - ygk_LOWZ__0_lMmin_0
+        - ygk_mass_bias
+        - ygk_rhogy
     callback_function: null
     callback_every: null
     seed: null
     check_every: null
     oversample: null
     drag_limits: null
-    version: null
+    version: 3.0.4
 output: cobaya
 packages_path: null
 test: false
