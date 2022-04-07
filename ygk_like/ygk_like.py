@@ -114,7 +114,7 @@ class ygkLike(Likelihood):
 
         s = sacc.Sacc.load_fits(self.input_file)
         self.bin_properties = {}
-        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
+        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="boltzmann_camb")
         kmax_default = self.defaults.get('kmax', 0.1)
         for b in self.bins:
             if b['name'] not in s.tracers:
