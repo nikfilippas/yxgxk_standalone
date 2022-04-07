@@ -114,7 +114,7 @@ class ygkLike(Likelihood):
 
         s = sacc.Sacc.load_fits(self.input_file)
         self.bin_properties = {}
-        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="boltzmann_camb")
+        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
         kmax_default = self.defaults.get('kmax', 0.1)
         for b in self.bins:
             if b['name'] not in s.tracers:
@@ -212,12 +212,12 @@ class ygkLike(Likelihood):
         # Check eigenvalues
         w, v = np.linalg.eigh(self.cov)
         if np.any(w <= 0):
-            print(w)
-            exit(1)
-            # iw = 1./w
-            # iw[w <= 0] = 0
-            # self.inv_cov = np.dot(v, np.dot(np.diag(iw), v.T))
-            self.inv_cov = np.linalg.inv(self.cov)
+            if np.sum(w <= 0) > 1:
+                print(w)
+                exit(1)
+            iw = 1./w
+            iw[w <= 0] = 0
+            self.inv_cov = np.dot(v, np.dot(np.diag(iw), v.T))
         else:
             self.inv_cov = np.linalg.inv(self.cov)
         self.ndata = len(self.data_vec)
