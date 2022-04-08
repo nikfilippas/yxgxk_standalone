@@ -1,28 +1,28 @@
-names = {
-    -1: 'gyksrA_T08',       # Mmin, M1, 1-b, sigma8, rhogy, A
-    0: 'gyksrA_T08_new',    # Mmin, M1, 1-b, sigma8, rhogy, A
-    1: 'gyksr_T08',         # Mmin, M1, 1-b, sigma8, rhogy
-    2: 'gksrA_T08',         # Mmin, M1, sigma8, A
-    3: 'gyksrA_bf075_T08',  # Mmin, M1, sigma8, rhogy, A
+
+names_new = {
+    0: 'gyksrA',            # fiducial : Mmin, M1, 1-b, sigma8, rhogy, A
+    1: 'gksA',              # gxg, gxk : Mmin, M1, sigma8, A
+    2: 'gyksrA_bG073',      # b_gauss  : Mmin, M1, 1-b, sigma8, rhogy, A
+    3: 'gyksrA_bf075',      # b fixed  : Mmin, M1, sigma8, rhogy, A
+    4: 'gykrA',             # s8 fixed : Mmin, M1, 1-b, rhogy, A
 
     # robustness checks (plotted)
-    4: 'gykrA_T08',         # Mmin, M1, 1-b, rhogy, A
-    5: 'gyksrAAA_T08',      # Mmin, M1, 1-b, sigma8, rhogy, Agg, Agy, Agm
-    6: 'gyksrA_SZ_T08',     # SZdeproj : Mmin, M1, 1-b, sigma8, rhogy, A
-    7: 'gyksrA_D16',        # Despali16: Mmin, M1, 1-b, sigma8, rhogy, A
-    8: 'gyksrA_bG073_T08',  # b_gauss  : Mmin, M1, 1-b, sigma8, rhogy, A
+    5: 'gyksr',             # A fixed  : Mmin, M1, 1-b, sigma8, rhogy
+    6: 'gyksrAAA',          # A decoup : Mmin, M1, 1-b, sigma8, rhogy, Agg, Agy, Agm
+    7: 'gyksrA_SZ',         # SZdeproj : Mmin, M1, 1-b, sigma8, rhogy, A
+
+    # mass functions
+    8: 'gyksrA_B16',        # Bocquet16 : Mmin, M1, 1-b, sigma8, rhogy, A
+    9: 'gyksrA_T10',        # Tinker10  : Mmin, M1, 1-b, sigma8, rhogy, A
+    10: 'gyksrA_D16',       # Despali16 : Mmin, M1, 1-b, sigma8, rhogy, A
 
     # robustness checks (not plotted)
-    9: 'gyksrA_bU075_T08',  # b_narrow   : Mmin, M1, 1-b, sigma8, rhogy, A
-    10: 'gyksrA_B16',       # Bocquet16  : Mmin, M1, 1-b, sigma8, rhogy, A
-    11: 'gyksrA_T10',       # Tinker10   : Mmin, M1, 1-b, sigma8, rhogy, A
-    12: 'gyksrA_Nsat_T08',  # ns_indep   : Mmin, M1, 1-b, sigma8, rhogy, A
-    13: 'gyksrA_T08_km4',   # kmax4=0.5  : Mmin, M1, 1-b, sigma8, rhogy, A
-    14: 'gyksrA_T08_l40',   # lmin = 40  : Mmin, M1, 1-b, sigma8, rhogy, A
-    15: 'gyksrA_T08_w4',    # w_4(z) ~ U(20%) : Mmin, M1, 1-b, sigma8, rhogy, A, w
-    16: 'gyksrA_T08_km4_2', # kmax4=0.25 : Mmin, M1, 1-b, sigma8, rhogy, A
-    17: 'yxg',              # gxg, gxy   : Mmin, M1, 1-b, rhogy
-    18: 'yxg_Ahmc',         # gxg, gxy   : Mmin, M1, 1-b, rhogy, Agg, Agy
+    11: 'gyksrA_lmin40',    # lmin = 40  : Mmin, M1, 1-b, sigma8, rhogy, A
+    12: 'gyksrA_kmax025',   # kmax = 0.25: Mmin, M1, 1-b, sigma8, rhogy, A
+    13: 'gyksrA_bU075',     # b_narrow   : Mmin, M1, 1-b, sigma8, rhogy, A
+    14: 'gyksrA_Nsat',      # ns_indep   : Mmin, M1, 1-b, sigma8, rhogy, A
+    15: 'gyr',              # gxg, gxy   : Mmin, M1, 1-b, rhogy
+    16: 'gyksrAw',          # w(z)       : Mmin, M1, 1-b, sigma8, rhogy, A, w
 }
 
 latex_bins = [r'$\mathrm{2MPZ}$'] + \
@@ -40,91 +40,93 @@ gxy = r'$g \times y$'
 gxk = r'$g \times \kappa$'
 
 latex_labels = {
-    'gyksrA_T08': rf'fiducial: {gxg}, {gxy}, {gxk}',
-    'gyksrA_T08_new': rf'fiducial: {gxg}, {gxy}, {gxk}',
-    'gksrA_T08' : rf'no tSZ: {gxg}, {gxk}',
-    'gyksrA_bf075_T08': r'fixed $1-b_{\rm H} = 0.75$',
-    'gyksrA_bG073_T08': r'$1-b_{\rm H} \sim G(0.73, 0.10)$',
-    'gyksrA_bU075_T08': r'$1-b_{\rm H} \sum U(0.60, 0.90)$',
-    'gykrA_T08' : r'fixed $\sigma_8$',
-    'gyksr_T08' : r'fixed $A_{\rm HM}$',
-    'gyksrA_B16': 'Bocquet et al. 2016 mass function',
+    'gyksrA'        : rf'fiducial: {gxg}, {gxy}, {gxk}',
+    'gksA'          : rf'no tSZ: {gxg}, {gxk}',
+    'gyksrA_bG073'  : r'$1-b_{\rm H} \sim G(0.73, 0.10)$',
+    'gyksrA_bf075'  : r'fixed $1-b_{\rm H} = 0.75$',
+    'gykrA'         : r'fixed $\sigma_8$',
+
+    'gyksr'         : r'fixed $A_{\rm HM}$',
+    'gyksrAAA'      : r'decoupled $A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
+    'gyksrA_SZ'     : 'Planck 2018 SZ-deprojected map',
+
+    'gyksrA_B16'    : 'Bocquet et al. 2016 mass function',
     'gyksrA_T10'    : 'Tinker et al. 2010 mass function',
-    'gyksrA_D16': 'Despali et al. 2016 mass function',
-    'gyksrA_Nsat_T08': r'$N_{rm sat}$ independent from $N_{\rm cen}$',
-    'gyksrA_SZ_T08': 'Planck 2018 SZ-deprojected map',
-    'gyksrAAA_T08' : r'decoupled $A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
-    'gyksrA_T08_km4': r'$k_{\rm max}^{\rm wisc\,4} = 0.5\,\rm Mpc^{-1}$',
-    'gyksrA_T08_l40': r'$l_{\rm min} = 40$',
-    'gyksrA_T08_w4' : r'$w^{\rm wisc\,4}(z) \sim U(0.80, 1.20)$',
-    'gyksrA_T08_km4_2': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
-    'yxg': r'no $\kappa$: %s, %s, fixed $A_{\rm hmc}$' % (gxg, gxy),
-    'yxg_Ahmc': r'no CMB$\kappa$: %s, %s, decoup. $A_{\rm hmc}$' % (gxg, gxy),
+    'gyksrA_D16'    : 'Despali et al. 2016 mass function',
+
+    'gyksrA_lmin40' : r'$l_{\rm min} = 40$',
+    'gyksrA_kmax025': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
+    'gyksrA_bU075'  : r'$1-b_{\rm H} \sum U(0.60, 0.90)$',
+    'gyksrA_Nsat'   : r'$N_{rm sat}$ independent from $N_{\rm cen}$',
+    'gyr'           : r'no $\kappa$: %s, %s, fixed $A_{\rm hmc}$' % (gxg, gxy),
+    'gyksrAw'       : r'$w^(z) \sim U(0.80, 1.20)$',
 }
 
 latex_labels_short = {
-    'gyksrA_T08': 'fiducial',
-    'gyksrA_T08_new': 'fiducial',
-    'gksrA_T08' : 'no tSZ',
-    'gyksrA_bf075_T08': r'$1-b_{\rm H} = 0.75$',
-    'gyksrA_bG073_T08': r'$1-b_{\rm H} \sim \rm Gauss$',
-    'gyksrA_bU075_T08': r'$1-b_{\rm H} \sum \rm Uniform$',
-    'gykrA_T08' : r'$\sigma_8 = 0.8102$',
-    'gyksr_T08' : r'$A_{\rm HM} = 1$',
-    'gyksrA_B16': 'Bocquet et al. 2016',
+    'gyksrA'        : 'fiducial',
+    'gksA'          : 'no tSZ',
+    'gyksrA_bG073'  : r'$1-b_{\rm H} \sim \rm Gauss$',
+    'gyksrA_bf075'  : r'$1-b_{\rm H} = 0.75$',
+    'gykrA'         : r'$\sigma_8 = 0.8102$',
+
+    'gyksr'         : r'$A_{\rm HM} = 1$',
+    'gyksrAAA'      : r'$A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
+    'gyksrA_SZ'     : 'SZ-deprojected',
+
+    'gyksrA_B16'    : 'Bocquet et al. 2016',
     'gyksrA_T10'    : 'Tinker et al. 2010',
-    'gyksrA_D16': 'Despali et al. 2016',
-    'gyksrA_Nsat_T08': r'independent $N_{\rm sat}$',
-    'gyksrA_SZ_T08': 'SZ-deprojected',
-    'gyksrAAA_T08' : r'$A_{\rm HM}^{gg}$, $A_{\rm HM}^{gy}$, $A_{\rm HM}^{g\kappa}$',
-    'gyksrA_T08_km4': r'$k_{\rm max}^{\rm wisc\,4} = 0.5\,\rm Mpc^{-1}$',
-    'gyksrA_T08_km4_2': r'$k_{\rm max}^{\rm wisc\,4} = 0.25\,\rm Mpc^{-1}$',
-    'gyksrA_T08_l40': r'$l_{\rm min} = 40$',
-    'yxg': r'g,y, fixed $A_{\rm hmc}$',
-    'yxg_Ahmc': r'g,y, decoup. $A_{\rm hmc}$',
+    'gyksrA_D16'    : 'Despali et al. 2016',
+
+    'gyksrA_lmin40' : r'$l_{\rm min} = 40$',
+    'gyksrA_kmax025' : r'$k_{\rm max} = 0.25\,\rm Mpc^{-1}$',
+    'gyksrA_bU075'  : r'$1-b_{\rm H} \sum \rm Uniform$',
+    'gyksrA_Nsat'   : r'independent $N_{\rm sat}$',
+    'gyr'           : r'g,y, fixed $A_{\rm hmc}$',
+    'gyksrAw'       : r'$w^(z) \sim U(0.80, 1.20)$',
 }
 
 colors = {
-    'gyksrA_T08': 'chocolate',
-    'gyksrA_T08_new': 'k',
-    'gksrA_T08' : 'grey',
-    'gyksrA_bf075_T08': 'r',
-    'gyksrA_bG073_T08': 'brown',
-    'gyksrA_bU075_T08': 'orangered',
-    'gykrA_T08' : 'forestgreen',
-    'gyksr_T08' : 'crimson',
-    'gyksrA_B16': 'navy',
+    'gyksrA'        : 'k',
+    'gksA'          : 'grey',
+    'gyksrA_bG073'  : 'brown',
+    'gyksrA_bf075'  : 'r',
+    'gykrA'         : 'forestgreen',
+
+    'gyksr'         : 'crimson',
+    'gyksrAAA'      : 'orange',
+    'gyksrA_SZ'     : 'magenta',
+
+    'gyksrA_B16'    : 'navy',
     'gyksrA_T10'    : 'royalblue',
-    'gyksrA_D16': 'deepskyblue',
-    'gyksrA_Nsat_T08': 'darkslategrey',
-    'gyksrA_SZ_T08': 'magenta',
-    'gyksrAAA_T08' : 'orange',
-    'gyksrA_T08_km4': 'palegreen',
-    'gyksrA_T08_km4_2': 'greenyellow',
-    'gyksrA_T08_w4' : 'lime',
-    'gyksrA_T08_l40': 'indigo',
-    'yxg': 'darkslategrey',
-    'yxg_Ahmc': 'darkslategrey',
+    'gyksrA_D16'    : 'deepskyblue',
+
+    'gyksrA_lmin40' : 'indigo',
+    'gyksrA_kmax025': 'greenyellow',
+    'gyksrA_bU075'  : 'orangered',
+    'gyksrA_Nsat'   : 'darkslategrey',
+    'gyr'           : 'darkslategrey',
+    'gyksrAw'       : 'lime',
 }
 
 markers = {
-    'gyksrA_T08': 'o',        # fiducial
-    'gyksrA_T08_new': 'o',    # fiducial
-    'gksrA_T08' : 's',        # no tSZ
-    'gyksrA_bf075_T08': 'D',  # fixed bH
-    'gyksrA_bG073_T08': '^',  # Gauss
-    'gykrA_T08' : 'p',        # fixed σ8
-    'gyksr_T08' : 'd',        # fixed Ahmc
-    'gyksrA_SZ_T08': 'P',     # SZ-deproj
-    'gyksrAAA_T08' : 'x',     # Agg Agy Agk
-    'gyksrA_B16': 'v',        # Bocquet16
-    'gyksrA_T10': 'v',        # Tinker10
-    'gyksrA_D16': 'v',        # Despali16
-    'gyksrA_T08_km4': '*',    # kmax4 = 0.50
-    'gyksrA_T08_km4_2': 'H',  # kmax4 = 0.25
-    'gyksrA_T08_w4' : '1',    # w_4(z) prior
-    'gyksrA_T08_l40': '_',    # lmin = 40
-    'gyksrA_bU075_T08': '^',  # Uniform
-    'yxg': 's',               # yxg fixed A
-    'yxg_Ahmc': 's',          # yxg decoup A
+    'gyksrA'        : 'o',
+    'gksA'          : 's',
+    'gyksrA_bG073'  : '^',
+    'gyksrA_bf075'  : 'D',
+    'gykrA'         : 'p',
+
+    'gyksr'         : 'd',
+    'gyksrAAA'      : 'x',
+    'gyksrA_SZ'     : 'P',
+
+    'gyksrA_B16'    : 'v',
+    'gyksrA_T10'    : 'v',
+    'gyksrA_D16'    : 'v',
+
+    'gyksrA_lmin40' : '_',
+    'gyksrA_kmax025': 'H',
+    'gyksrA_bU075'  : '^',
+    'gyksrA_Nsat'   : '>',
+    'gyr'           : 's',
+    'gyksrAw'       : '1',
 }

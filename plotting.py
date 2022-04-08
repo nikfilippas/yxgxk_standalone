@@ -192,7 +192,7 @@ class Plotter(ChainCalculator):
         tracers = tracers if bins == "all" else [tracers[i] for i in bins]
         ibins = range(len(tracers)) if bins == "all" else bins
         for ibin in tqdm(ibins):
-            fnames = [f"chains/{model}/{model}_{ibin}/cobaya"
+            fnames = [f"{self._chains_dir}/{model}/{model}_{ibin}/cobaya"
                       for model in models]
             s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
                  for fname in fnames]
