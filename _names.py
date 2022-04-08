@@ -1,5 +1,5 @@
 
-names_new = {
+names = {
     0: 'gyksrA',            # fiducial : Mmin, M1, 1-b, sigma8, rhogy, A
     1: 'gksA',              # gxg, gxk : Mmin, M1, sigma8, A
     2: 'gyksrA_bG073',      # b_gauss  : Mmin, M1, 1-b, sigma8, rhogy, A
