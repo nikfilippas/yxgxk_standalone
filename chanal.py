@@ -19,10 +19,10 @@ class ChainCalculator(Container):
 
     def _load_chains(self, model, ibin):
         # TODO: This could be merged using `self.get_sacc_file`.
-        fsetup = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
+        fsetup = f"{self._chains_dir}/{model}/{model}_{ibin}/cobaya.input.yaml"
         with open(fsetup, "r") as f:
             config = yaml.safe_load(f)
-        fchains = f"chains/{model}/{model}_{ibin}/cobaya"
+        fchains = f"{self._chains_dir}/{model}/{model}_{ibin}/cobaya"
         samples = gmc.loadMCSamples(fchains, settings={'ignore_rows': 0.3})
         pars = samples.getParams()
         return config, samples, pars
@@ -72,7 +72,7 @@ class ChainCalculator(Container):
 
         out = {}
         for ibin, tracer in enumerate(self.tracers):
-            fname = f"chains/{model}/{model}_{ibin}/cobaya"
+            fname = f"{self._chains_dir}/{model}/{model}_{ibin}/cobaya"
             s = gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
             p = s.getParams()
             out[tracer] = {k: v
@@ -116,7 +116,7 @@ class ChainCalculator(Container):
 
     def get_sacc_file(self, model, tracer):
         ibin = self.tracers.index(tracer)
-        fname = f"chains/{model}/{model}_{ibin}/cobaya.input.yaml"
+        fname = f"{self._chains_dir}/{model}/{model}_{ibin}/cobaya.input.yaml"
         with open(fname, "r") as stream:
             info = yaml.safe_load(stream)
         mod = get_model(info)

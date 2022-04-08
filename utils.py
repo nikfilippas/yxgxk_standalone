@@ -24,8 +24,9 @@ class CosmologyPlanck18(ccl.Cosmology):
 class CosmoHaloModel:
     """Internally define all cosmology and halo model, given a setup file."""
 
-    def __init__(self, base_model):
-        fname = f"chains/{base_model}/{base_model}_0/cobaya.input.yaml"
+    def __init__(self, *, base_model, chains_dir="chains_new"):
+        self._chains_dir = chains_dir
+        fname = f"{chains_dir}/{base_model}/{base_model}_0/cobaya.input.yaml"
         with open(fname, "r") as stream:
             info = yaml.safe_load(stream)
             like = next(iter(info["likelihood"].values()))
