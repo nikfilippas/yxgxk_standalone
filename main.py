@@ -60,3 +60,6 @@ p.corr_matrices(**kwargs)
 tab_params = ["sigma8", "ygk_mass_bias", "bPe", "Omth"]
 T = p.table(model="gyksrA_T08", params=tab_params)
 print(T)
+
+# masks
+Plotter.plot_masks()

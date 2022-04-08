@@ -1,6 +1,7 @@
 import os
 import copy
 import numpy as np
+import healpy as hp
 from tqdm import tqdm
 import getdist.mcsamples as gmc
 
@@ -427,3 +428,43 @@ class Plotter(ChainCalculator):
                 s += "  & "
             s += "\\\\\n"
         return s
+
+    @classmethod
+    def _plot_map(cls, fname, nside=256, return_data=False):
+        fname_use = os.path.join("data/maps", fname)
+        data = hp.ud_grade(hp.read_map(fname_use, dtype=float), nside_out=nside)
+
+        fig = plt.figure(num="mollview", figsize=(12, 7))
+        kw = {"map"   : data,
+              "fig"   : "mollview",
+              "title" : None,
+              "xsize" : 1200,
+              "cmap"  : cm.gray,
+              "cbar"  : False}
+
+        hp.mollview(**kw)
+        hp.graticule(c="maroon", alpha=0.4)
+        if not return_data:
+            return fig
+        return fig, data
+
+    @classmethod
+    def plot_masks(cls, keep_on=False, overwrite=False):
+        fnames = {"mask_g": 'mask_v3.fits.gz',
+                  "mask_y": 'mask_planck60.fits.gz',
+                  "mask_k": 'COM_Lensing_4096_R3.00_mask.fits.gz'}
+
+        nside = 256
+        combined = np.ones(hp.nside2npix(nside))  # total mask footprint
+        individual = np.ones(3)  # individual mask footprint
+        for i, (mask_name, fname) in enumerate(fnames.items()):
+            fig, new_data = cls._plot_map(fname, nside=nside, return_data=True)
+            combined *= new_data
+            individual[i] = new_data.mean()
+
+            fname_out = f"figs/{mask_name}.pdf"
+            if overwrite or not os.path.isfile(fname_out):
+                fig.savefig(fname_out)
+            if not keep_on:
+                plt.close()
+        return individual.tolist() + [combined.mean()]
