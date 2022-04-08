@@ -1,6 +1,6 @@
 from make_yml import make_yml
 
-run_name = 'gyksrA_T08_new'
+run_name = 'gyksrA'
 fname_data = 'data/saccfiles/cls_cov_new.fits'
 
 kmax_arr = [0.5, 1., 1., 1., 1., 1.]
@@ -24,5 +24,5 @@ for i in range(6):
              hm_correction="halofit",
              ns_independent=False,
              fname_data=fname_data,
-             dirname_out=f'chains/{run_name}/{run_name}_{i}',
+             dirname_out=f'chains/chains_new/{run_name}/{run_name}_{i}',
              sampler='mcmc', nsamples=30000, debug=False)
