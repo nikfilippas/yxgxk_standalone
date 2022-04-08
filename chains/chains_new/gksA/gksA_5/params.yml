@@ -45,7 +45,7 @@ likelihood:
     - bins:
       - LOWZ__5
       - KAPPA
-output: chains/chains_new/gkrA/gkrA_5/cobaya
+output: chains/chains_new/gksA/gksA_5/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676

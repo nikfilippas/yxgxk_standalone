@@ -25,7 +25,7 @@ likelihood:
         lmin: 2
       LOWZ__5:
         lmin: 2
-      kmax: 0.5
+      kmax: 1.0
       lmax: 1024
       lmin: 2
     hb_name: Tinker10
@@ -40,12 +40,12 @@ likelihood:
     shape_model: ShapeNone
     twopoints:
     - bins:
-      - LOWZ__0
-      - LOWZ__0
+      - LOWZ__2
+      - LOWZ__2
     - bins:
-      - LOWZ__0
+      - LOWZ__2
       - KAPPA
-output: chains/chains_new/gkrA/gkrA_0/cobaya
+output: chains/chains_new/gksA/gksA_2/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
@@ -78,26 +78,8 @@ params:
   ygk_LOWZ__0_bp: 0.0
   ygk_LOWZ__0_bs: 0.0
   ygk_LOWZ__0_dz: 0.0
-  ygk_LOWZ__0_lM1_0:
-    latex: \log_{10}M_{1}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 14.082529
-      scale: 0.1
-  ygk_LOWZ__0_lMmin_0:
-    latex: \log_{10}M_{\rm min}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 12.602721
-      scale: 0.1
+  ygk_LOWZ__0_lM1_0: 14.082529
+  ygk_LOWZ__0_lMmin_0: 12.602721
   ygk_LOWZ__0_wz: 1.0
   ygk_LOWZ__1_b0: 2.0
   ygk_LOWZ__1_b1: 2.0
@@ -114,8 +96,26 @@ params:
   ygk_LOWZ__2_bp: 0.0
   ygk_LOWZ__2_bs: 0.0
   ygk_LOWZ__2_dz: 0.0
-  ygk_LOWZ__2_lM1_0: 13.158662
-  ygk_LOWZ__2_lMmin_0: 11.869872
+  ygk_LOWZ__2_lM1_0:
+    latex: \log_{10}M_{1}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 13.158662
+      scale: 0.1
+  ygk_LOWZ__2_lMmin_0:
+    latex: \log_{10}M_{\rm min}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 11.869872
+      scale: 0.1
   ygk_LOWZ__2_wz: 1.0
   ygk_LOWZ__3_b0: 2.0
   ygk_LOWZ__3_b1: 2.0
