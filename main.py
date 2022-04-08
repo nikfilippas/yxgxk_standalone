@@ -4,15 +4,15 @@ from _names import names
 settings = {"base_model": "gyksrA_T08_new",
             "fname_sacc": "data/saccfiles/cls_cov_new.fits"}
 p = Plotter(**settings)
-kwargs = {"keep_on": False, "overwrite": False}
+kwargs = {"keep_on": True, "overwrite": False}
 
 # sigma8
 m_s8 = [names[key] for key in [0, 2, 8, 3]]
-p.tomographic(m_s8, "sigma8", **kwargs)
+p.tomographic(m_s8, "sigma8", violins=[0,1], **kwargs)
 
 # gastrophysics
 m_bh = [names[key] for key in [0, 8, 4]]
-p.tomographic(m_bh, "ygk_mass_bias", **kwargs)
+p.tomographic(m_bh, "ygk_mass_bias", violins=[0,1], **kwargs)
 p.tomographic(m_bh, "bPe", **kwargs)
 p.tomographic(m_bh, "Omth", **kwargs)
 p.close_plots()
