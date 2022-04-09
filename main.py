@@ -5,7 +5,7 @@ settings = {"base_model": "gyksrA",
             "chains_dir": "chains/chains_new",
             "fname_sacc": "data/saccfiles/cls_cov_new.fits"}
 p = Plotter(**settings)
-kwargs = {"keep_on": True, "overwrite": True}
+kwargs = {"keep_on": True, "overwrite": False}
 
 # structure growth
 m_s8 = [names[key] for key in [0, 1, 2, 3]]
