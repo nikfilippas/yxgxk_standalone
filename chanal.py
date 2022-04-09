@@ -52,7 +52,11 @@ class ChainCalculator(Container):
 
         bf_arr = np.zeros((len(self.tracers), 3))  # holding median, min, max
         for ibin, tracer in enumerate(tqdm(self.tracers)):
-            config, samples, pars = self._load_chains(model, ibin)
+            try:
+                config, samples, pars = self._load_chains(model, ibin)
+            except FileNotFoundError:
+                bf_arr[ibin] = np.nan
+                continue
             if par in self.interps.parameters:
                 der_chain = self._get_derived_chain(config, pars, par, tracer)
                 samples.addDerived(
