@@ -167,6 +167,7 @@ sampler:
     burn_in: 10
     learn_proposal: true
     max_samples: 30000
+    measure_speeds: false
 theory:
   ygk_like.CCL:
     baryons_pk: nobaryons

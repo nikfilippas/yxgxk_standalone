@@ -3,8 +3,9 @@ import os
 
 def make_yml(params_vary, corrs, bias_model, lmin, kmax,
              mass_function, concentration, hm_correction, ns_independent,
-             fname_data, dirname_out, sampler,
-             debug=True, nsamples=10000):
+             fname_data, dirname_out,
+             sampler, nsamples=10000, measure_speeds=True,
+             debug=True):
     samplers = {
         'minimize': {'ignore_prior': True, 'max_evals': nsamples},
         'mcmc': {'learn_proposal': True, 'burn_in': 10, 'max_samples': nsamples}}
@@ -40,6 +41,10 @@ def make_yml(params_vary, corrs, bias_model, lmin, kmax,
     dout['debug'] = debug
     dout['output'] = f'{dirname_out}/cobaya'
     dout['sampler'] = {sampler: samplers[sampler]}
+    if sampler == 'mcmc' and not measure_speeds:
+        # option to not measure speeds if likelihood
+        # does not depend on theory (theory is fixed)
+        dout['sampler']['mcmc']['measure_speeds'] = False
 
     # Save output
     os.system(f'mkdir -p {dirname_out}')

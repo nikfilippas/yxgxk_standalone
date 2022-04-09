@@ -25,4 +25,5 @@ for i in range(6):
              ns_independent=False,
              fname_data=fname_data,
              dirname_out=f'chains/chains_new/{run_name}/{run_name}_{i}',
-             sampler='mcmc', nsamples=30000, debug=False)
+             sampler='mcmc', nsamples=30000, measure_speeds=True,
+             debug=False)
