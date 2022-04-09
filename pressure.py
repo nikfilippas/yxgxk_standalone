@@ -81,14 +81,11 @@ class BattagliaCalculator(Container):
         return np.array([self._get_Pe(z, n_r) for z in z_arr])*1e6
 
     def get_Omth(self, z_arr, n_r=100):
-        """
-        Units: 1e8*Omth.
-        Note: Not used in this pipeline.
-        """
+        """Note: Not used in this pipeline."""
         # TODO: fix comoving coordinates
         E_th = self.get_Pe(z_arr, n_r)                 # meV/cm^3
         rho_crit = 1.05370711e7 * self.cosmo["h"]**2   # meV/cm^3
-        return 1e8*E_th/rho_crit
+        return E_th/rho_crit
 
     def R_Delta(self, M, a):
         """Calculate the reference radius of a halo."""
@@ -144,11 +141,10 @@ class ArnaudCalculator(Container):
         return np.array([self._get_Pe(z) for z in z_arr])
 
     def get_Omth(self, z_arr, n_r=100):
-        """Units: 1e8*Omth."""
         pe = self.get_Pe(z_arr, n_r=n_r)
         Y = 0.24
         prefac = (8-5*Y)/(4-2*Y)
         rho_th = pe*prefac/(1+z_arr)**3
         # rho_critical in eV/cm^3
         rho_crit = 10537.0711*self.cosmo["h"]**2
-        return 1e8*rho_th/rho_crit
+        return rho_th/rho_crit

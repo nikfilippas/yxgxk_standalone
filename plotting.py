@@ -97,7 +97,7 @@ class Plotter(ChainCalculator):
     def _overlay_Omth(self, ax):
         Omth_func = ArnaudCalculator(base_model=self._base_model).get_Omth
         # Omth_func = BattagliaCalculator(base_model=self._base_model).get_Omth
-        Omth = Omth_func(self._zplot, n_r=100)
+        Omth = 1e8*Omth_func(self._zplot, n_r=100)
         ax.plot(self._zplot, Omth, '-', label='GNFW profile', c='k')
 
         # Now we overlay the measurement from Fukugita & Peebles
