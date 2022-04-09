@@ -32,7 +32,7 @@ likelihood:
     shape_model: ShapeNone
     mdef_name: 500c
     cm_name: Ishiyama21
-    mf_name: Tinker08
+    mf_name: Bocquet16
     hb_name: Tinker10
     zmax_hmc: 0.6
     nz_hmc: 16
@@ -49,25 +49,25 @@ likelihood:
     defaults:
       LOWZ__1:
         lmin: 2
-        lmax: 585.7514393723445
+        lmax: 292.62571968617226
       LOWZ__2:
         lmin: 2
-        lmax: 800.0634435343651
+        lmax: 399.78172176718255
       LOWZ__3:
         lmin: 2
-        lmax: 1000.4806372580616
+        lmax: 499.9903186290308
       LOWZ__4:
         lmin: 2
-        lmax: 1195.476166006411
+        lmax: 597.4880830032055
       LOWZ__5:
         lmin: 2
-        lmax: 1400.7353340250174
-      kmax: 1.0
+        lmax: 700.1176670125087
+      kmax: 0.5
       lmax: 1024
       lmin: 2
       LOWZ__0:
         lmin: 2
-        lmax: 282.37224420495374
+        lmax: 140.93612210247687
       YMILCA:
         lmin: 2
         lmax: 1024
@@ -76,13 +76,13 @@ likelihood:
         lmax: 1024
     twopoints:
     - bins:
-      - LOWZ__4
-      - LOWZ__4
+      - LOWZ__0
+      - LOWZ__0
     - bins:
-      - LOWZ__4
+      - LOWZ__0
       - YMILCA
     - bins:
-      - LOWZ__4
+      - LOWZ__0
       - KAPPA
     HM_correction: halofit
     k_1h_suppress: 0.01
@@ -172,8 +172,15 @@ params:
     derived: false
     value: 0.9665
   sigma8:
-    derived: false
-    value: 0.8102
+    latex: \sigma_8
+    prior:
+      max: 1.5
+      min: 0.2
+    proposal: 0.02
+    ref:
+      dist: norm
+      loc: 0.8102
+      scale: 0.02
   ygk_Ahmc:
     latex: A_{\rm HMC}
     prior:
@@ -197,9 +204,25 @@ params:
   ygk_LOWZ__0_dz:
     value: 0.0
   ygk_LOWZ__0_lM1_0:
-    value: 14.082529
+    latex: \log_{10}M_{1}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 14.082529
+      scale: 0.1
   ygk_LOWZ__0_lMmin_0:
-    value: 12.602721
+    latex: \log_{10}M_{\rm min}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 12.602721
+      scale: 0.1
   ygk_LOWZ__0_wz:
     value: 1.0
   ygk_LOWZ__1_b0:
@@ -269,25 +292,9 @@ params:
   ygk_LOWZ__4_dz:
     value: 0.0
   ygk_LOWZ__4_lM1_0:
-    latex: \log_{10}M_{1}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 13.388862
-      scale: 0.1
+    value: 13.388862
   ygk_LOWZ__4_lMmin_0:
-    latex: \log_{10}M_{\rm min}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 12.114722
-      scale: 0.1
+    value: 12.114722
   ygk_LOWZ__4_wz:
     value: 1.0
   ygk_LOWZ__5_b0:
@@ -358,14 +365,22 @@ sampler:
     oversample_power: 0.4
     oversample_thin: true
     drag: false
-    blocking: null
+    blocking:
+    - - 1
+      - - sigma8
+    - - 1
+      - - ygk_Ahmc
+        - ygk_LOWZ__0_lM1_0
+        - ygk_LOWZ__0_lMmin_0
+        - ygk_mass_bias
+        - ygk_rhogy
     callback_function: null
     callback_every: null
     seed: null
     check_every: null
     oversample: null
     drag_limits: null
-    version: null
+    version: 3.0.4
 output: cobaya
 packages_path: null
 test: false
