@@ -37,6 +37,7 @@ likelihood:
     input_file: ../../data/1024_yxgxk_covmix/cls_cov_comb.fits
     input_params_prefix: ygk
     mf_name: Tinker08
+    mdef_name: 500c
     nside: 1024
     nz_model: NzShiftWidth
     shape_model: ShapeNone
