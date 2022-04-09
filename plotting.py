@@ -68,7 +68,7 @@ class Plotter(ChainCalculator):
         ax.plot(self._zplot, s8, "k--", lw=2, label="Planck 2018")
 
     def _overlay_bPe(self, ax):
-        bPe = BattagliaCalculator().get_bPe
+        bPe = BattagliaCalculator(base_model=self._base_model).get_bPe
         func = lambda n_r: bPe(self._zplot, n_r)
 
         et2, et3, et5, etinf = [func(n_r) for n_r in [2, 3, 5, 100]]
@@ -95,8 +95,9 @@ class Plotter(ChainCalculator):
         ax.set_ylim(0.07, 0.28)
 
     def _overlay_Omth(self, ax):
-        Omth = ArnaudCalculator().get_Omth(self._zplot, n_r=100)
-        # Omth = BattagliaCalculator().get_Omth(self._zplot, n_r=100)  # TODO: use Battaglia
+        Omth_func = ArnaudCalculator(base_model=self._base_model).get_Omth
+        # Omth_func = BattagliaCalculator(base_model=self._base_model).get_Omth
+        Omth = Omth_func(self._zplot, n_r=100)
         ax.plot(self._zplot, Omth, '-', label='GNFW profile', c='k')
 
         # Now we overlay the measurement from Fukugita & Peebles

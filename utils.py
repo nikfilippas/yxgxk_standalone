@@ -24,7 +24,8 @@ class CosmologyPlanck18(ccl.Cosmology):
 class CosmoHaloModel:
     """Internally define all cosmology and halo model, given a setup file."""
 
-    def __init__(self, *, base_model, chains_dir="chains_new"):
+    def __init__(self, *, base_model, chains_dir="chains/chains_new"):
+        self._base_model = base_model
         self._chains_dir = chains_dir
         fname = f"{chains_dir}/{base_model}/{base_model}_0/cobaya.input.yaml"
         with open(fname, "r") as stream:
@@ -190,6 +191,7 @@ class Container(Interpolate):
                  fname_sacc="data/saccfiles/cls_cov_comb.fits",
                  secondaries=["YMILCA", "KAPPA"],
                  **kwargs):
+        self._fname_sacc = fname_sacc
         self._secondaries = secondaries
         self._saccfile = sacc.Sacc.load_fits(fname_sacc)
 

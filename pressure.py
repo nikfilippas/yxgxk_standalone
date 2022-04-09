@@ -8,8 +8,8 @@ from utils import Container
 class BattagliaCalculator(Container):
     """Theory wrapper for the Battaglia shock heating model."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.cosmo.compute_growth()
         self.Delta = 200
 
@@ -102,8 +102,8 @@ class BattagliaCalculator(Container):
 class ArnaudCalculator(Container):
     """Theory wrapper for the Arnaud shock-heating model."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.cosmo.compute_growth()
         self.update_parameters(mass_bias=0.73)  # sensible value
         self.Delta = 500
