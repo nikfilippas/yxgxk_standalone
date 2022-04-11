@@ -7,6 +7,8 @@ parser.add_argument("path")
 args = parser.parse_args()
 
 for model in os.listdir(args.path):
+    if not os.path.isdir(model):
+        continue
     print(model)
     path1 = os.path.join(args.path, model)
     if model == "gyksrA": continue  # this is a symlink - will replace later
