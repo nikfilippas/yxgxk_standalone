@@ -9,6 +9,7 @@ args = parser.parse_args()
 for model in os.listdir(args.path):
     print(model)
     path1 = os.path.join(args.path, model)
+    if model == "gyksrA": continue  # this is a symlink - will replace later
     for model_i in os.listdir(path1):
         print(f" {model_i}")
         path2 = os.path.join(path1, model_i)
