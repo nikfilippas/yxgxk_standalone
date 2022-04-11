@@ -140,32 +140,40 @@ class Plotter(ChainCalculator):
 
         for i, model in enumerate(models):
             print(model)
-            BF = self.get_summary(model, par).copy()
-            if par == "Omth": BF *= 1e8
-            label = self._latex_labels[model]
-            ax.errorbar(self._zarr+0.005*i, BF[:, 0], BF[:, 1:].T,
-                        fmt=self._markers[model], color=self._colors[model],
-                        label=label)
+            try:
+                BF = self.get_summary(model, par).copy()
+                if par == "Omth": BF *= 1e8
+                label = self._latex_labels[model]
+                ax.errorbar(self._zarr+0.005*i, BF[:, 0], BF[:, 1:].T,
+                            fmt=self._markers[model], color=self._colors[model],
+                            label=label)
+            except:
+                # chains do not exist
+                continue
 
         if violins is not None and par not in ["bPe", "Omth"]:
             vmods = [models[i] for i in violins]
             for ii, model in enumerate(vmods):
-                chains = np.array(
-                    [ibin[par] for ibin in self.get_chains(model).values()],
-                    dtype=object)
-                # normalize for y-scale if needed
-                if par == "sigma8":
-                    chains *= np.array([self.cosmo.growth_factor(1/(1+z))
-                                        for z in self._zarr])
-                elif par == "Omth": chains *= 1e8
+                try:
+                    chains = np.array(
+                        [ibin[par] for ibin in self.get_chains(model).values()],
+                        dtype=object)
+                    # normalize for y-scale if needed
+                    if par == "sigma8":
+                        chains *= np.array([self.cosmo.growth_factor(1/(1+z))
+                                            for z in self._zarr])
+                    elif par == "Omth": chains *= 1e8
 
-                # plot violins
-                vplot = ax.violinplot(
-                    chains, self._zarr+0.005*violins[ii],
-                    widths=0.01, showextrema=False)
-                for pc in vplot["bodies"]:
-                    pc.set_color(self._colors[model])
-                    pc.set_alpha(0.2)
+                    # plot violins
+                    vplot = ax.violinplot(
+                        chains, self._zarr+0.005*violins[ii],
+                        widths=0.01, showextrema=False)
+                    for pc in vplot["bodies"]:
+                        pc.set_color(self._colors[model])
+                        pc.set_alpha(0.2)
+                except:
+                    # chains do not exist
+                    continue
 
         # sophisticated legend
         handles, labels = ax.get_legend_handles_labels()
