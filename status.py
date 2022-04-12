@@ -21,3 +21,33 @@ for model in os.listdir(args.path):
         with open(path3) as f:
             info = yaml.safe_load(f)
             print(f"    converged: {info['sampler']['mcmc']['converged']}")
+
+
+"""
+# List of unconverged chains.
+
+gyksrA_0
+
+gksA_0
+gksA_1
+
+gykrA_0
+gykrA_1
+gykrA_2
+gykrA_3
+gykrA_4
+gykrA_5
+
+gyksr_0
+gyksr_1
+gyksrAAA_0
+gyksrAAA_1
+
+gyksrA_SZ_0
+gyksrA_T10_0
+
+gyksrA_lmin40_1
+gyksrA_kmax025_0
+gyksrA_kmax025_1
+gyksrA_kmax025_2
+"""
