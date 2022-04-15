@@ -387,6 +387,7 @@ class ygkLike(Likelihood):
         elif self.bz_model == 'HaloModel':
             cosmo.compute_linear_power()
             cosmo.compute_nonlin_power()
+            cosmo.compute_growth()
             cosmo.compute_sigma()
             pkmm = cosmo.get_nonlin_power(name='delta_matter:delta_matter')
             mf = self.mfc(mass_def=self.massdef)
