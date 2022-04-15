@@ -104,8 +104,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 13.388862
-      scale: 0.1
+      loc: 13.385278
+      scale: 0.005
   ygk_LOWZ__4_lMmin_0:
     latex: \log_{10}M_{\rm min}
     prior:
@@ -114,8 +114,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.114722
-      scale: 0.1
+      loc: 12.112318
+      scale: 0.005
   ygk_LOWZ__4_wz: 1.0
   ygk_LOWZ__5_b0: 2.0
   ygk_LOWZ__5_b1: 2.0
@@ -136,21 +136,24 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.75
-      scale: 0.002
+      loc: 0.714393
+      scale: 0.005
   ygk_rhogm: 0.0
   ygk_rhogy:
     latex: \rho_{gy}
     prior:
       max: 1.0
       min: -1.0
-    proposal: 0.01
+    proposal: 0.005
     ref:
       dist: norm
-      loc: -0.5
-      scale: 0.01
+      loc: -0.482477
+      scale: 0.005
   ygk_siglM_0: 0.345
 sampler:
+  # minimize:
+  #   ignore_prior: true
+  #   max_evals: 1000
   mcmc:
     burn_in: 10
     learn_proposal: true

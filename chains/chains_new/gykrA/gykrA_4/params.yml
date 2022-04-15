@@ -1,4 +1,4 @@
-debug: true
+debug: false
 likelihood:
   ygk_like.ygkLike:
     HM_correction: halofit

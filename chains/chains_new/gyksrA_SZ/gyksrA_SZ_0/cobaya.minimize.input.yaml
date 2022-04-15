@@ -29,12 +29,12 @@ likelihood:
         lmin: 2
       LOWZ__5:
         lmin: 2
-      kmax: 1.0
+      kmax: 0.5
       lmax: 1024
       lmin: 2
     hb_name: Tinker10
     ia_model: IANone
-    input_file: data/saccfiles/cls_cov_new.fits
+    input_file: data/saccfiles/cls_cov_new_szdeproj.fits
     input_params_prefix: ygk
     mdef_name: 500c
     mf_name: Tinker08
@@ -44,27 +44,66 @@ likelihood:
     shape_model: ShapeNone
     twopoints:
     - bins:
-      - LOWZ__3
-      - LOWZ__3
+      - LOWZ__0
+      - LOWZ__0
     - bins:
-      - LOWZ__3
+      - LOWZ__0
       - YMILCA
+    - bins:
+      - LOWZ__0
+      - KAPPA
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
   h: 0.6766
   m_nu: 0.0
   n_s: 0.9665
-  sigma8: 0.8102
-  ygk_Ahmc: 1.0
+  sigma8:
+    latex: \sigma_8
+    prior:
+      max: 1.5
+      min: 0.2
+    proposal: 0.02
+    ref:
+      dist: norm
+      loc: 0.8102
+      scale: 0.02
+  ygk_Ahmc:
+    latex: A_{\rm HMC}
+    prior:
+      max: 2.0
+      min: 0.1
+    proposal: 0.01
+    ref:
+      dist: norm
+      loc: 1.0
+      scale: 0.01
   ygk_LOWZ__0_b0: 2.0
   ygk_LOWZ__0_b1: 2.0
   ygk_LOWZ__0_b2: 0.0
   ygk_LOWZ__0_bp: 0.0
   ygk_LOWZ__0_bs: 0.0
   ygk_LOWZ__0_dz: 0.0
-  ygk_LOWZ__0_lM1_0: 14.082529
-  ygk_LOWZ__0_lMmin_0: 12.602721
+  ygk_LOWZ__0_lM1_0:
+    latex: \log_{10}M_{1}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 14.082529
+      scale: 0.1
+  ygk_LOWZ__0_lMmin_0:
+    latex: \log_{10}M_{\rm min}
+    prior:
+      max: 15
+      min: 8.0
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 12.602721
+      scale: 0.1
   ygk_LOWZ__0_wz: 1.0
   ygk_LOWZ__1_b0: 2.0
   ygk_LOWZ__1_b1: 2.0
@@ -90,26 +129,8 @@ params:
   ygk_LOWZ__3_bp: 0.0
   ygk_LOWZ__3_bs: 0.0
   ygk_LOWZ__3_dz: 0.0
-  ygk_LOWZ__3_lM1_0:
-    latex: \log_{10}M_{1}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 13.364201
-      scale: 0.1
-  ygk_LOWZ__3_lMmin_0:
-    latex: \log_{10}M_{\rm min}
-    prior:
-      max: 15
-      min: 8.0
-    proposal: 0.005
-    ref:
-      dist: norm
-      loc: 12.069004
-      scale: 0.1
+  ygk_LOWZ__3_lM1_0: 13.364201
+  ygk_LOWZ__3_lMmin_0: 12.069004
   ygk_LOWZ__3_wz: 1.0
   ygk_LOWZ__4_b0: 2.0
   ygk_LOWZ__4_b1: 2.0
@@ -154,11 +175,7 @@ params:
       scale: 0.01
   ygk_siglM_0: 0.345
 sampler:
-  mcmc:
-    burn_in: 10
-    learn_proposal: true
-    max_samples: 30000
-    measure_speeds: false
+  minimize:
+    ignore_prior: true
+    max_evals: 1000
 output: cobaya
-packages_path: null
-test: false
