@@ -1,4 +1,8 @@
-debug: true
+theory:
+  ygk_like.CCL:
+    baryons_pk: nobaryons
+    matter_pk: halofit
+    transfer_function: bacco
 likelihood:
   ygk_like.ygkLike:
     HM_correction: halofit
@@ -13,7 +17,7 @@ likelihood:
     - name: YMILCA
     - name: KAPPA
     bz_model: HaloModel
-    cm_name: Ishiyama21
+    cm_name: Duffy08M500c
     defaults:
       LOWZ__1:
         lmin: 2
@@ -48,7 +52,6 @@ likelihood:
     - bins:
       - LOWZ__4
       - KAPPA
-output: chains/chains_new/gyksrAw/gyksrAw_4/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
@@ -181,16 +184,7 @@ params:
       scale: 0.01
   ygk_siglM_0: 0.345
 sampler:
-  # minimize:
-  #   ignore_prior: true
-  #   max_evals: 1000
-  mcmc:
-    burn_in: 10
-    learn_proposal: true
-    max_samples: 30000
-    measure_speeds: 10
-theory:
-  ygk_like.CCL:
-    baryons_pk: nobaryons
-    matter_pk: halofit
-    transfer_function: bacco
+  minimize:
+    ignore_prior: true
+    max_evals: 1000
+output: cobaya
