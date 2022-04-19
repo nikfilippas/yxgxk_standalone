@@ -60,21 +60,21 @@ params:
     prior:
       max: 1.5
       min: 0.2
-    proposal: 0.02
+    proposal: 0.005
     ref:
       dist: norm
-      loc: 0.8102
-      scale: 0.02
+      loc: 0.80546442 #0.8102
+      scale: 0.005
   ygk_Ahmc:
     latex: A_{\rm HMC}
     prior:
       max: 2.0
       min: 0.1
-    proposal: 0.01
+    proposal: 0.005
     ref:
       dist: norm
-      loc: 1.0
-      scale: 0.01
+      loc: 1.2417049 #1.0
+      scale: 0.005
   ygk_LOWZ__0_b0: 2.0
   ygk_LOWZ__0_b1: 2.0
   ygk_LOWZ__0_b2: 0.0
@@ -116,8 +116,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 13.364201
-      scale: 0.1
+      loc: 13.271625 #13.364201
+      scale: 0.005
   ygk_LOWZ__3_lMmin_0:
     latex: \log_{10}M_{\rm min}
     prior:
@@ -126,8 +126,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.069004
-      scale: 0.1
+      loc: 11.977696 #12.069004
+      scale: 0.005
   ygk_LOWZ__3_wz:
     latex: w(z)
     prior:
@@ -136,7 +136,7 @@ params:
     proposal: 0.002
     ref:
       dist: norm
-      loc: 1.0
+      loc: 1.0268682 #1.0
       scale: 0.002
   ygk_LOWZ__4_b0: 2.0
   ygk_LOWZ__4_b1: 2.0
@@ -166,21 +166,24 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.75
-      scale: 0.002
+      loc: 0.76494398 #0.75
+      scale: 0.005
   ygk_rhogm: 0.0
   ygk_rhogy:
     latex: \rho_{gy}
     prior:
       max: 1.0
       min: -1.0
-    proposal: 0.01
+    proposal: 0.005
     ref:
       dist: norm
-      loc: -0.5
-      scale: 0.01
+      loc: -0.56021903 #-0.5
+      scale: 0.005
   ygk_siglM_0: 0.345
 sampler:
+  # minimize:
+  #   ignore_prior: true
+  #   max_evals: 1000
   mcmc:
     burn_in: 10
     learn_proposal: true

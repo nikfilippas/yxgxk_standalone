@@ -1,0 +1,2 @@
+#        weight    minuslogpost          sigma8        ygk_Ahmc ygk_LOWZ__1_lM1_0 ygk_LOWZ__1_lMmin_0  ygk_LOWZ__1_wz   ygk_mass_bias       ygk_rhogy   minuslogprior minuslogprior__0            chi2 chi2__ygk_like.ygkLike
+              1        55.25915      0.82965834       1.0337518         12.942362           11.590449       1.0208726       0.6994153     -0.82861242       4.7082995        4.7082995        101.1017               101.1017
