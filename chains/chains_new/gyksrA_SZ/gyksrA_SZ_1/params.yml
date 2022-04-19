@@ -1,4 +1,4 @@
-debug: true
+debug: false
 likelihood:
   ygk_like.ygkLike:
     HM_correction: halofit
@@ -63,7 +63,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.85978
+      loc: 0.863486 #0.85978
       scale: 0.005
   ygk_Ahmc:
     latex: A_{\rm HMC}
@@ -73,7 +73,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 1.110413
+      loc: 1.103354 #1.110413
       scale: 0.005
   ygk_LOWZ__0_b0: 2.0
   ygk_LOWZ__0_b1: 2.0
@@ -98,7 +98,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.835073
+      loc: 12.833761 #12.835073
       scale: 0.005
   ygk_LOWZ__1_lMmin_0:
     latex: \log_{10}M_{\rm min}
@@ -108,7 +108,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 11.470286
+      loc: 11.465711 #11.470286
       scale: 0.005
   ygk_LOWZ__1_wz: 1.0
   ygk_LOWZ__2_b0: 2.0
@@ -157,7 +157,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.605658
+      loc: 0.604382 #0.605658
       scale: 0.005
   ygk_rhogm: 0.0
   ygk_rhogy:
@@ -168,17 +168,17 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: -0.811313
+      loc: -0.799465 #-0.811313
       scale: 0.005
   ygk_siglM_0: 0.345
 sampler:
-  minimize:
-    ignore_prior: true
-    max_evals: 1000
-  # mcmc:
-  #   burn_in: 10
-  #   learn_proposal: true
-  #   max_samples: 30000
+  # minimize:
+  #   ignore_prior: true
+  #   max_evals: 1000
+  mcmc:
+    burn_in: 10
+    learn_proposal: true
+    max_samples: 30000
 theory:
   ygk_like.CCL:
     baryons_pk: nobaryons
