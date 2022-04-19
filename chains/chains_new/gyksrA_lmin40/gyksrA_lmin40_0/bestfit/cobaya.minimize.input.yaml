@@ -1,4 +1,8 @@
-debug: false
+theory:
+  ygk_like.CCL:
+    baryons_pk: nobaryons
+    matter_pk: halofit
+    transfer_function: bacco
 likelihood:
   ygk_like.ygkLike:
     HM_correction: halofit
@@ -48,7 +52,6 @@ likelihood:
     - bins:
       - LOWZ__0
       - KAPPA
-output: chains/chains_new/gyksrA_lmin40/gyksrA_lmin40_0/cobaya
 params:
   Omega_b: 0.048974682
   Omega_c: 0.26066676
@@ -60,21 +63,21 @@ params:
     prior:
       max: 1.5
       min: 0.2
-    proposal: 0.005
+    proposal: 0.02
     ref:
       dist: norm
-      loc: 0.77158368 #0.8102
-      scale: 0.005
+      loc: 0.8102
+      scale: 0.02
   ygk_Ahmc:
     latex: A_{\rm HMC}
     prior:
       max: 2.0
       min: 0.1
-    proposal: 0.005
+    proposal: 0.01
     ref:
       dist: norm
-      loc: 0.63245777
-      scale: 0.005
+      loc: 1.0
+      scale: 0.01
   ygk_LOWZ__0_b0: 2.0
   ygk_LOWZ__0_b1: 2.0
   ygk_LOWZ__0_b2: 0.0
@@ -89,8 +92,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 13.886074 #14.082529
-      scale: 0.005
+      loc: 14.082529
+      scale: 0.1
   ygk_LOWZ__0_lMmin_0:
     latex: \log_{10}M_{\rm min}
     prior:
@@ -99,8 +102,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.576564 #12.602721
-      scale: 0.005
+      loc: 12.602721
+      scale: 0.1
   ygk_LOWZ__0_wz: 1.0
   ygk_LOWZ__1_b0: 2.0
   ygk_LOWZ__1_b1: 2.0
@@ -157,30 +160,22 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.8696367 #0.75
-      scale: 0.005
+      loc: 0.75
+      scale: 0.002
   ygk_rhogm: 0.0
   ygk_rhogy:
     latex: \rho_{gy}
     prior:
       max: 1.0
       min: -1.0
-    proposal: 0.005
+    proposal: 0.01
     ref:
       dist: norm
-      loc: -0.15478062 #-0.5
-      scale: 0.005
+      loc: -0.5
+      scale: 0.01
   ygk_siglM_0: 0.345
 sampler:
-  # minimize:
-  #   ignore_prior: true
-  #   max_evals: 1000
-  mcmc:
-    burn_in: 10
-    learn_proposal: true
-    max_samples: 30000
-theory:
-  ygk_like.CCL:
-    baryons_pk: nobaryons
-    matter_pk: halofit
-    transfer_function: bacco
+  minimize:
+    ignore_prior: true
+    max_evals: 1000
+output: cobaya

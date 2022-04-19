@@ -13,6 +13,14 @@ theory:
     speed: -1
     stop_at_error: false
     version: null
+    input_params:
+    - Omega_b
+    - Omega_c
+    - h
+    - m_nu
+    - n_s
+    - sigma8
+    output_params: []
 likelihood:
   ygk_like.ygkLike:
     input_params_prefix: ygk
@@ -41,17 +49,31 @@ likelihood:
     defaults:
       LOWZ__1:
         lmin: 40
+        lmax: 292.62571968617226
       LOWZ__2:
         lmin: 40
+        lmax: 399.78172176718255
       LOWZ__3:
         lmin: 40
+        lmax: 499.9903186290308
       LOWZ__4:
         lmin: 40
+        lmax: 597.4880830032055
       LOWZ__5:
         lmin: 40
+        lmax: 700.1176670125087
       kmax: 0.5
       lmax: 1024
       lmin: 40
+      LOWZ__0:
+        lmin: 40
+        lmax: 140.93612210247687
+      YMILCA:
+        lmin: 40
+        lmax: 1024
+      KAPPA:
+        lmin: 40
+        lmax: 1024
     twopoints:
     - bins:
       - LOWZ__0
@@ -70,6 +92,69 @@ likelihood:
     speed: -1
     stop_at_error: false
     version: null
+    input_params:
+    - ygk_Ahmc
+    - ygk_LOWZ__0_b0
+    - ygk_LOWZ__0_b1
+    - ygk_LOWZ__0_b2
+    - ygk_LOWZ__0_bp
+    - ygk_LOWZ__0_bs
+    - ygk_LOWZ__0_dz
+    - ygk_LOWZ__0_lM1_0
+    - ygk_LOWZ__0_lMmin_0
+    - ygk_LOWZ__0_wz
+    - ygk_LOWZ__1_b0
+    - ygk_LOWZ__1_b1
+    - ygk_LOWZ__1_b2
+    - ygk_LOWZ__1_bp
+    - ygk_LOWZ__1_bs
+    - ygk_LOWZ__1_dz
+    - ygk_LOWZ__1_lM1_0
+    - ygk_LOWZ__1_lMmin_0
+    - ygk_LOWZ__1_wz
+    - ygk_LOWZ__2_b0
+    - ygk_LOWZ__2_b1
+    - ygk_LOWZ__2_b2
+    - ygk_LOWZ__2_bp
+    - ygk_LOWZ__2_bs
+    - ygk_LOWZ__2_dz
+    - ygk_LOWZ__2_lM1_0
+    - ygk_LOWZ__2_lMmin_0
+    - ygk_LOWZ__2_wz
+    - ygk_LOWZ__3_b0
+    - ygk_LOWZ__3_b1
+    - ygk_LOWZ__3_b2
+    - ygk_LOWZ__3_bp
+    - ygk_LOWZ__3_bs
+    - ygk_LOWZ__3_dz
+    - ygk_LOWZ__3_lM1_0
+    - ygk_LOWZ__3_lMmin_0
+    - ygk_LOWZ__3_wz
+    - ygk_LOWZ__4_b0
+    - ygk_LOWZ__4_b1
+    - ygk_LOWZ__4_b2
+    - ygk_LOWZ__4_bp
+    - ygk_LOWZ__4_bs
+    - ygk_LOWZ__4_dz
+    - ygk_LOWZ__4_lM1_0
+    - ygk_LOWZ__4_lMmin_0
+    - ygk_LOWZ__4_wz
+    - ygk_LOWZ__5_b0
+    - ygk_LOWZ__5_b1
+    - ygk_LOWZ__5_b2
+    - ygk_LOWZ__5_bp
+    - ygk_LOWZ__5_bs
+    - ygk_LOWZ__5_dz
+    - ygk_LOWZ__5_lM1_0
+    - ygk_LOWZ__5_lMmin_0
+    - ygk_LOWZ__5_wz
+    - ygk_alpha
+    - ygk_k_1h_suppress
+    - ygk_mass_bias
+    - ygk_rhogm
+    - ygk_rhogy
+    - ygk_siglM_0
+    output_params: []
 params:
   Omega_b:
     derived: false
@@ -259,36 +344,19 @@ params:
   ygk_siglM_0:
     value: 0.345
 sampler:
-  mcmc:
-    burn_in: 10
-    max_tries: 40d
+  minimize:
+    method: bobyqa
+    ignore_prior: true
+    max_evals: 1000
+    best_of: 2
+    confidence_for_unbounded: 0.9999995
+    seed: null
+    override_scipy: null
+    override_bobyqa:
+      rhoend: 0.05
     covmat: null
     covmat_params: null
-    proposal_scale: 2.4
-    output_every: 60s
-    learn_every: 40d
-    learn_proposal: true
-    learn_proposal_Rminus1_max: 2.0
-    learn_proposal_Rminus1_max_early: 30.0
-    learn_proposal_Rminus1_min: 0.0
-    max_samples: 30000
-    Rminus1_stop: 0.01
-    Rminus1_cl_stop: 0.2
-    Rminus1_cl_level: 0.95
-    Rminus1_single_split: 4
-    measure_speeds: true
-    oversample_power: 0.4
-    oversample_thin: true
-    drag: false
-    blocking: null
-    callback_function: null
-    callback_every: null
-    seed: null
-    check_every: null
-    oversample: null
-    drag_limits: null
     version: null
+    fallback_covmat_scale: 4
 output: cobaya
-packages_path: null
-test: false
-version: 3.0.4
+version: 3.1.1
