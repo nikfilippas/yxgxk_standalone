@@ -176,11 +176,11 @@ params:
     prior:
       max: 1.5
       min: 0.2
-    proposal: 0.02
+    proposal: 0.005
     ref:
       dist: norm
-      loc: 0.8102
-      scale: 0.02
+      loc: 0.8927
+      scale: 0.005
   ygk_Ahmc:
     value: 1.0
   ygk_LOWZ__0_b0:
@@ -221,8 +221,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.9802
-      scale: 0.1
+      loc: 12.91916
+      scale: 0.005
   ygk_LOWZ__1_lMmin_0:
     latex: \log_{10}M_{\rm min}
     prior:
@@ -231,8 +231,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 11.653036
-      scale: 0.1
+      loc: 11.52199
+      scale: 0.005
   ygk_LOWZ__1_wz:
     value: 1.0
   ygk_LOWZ__2_b0:
@@ -319,8 +319,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.75
-      scale: 0.002
+      loc: 0.5323
+      scale: 0.005
   ygk_rhogm:
     value: 0.0
   ygk_rhogy:
@@ -328,11 +328,11 @@ params:
     prior:
       max: 1.0
       min: -1.0
-    proposal: 0.01
+    proposal: 0.005
     ref:
       dist: norm
-      loc: -0.5
-      scale: 0.01
+      loc: -0.65317
+      scale: 0.005
   ygk_siglM_0:
     value: 0.345
 sampler:

@@ -29,7 +29,7 @@ likelihood:
         lmin: 2
       LOWZ__5:
         lmin: 2
-      kmax: 1.0
+      kmax: 0.5
       lmax: 1024
       lmin: 2
     hb_name: Tinker10
@@ -44,13 +44,13 @@ likelihood:
     shape_model: ShapeNone
     twopoints:
     - bins:
-      - LOWZ__1
-      - LOWZ__1
+      - LOWZ__0
+      - LOWZ__0
     - bins:
-      - LOWZ__1
+      - LOWZ__0
       - YMILCA
     - bins:
-      - LOWZ__1
+      - LOWZ__0
       - KAPPA
 params:
   Omega_b: 0.048974682
@@ -63,28 +63,28 @@ params:
     prior:
       max: 1.5
       min: 0.2
-    proposal: 0.005
+    proposal: 0.02
     ref:
       dist: norm
-      loc: 0.8927
-      scale: 0.005
-  ygk_Ahmc: 1.0
+      loc: 0.8102
+      scale: 0.02
+  ygk_Ahmc:
+    latex: A_{\rm HMC}
+    prior:
+      max: 2.0
+      min: 0.1
+    proposal: 0.01
+    ref:
+      dist: norm
+      loc: 1.0
+      scale: 0.01
   ygk_LOWZ__0_b0: 2.0
   ygk_LOWZ__0_b1: 2.0
   ygk_LOWZ__0_b2: 0.0
   ygk_LOWZ__0_bp: 0.0
   ygk_LOWZ__0_bs: 0.0
   ygk_LOWZ__0_dz: 0.0
-  ygk_LOWZ__0_lM1_0: 14.082529
-  ygk_LOWZ__0_lMmin_0: 12.602721
-  ygk_LOWZ__0_wz: 1.0
-  ygk_LOWZ__1_b0: 2.0
-  ygk_LOWZ__1_b1: 2.0
-  ygk_LOWZ__1_b2: 0.0
-  ygk_LOWZ__1_bp: 0.0
-  ygk_LOWZ__1_bs: 0.0
-  ygk_LOWZ__1_dz: 0.0
-  ygk_LOWZ__1_lM1_0:
+  ygk_LOWZ__0_lM1_0:
     latex: \log_{10}M_{1}
     prior:
       max: 15
@@ -92,9 +92,9 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.91916
-      scale: 0.005
-  ygk_LOWZ__1_lMmin_0:
+      loc: 14.082529
+      scale: 0.1
+  ygk_LOWZ__0_lMmin_0:
     latex: \log_{10}M_{\rm min}
     prior:
       max: 15
@@ -102,8 +102,17 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 11.52199
-      scale: 0.005
+      loc: 12.602721
+      scale: 0.1
+  ygk_LOWZ__0_wz: 1.0
+  ygk_LOWZ__1_b0: 2.0
+  ygk_LOWZ__1_b1: 2.0
+  ygk_LOWZ__1_b2: 0.0
+  ygk_LOWZ__1_bp: 0.0
+  ygk_LOWZ__1_bs: 0.0
+  ygk_LOWZ__1_dz: 0.0
+  ygk_LOWZ__1_lM1_0: 12.9802
+  ygk_LOWZ__1_lMmin_0: 11.653036
   ygk_LOWZ__1_wz: 1.0
   ygk_LOWZ__2_b0: 2.0
   ygk_LOWZ__2_b1: 2.0
@@ -146,30 +155,28 @@ params:
   ygk_mass_bias:
     latex: 1-b_H
     prior:
-      max: 1.15
-      min: 0.005
+      dist: norm
+      loc: 0.73
+      scale: 0.1
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.5323
-      scale: 0.005
+      loc: 0.75
+      scale: 0.002
   ygk_rhogm: 0.0
   ygk_rhogy:
     latex: \rho_{gy}
     prior:
       max: 1.0
       min: -1.0
-    proposal: 0.005
+    proposal: 0.01
     ref:
       dist: norm
-      loc: -0.65317
-      scale: 0.005
+      loc: -0.5
+      scale: 0.01
   ygk_siglM_0: 0.345
 sampler:
-  mcmc:
-    burn_in: 10
-    learn_proposal: true
-    max_samples: 30000
+  minimize:
+    ignore_prior: true
+    max_evals: 1000
 output: cobaya
-packages_path: null
-test: false

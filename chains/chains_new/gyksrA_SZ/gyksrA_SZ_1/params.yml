@@ -1,4 +1,4 @@
-debug: false
+debug: true
 likelihood:
   ygk_like.ygkLike:
     HM_correction: halofit
@@ -172,13 +172,13 @@ params:
       scale: 0.005
   ygk_siglM_0: 0.345
 sampler:
-  # minimize:
-  #   ignore_prior: true
-  #   max_evals: 1000
-  mcmc:
-    burn_in: 10
-    learn_proposal: true
-    max_samples: 30000
+  minimize:
+    ignore_prior: true
+    max_evals: 1000
+  # mcmc:
+  #   burn_in: 10
+  #   learn_proposal: true
+  #   max_samples: 30000
 theory:
   ygk_like.CCL:
     baryons_pk: nobaryons

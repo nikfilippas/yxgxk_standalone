@@ -63,7 +63,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.805967
+      loc: 0.857718 #0.805967
       scale: 0.005
   ygk_Ahmc:
     latex: A_{\rm HMC}
@@ -73,7 +73,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 1.12412
+      loc: 1.500749 #1.12412
       scale: 0.005
   ygk_LOWZ__0_b0: 2.0
   ygk_LOWZ__0_b1: 2.0
@@ -89,7 +89,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 13.7336
+      loc: 13.464481 #13.7336
       scale: 0.005
   ygk_LOWZ__0_lMmin_0:
     latex: \log_{10}M_{\rm min}
@@ -99,7 +99,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.4169
+      loc: 12.164534 #12.4169
       scale: 0.005
   ygk_LOWZ__0_wz: 1.0
   ygk_LOWZ__1_b0: 2.0
@@ -157,7 +157,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.8453
+      loc: 0.670238 #0.8453
       scale: 0.005
   ygk_rhogm: 0.0
   ygk_rhogy:
@@ -168,7 +168,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: -0.298976
+      loc: -0.27971 #-0.298976
       scale: 0.005
   ygk_siglM_0: 0.345
 sampler:

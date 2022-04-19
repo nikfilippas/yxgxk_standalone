@@ -1,0 +1,75 @@
+ -log(Like) = 47.32491714295876
+  chi-sq    = 94.64983428591752
+
+    6  8.176178897e-01   sigma8                   \sigma_8
+    7  1.272140904e+00   ygk_Ahmcgg               A^{gg}_{\rm HMC}
+    8  2.483973348e-01   ygk_Ahmcgm               A^{gm}_{\rm HMC}
+    9  2.000000000e+00   ygk_Ahmcgy               A^{gy}_{\rm HMC}
+   43  1.332040029e+01   ygk_LOWZ__3_lM1_0        \log_{10}M_{1}
+   44  1.201136992e+01   ygk_LOWZ__3_lMmin_0      \log_{10}M_{\rm min}
+   66  7.002509582e-01   ygk_mass_bias            1-b_H
+   68  -5.955101538e-01  ygk_rhogy                \rho_{gy}
+
+    1  4.897468200e-02   Omega_b                  Omega\ b
+    2  0.26066676        Omega_c                  Omega\ c
+    3  0.6766            h                        h
+    4  0.0               m_nu                     m\ nu
+    5  0.9665            n_s                      n\ s
+   10  2.0               ygk_LOWZ__0_b0           ygk\ LOWZ\ \ 0\ b0
+   11  2.0               ygk_LOWZ__0_b1           ygk\ LOWZ\ \ 0\ b1
+   12  0.0               ygk_LOWZ__0_b2           ygk\ LOWZ\ \ 0\ b2
+   13  0.0               ygk_LOWZ__0_bp           ygk\ LOWZ\ \ 0\ bp
+   14  0.0               ygk_LOWZ__0_bs           ygk\ LOWZ\ \ 0\ bs
+   15  0.0               ygk_LOWZ__0_dz           ygk\ LOWZ\ \ 0\ dz
+   16  14.082529         ygk_LOWZ__0_lM1_0        ygk\ LOWZ\ \ 0\ lM1\ 0
+   17  12.602721         ygk_LOWZ__0_lMmin_0      ygk\ LOWZ\ \ 0\ lMmin\ 0
+   18  1.0               ygk_LOWZ__0_wz           ygk\ LOWZ\ \ 0\ wz
+   19  2.0               ygk_LOWZ__1_b0           ygk\ LOWZ\ \ 1\ b0
+   20  2.0               ygk_LOWZ__1_b1           ygk\ LOWZ\ \ 1\ b1
+   21  0.0               ygk_LOWZ__1_b2           ygk\ LOWZ\ \ 1\ b2
+   22  0.0               ygk_LOWZ__1_bp           ygk\ LOWZ\ \ 1\ bp
+   23  0.0               ygk_LOWZ__1_bs           ygk\ LOWZ\ \ 1\ bs
+   24  0.0               ygk_LOWZ__1_dz           ygk\ LOWZ\ \ 1\ dz
+   25  12.9802           ygk_LOWZ__1_lM1_0        ygk\ LOWZ\ \ 1\ lM1\ 0
+   26  11.653036         ygk_LOWZ__1_lMmin_0      ygk\ LOWZ\ \ 1\ lMmin\ 0
+   27  1.0               ygk_LOWZ__1_wz           ygk\ LOWZ\ \ 1\ wz
+   28  2.0               ygk_LOWZ__2_b0           ygk\ LOWZ\ \ 2\ b0
+   29  2.0               ygk_LOWZ__2_b1           ygk\ LOWZ\ \ 2\ b1
+   30  0.0               ygk_LOWZ__2_b2           ygk\ LOWZ\ \ 2\ b2
+   31  0.0               ygk_LOWZ__2_bp           ygk\ LOWZ\ \ 2\ bp
+   32  0.0               ygk_LOWZ__2_bs           ygk\ LOWZ\ \ 2\ bs
+   33  0.0               ygk_LOWZ__2_dz           ygk\ LOWZ\ \ 2\ dz
+   34  13.158662         ygk_LOWZ__2_lM1_0        ygk\ LOWZ\ \ 2\ lM1\ 0
+   35  11.869872         ygk_LOWZ__2_lMmin_0      ygk\ LOWZ\ \ 2\ lMmin\ 0
+   36  1.0               ygk_LOWZ__2_wz           ygk\ LOWZ\ \ 2\ wz
+   37  2.0               ygk_LOWZ__3_b0           ygk\ LOWZ\ \ 3\ b0
+   38  2.0               ygk_LOWZ__3_b1           ygk\ LOWZ\ \ 3\ b1
+   39  0.0               ygk_LOWZ__3_b2           ygk\ LOWZ\ \ 3\ b2
+   40  0.0               ygk_LOWZ__3_bp           ygk\ LOWZ\ \ 3\ bp
+   41  0.0               ygk_LOWZ__3_bs           ygk\ LOWZ\ \ 3\ bs
+   42  0.0               ygk_LOWZ__3_dz           ygk\ LOWZ\ \ 3\ dz
+   45  1.0               ygk_LOWZ__3_wz           ygk\ LOWZ\ \ 3\ wz
+   46  2.0               ygk_LOWZ__4_b0           ygk\ LOWZ\ \ 4\ b0
+   47  2.0               ygk_LOWZ__4_b1           ygk\ LOWZ\ \ 4\ b1
+   48  0.0               ygk_LOWZ__4_b2           ygk\ LOWZ\ \ 4\ b2
+   49  0.0               ygk_LOWZ__4_bp           ygk\ LOWZ\ \ 4\ bp
+   50  0.0               ygk_LOWZ__4_bs           ygk\ LOWZ\ \ 4\ bs
+   51  0.0               ygk_LOWZ__4_dz           ygk\ LOWZ\ \ 4\ dz
+   52  13.388862         ygk_LOWZ__4_lM1_0        ygk\ LOWZ\ \ 4\ lM1\ 0
+   53  12.114722         ygk_LOWZ__4_lMmin_0      ygk\ LOWZ\ \ 4\ lMmin\ 0
+   54  1.0               ygk_LOWZ__4_wz           ygk\ LOWZ\ \ 4\ wz
+   55  2.0               ygk_LOWZ__5_b0           ygk\ LOWZ\ \ 5\ b0
+   56  2.0               ygk_LOWZ__5_b1           ygk\ LOWZ\ \ 5\ b1
+   57  0.0               ygk_LOWZ__5_b2           ygk\ LOWZ\ \ 5\ b2
+   58  0.0               ygk_LOWZ__5_bp           ygk\ LOWZ\ \ 5\ bp
+   59  0.0               ygk_LOWZ__5_bs           ygk\ LOWZ\ \ 5\ bs
+   60  0.0               ygk_LOWZ__5_dz           ygk\ LOWZ\ \ 5\ dz
+   61  13.035974         ygk_LOWZ__5_lM1_0        ygk\ LOWZ\ \ 5\ lM1\ 0
+   62  12.09721          ygk_LOWZ__5_lMmin_0      ygk\ LOWZ\ \ 5\ lMmin\ 0
+   63  1.0               ygk_LOWZ__5_wz           ygk\ LOWZ\ \ 5\ wz
+   64  1.0               ygk_alpha                ygk\ alpha
+   65  0.01              ygk_k_1h_suppress        ygk\ k\ 1h\ suppress
+   67  0.0               ygk_rhogm                ygk\ rhogm
+   69  0.345             ygk_siglM_0              ygk\ siglM\ 0
+
+   70  8.083323821e+01   chi2__ygk_like.ygkLike   \chi^2_{\rm ygk\ like.ygkLike}

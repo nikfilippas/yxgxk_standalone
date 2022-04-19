@@ -24,7 +24,7 @@ theory:
 likelihood:
   ygk_like.ygkLike:
     input_params_prefix: ygk
-    input_file: data/saccfiles/cls_cov_new.fits
+    input_file: data/saccfiles/cls_cov_new_szdeproj.fits
     nside: 1024
     ia_model: IANone
     nz_model: NzShiftWidth
@@ -49,25 +49,25 @@ likelihood:
     defaults:
       LOWZ__1:
         lmin: 2
-        lmax: 585.7514393723445
+        lmax: 584.6071400500643
       LOWZ__2:
         lmin: 2
-        lmax: 800.0634435343651
+        lmax: 799.3011156021861
       LOWZ__3:
         lmin: 2
-        lmax: 1000.4806372580616
+        lmax: 999.1379884145429
       LOWZ__4:
         lmin: 2
-        lmax: 1195.476166006411
+        lmax: 1194.686806209464
       LOWZ__5:
         lmin: 2
-        lmax: 1400.7353340250174
+        lmax: 1399.684786463391
       kmax: 1.0
       lmax: 1024
       lmin: 2
       LOWZ__0:
         lmin: 2
-        lmax: 282.37224420495374
+        lmax: 282.030571079736
       YMILCA:
         lmin: 2
         lmax: 1024
@@ -179,10 +179,18 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.8927
+      loc: 0.85978
       scale: 0.005
   ygk_Ahmc:
-    value: 1.0
+    latex: A_{\rm HMC}
+    prior:
+      max: 2.0
+      min: 0.1
+    proposal: 0.005
+    ref:
+      dist: norm
+      loc: 1.110413
+      scale: 0.005
   ygk_LOWZ__0_b0:
     value: 2.0
   ygk_LOWZ__0_b1:
@@ -221,7 +229,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.91916
+      loc: 12.835073
       scale: 0.005
   ygk_LOWZ__1_lMmin_0:
     latex: \log_{10}M_{\rm min}
@@ -231,7 +239,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 11.52199
+      loc: 11.470286
       scale: 0.005
   ygk_LOWZ__1_wz:
     value: 1.0
@@ -319,7 +327,7 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.5323
+      loc: 0.605658
       scale: 0.005
   ygk_rhogm:
     value: 0.0
@@ -331,48 +339,24 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: -0.65317
+      loc: -0.811313
       scale: 0.005
   ygk_siglM_0:
     value: 0.345
 sampler:
-  mcmc:
-    burn_in: 10
-    max_tries: 40d
+  minimize:
+    method: bobyqa
+    ignore_prior: true
+    max_evals: 1000
+    best_of: 2
+    confidence_for_unbounded: 0.9999995
+    seed: null
+    override_scipy: null
+    override_bobyqa:
+      rhoend: 0.05
     covmat: null
     covmat_params: null
-    proposal_scale: 2.4
-    output_every: 60s
-    learn_every: 40d
-    learn_proposal: true
-    learn_proposal_Rminus1_max: 2.0
-    learn_proposal_Rminus1_max_early: 30.0
-    learn_proposal_Rminus1_min: 0.0
-    max_samples: 30000
-    Rminus1_stop: 0.01
-    Rminus1_cl_stop: 0.2
-    Rminus1_cl_level: 0.95
-    Rminus1_single_split: 4
-    measure_speeds: true
-    oversample_power: 0.4
-    oversample_thin: true
-    drag: false
-    blocking:
-    - - 1
-      - - sigma8
-    - - 1
-      - - ygk_LOWZ__1_lM1_0
-        - ygk_LOWZ__1_lMmin_0
-        - ygk_mass_bias
-        - ygk_rhogy
-    callback_function: null
-    callback_every: null
-    seed: null
-    check_every: null
-    oversample: null
-    drag_limits: null
-    version: 3.0.4
+    version: null
+    fallback_covmat_scale: 4
 output: cobaya
-packages_path: null
-test: false
-version: 3.0.4
+version: 3.1.1
