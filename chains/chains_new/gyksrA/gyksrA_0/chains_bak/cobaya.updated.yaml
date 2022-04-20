@@ -176,21 +176,21 @@ params:
     prior:
       max: 1.5
       min: 0.2
-    proposal: 0.02
+    proposal: 0.005
     ref:
       dist: norm
-      loc: 0.8102
-      scale: 0.02
+      loc: 0.857718
+      scale: 0.005
   ygk_Ahmc:
     latex: A_{\rm HMC}
     prior:
       max: 2.0
       min: 0.1
-    proposal: 0.01
+    proposal: 0.005
     ref:
       dist: norm
-      loc: 1.0
-      scale: 0.01
+      loc: 1.500749
+      scale: 0.005
   ygk_LOWZ__0_b0:
     value: 2.0
   ygk_LOWZ__0_b1:
@@ -211,8 +211,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 14.082529
-      scale: 0.1
+      loc: 13.464481
+      scale: 0.005
   ygk_LOWZ__0_lMmin_0:
     latex: \log_{10}M_{\rm min}
     prior:
@@ -221,8 +221,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 12.602721
-      scale: 0.1
+      loc: 12.164534
+      scale: 0.005
   ygk_LOWZ__0_wz:
     value: 1.0
   ygk_LOWZ__1_b0:
@@ -327,8 +327,8 @@ params:
     proposal: 0.005
     ref:
       dist: norm
-      loc: 0.75
-      scale: 0.002
+      loc: 0.670238
+      scale: 0.005
   ygk_rhogm:
     value: 0.0
   ygk_rhogy:
@@ -336,11 +336,11 @@ params:
     prior:
       max: 1.0
       min: -1.0
-    proposal: 0.01
+    proposal: 0.005
     ref:
       dist: norm
-      loc: -0.5
-      scale: 0.01
+      loc: -0.27971
+      scale: 0.005
   ygk_siglM_0:
     value: 0.345
 sampler:
@@ -380,8 +380,7 @@ sampler:
     check_every: null
     oversample: null
     drag_limits: null
-    version: 3.0.4
+    fallback_covmat_scale: 4
+    version: 3.1.1
 output: cobaya
-packages_path: null
-test: false
-version: 3.0.4
+version: 3.1.1
