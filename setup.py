@@ -11,5 +11,6 @@ setup(
         "cobaya>=3.0",
         "sacc>=0.4.2",
     ],
-    package_data={"ygk_like": ["ygkLike.yaml"]},
+    package_data={"ygk_like": ["ygkLike.yaml"],
+                  "ygk_like_bak": ["ygkLike.yaml"],},
 )
