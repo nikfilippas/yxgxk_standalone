@@ -13,7 +13,7 @@ from matplotlib.legend_handler import HandlerBase
 
 import _names
 from chanal import ChainCalculator
-from pressure import ArnaudCalculator, BattagliaCalculator
+from pressure import BattagliaCalculator
 
 from pyccl import Hashing
 hashF = Hashing._hash_consistent
@@ -73,10 +73,10 @@ class Plotter(ChainCalculator):
 
         et2, et3, et5, etinf = [func(n_r) for n_r in [2, 3, 5, 100]]
 
-        ax.plot(self._zplot, et2, '-',label='$r_{\\rm max}=2\\,r_{200c}$', c='k')
-        ax.plot(self._zplot, et3, '--',label='$r_{\\rm max}=3\\,r_{200c}$', c='k')
-        ax.plot(self._zplot, et5, '-.',label='$r_{\\rm max}=5\\,r_{200c}$', c='k')
-        ax.plot(self._zplot, etinf, ':',label='$r_{\\rm max}=\\infty$', c='k')
+        ax.plot(self._zplot, et2, '-', label='$r_{\\rm max}=2\\,r_{200c}$', c='k')
+        ax.plot(self._zplot, et3, '--', label='$r_{\\rm max}=3\\,r_{200c}$', c='k')
+        ax.plot(self._zplot, et5, '-.', label='$r_{\\rm max}=5\\,r_{200c}$', c='k')
+        ax.plot(self._zplot, etinf, ':', label='$r_{\\rm max}=\\infty$', c='k')
 
         # finally, we plot existing measurements of bPe
         from data.bpe_data_from_bibliography import bpe_data
@@ -95,10 +95,15 @@ class Plotter(ChainCalculator):
         ax.set_ylim(0.07, 0.28)
 
     def _overlay_Omth(self, ax):
-        Omth_func = ArnaudCalculator(base_model=self._base_model).get_Omth
-        # Omth_func = BattagliaCalculator(base_model=self._base_model).get_Omth
-        Omth = 1e8*Omth_func(self._zplot, n_r=100)
-        ax.plot(self._zplot, Omth, '-', label='GNFW profile', c='k')
+        BTC = BattagliaCalculator(base_model=self._base_model)
+        # First, overlay Omega_thermal.
+        Omth = lambda n_r: 1e8*BTC.get_Omth(self._zplot, n_r)
+        ot2, ot3, ot5, otinf = [Omth(n_r) for n_r in [2, 3, 5, 100]]
+
+        ax.plot(self._zplot, ot2, '-', label='$r_{\\rm max}=2\\,r_{200c}$', c='k')
+        ax.plot(self._zplot, ot3, '--', label='$r_{\\rm max}=3\\,r_{200c}$', c='k')
+        ax.plot(self._zplot, ot5, '-.', label='$r_{\\rm max}=5\\,r_{200c}$', c='k')
+        ax.plot(self._zplot, otinf, ':', label='$r_{\\rm max}=\\infty$', c='k')
 
         # Now we overlay the measurement from Fukugita & Peebles
         # (digitized from Chiang et al. 2020)
@@ -133,7 +138,7 @@ class Plotter(ChainCalculator):
         ax.set_xlim(0.05, 0.40)
         fig.tight_layout()
 
-        # First, overlay other plots
+        # First, overlay other plots.
         func = f"_overlay_{par}"
         if hasattr(self, func):
             getattr(self, func)(ax)
@@ -147,9 +152,23 @@ class Plotter(ChainCalculator):
                 ax.errorbar(self._zarr+0.005*i, BF[:, 0], BF[:, 1:].T,
                             fmt=self._markers[model], color=self._colors[model],
                             label=label)
-            except:
+            except Exception:
                 # chains do not exist
                 continue
+
+        # Also plot Omega_grav if we are plotting Omega_th.
+        if par == "Omth":
+            BTC = BattagliaCalculator(base_model=self._base_model)
+            chains = copy.deepcopy(self.get_chains(self._base_model))
+            for zbin, chain in chains.items():
+                z_arr = self.zmid[zbin] * np.ones_like(chain["sigma8"])
+                chains[zbin] = BTC.get_Omgr(chain["sigma8"], z_arr)
+            # quick solution - use percentiles instead of real watershed
+            ogr = 1e8 * np.array([np.percentile(item, q=[50, 16, 84])
+                                      for item in chains.values()])
+            ax.errorbar(self._zarr-0.005, ogr[:, 0],
+                        np.c_[ogr[:, 0] - ogr[:, 1], ogr[:, 2] - ogr[:, 0]].T,
+                        fmt="s", c="darkviolet", label=r'$\Omega_{\rm grav}$')
 
         if violins is not None and par not in ["bPe", "Omth"]:
             vmods = [models[i] for i in violins]
@@ -171,7 +190,7 @@ class Plotter(ChainCalculator):
                     for pc in vplot["bodies"]:
                         pc.set_color(self._colors[model])
                         pc.set_alpha(0.2)
-                except:
+                except Exception:
                     # chains do not exist
                     continue
 
