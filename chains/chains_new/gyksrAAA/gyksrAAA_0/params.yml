@@ -105,7 +105,7 @@ params:
     latex: \log_{10}M_{1}
     prior:
       max: 15
-      min: 8.0
+      min: 10.5
     proposal: 0.005
     ref:
       dist: norm
@@ -115,7 +115,7 @@ params:
     latex: \log_{10}M_{\rm min}
     prior:
       max: 15
-      min: 8.0
+      min: 10.5
     proposal: 0.005
     ref:
       dist: norm
