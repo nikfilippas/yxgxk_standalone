@@ -6,6 +6,15 @@ import sacc
 from itertools import product
 from tqdm import tqdm
 from scipy.interpolate import RectBivariateSpline
+import hashlib
+from pyccl.base import _to_hashable
+
+
+def hash_(obj):
+    """Calculate consistent hash value for an input object."""
+    hasher = hashlib.md5()
+    hasher.update(repr(_to_hashable(obj)).encode())
+    return int(hasher.digest().hex(), 16)
 
 
 COSMO_P18 = {"Omega_c": 0.26066676,
