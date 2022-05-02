@@ -14,9 +14,8 @@ from matplotlib.legend_handler import HandlerBase
 import _names
 from chanal import ChainCalculator
 from pressure import BattagliaCalculator
+from utils import hash_ as hashF
 
-from pyccl import Hashing
-hashF = Hashing._hash_consistent
 
 plt.rcParams["text.usetex"] = True
 
