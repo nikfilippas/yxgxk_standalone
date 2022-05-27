@@ -11,9 +11,9 @@ params:
     proposal: 0.02
   Omega_c:
     prior: {min: 0.05, max: 0.7}
-    ref: {dist: norm, scale: 0.01, loc: 0.26066676}
+    ref: {dist: norm, scale: 0.005, loc: 0.26066676}
     latex: \Omega_c
-    proposal: 0.01
+    proposal: 0.005
   Omega_b:
     prior: {min: 0.045, max: 0.055}
     ref: {dist: norm, scale: 0.0005, loc: 0.048974682}
