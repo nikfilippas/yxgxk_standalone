@@ -12,7 +12,7 @@ for i in range(6):
                           'ygk_rhogy',
                           'ygk_mass_bias',
                           'sigma8',
-                          'ygk_Ahmc'
+                          'ygk_Ahmc',
                           'Omega_c',
                           'Omega_b',],
              corrs=[(tname, tname),
