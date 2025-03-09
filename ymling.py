@@ -1,6 +1,6 @@
 from make_yml import make_yml
 
-run_name = 'gyksrA'
+run_name = 'gyksrA_D16'
 fname_data = 'data/saccfiles/cls_cov_new.fits'
 
 kmax_arr = [0.5, 1., 1., 1., 1., 1.]
@@ -19,7 +19,7 @@ for i in range(6):
              bias_model='HaloModel',
              lmin=2,
              kmax=kmax_arr[i],
-             mass_function="Tinker08",
+             mass_function="Despali16",
              concentration="Ishiyama21",
              hm_correction="halofit",
              ns_independent=False,

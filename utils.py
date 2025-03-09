@@ -43,6 +43,11 @@ class CosmoHaloModel:
             theo = next(iter(info["theory"].values()))
             info = {**like, **theo}
 
+        # set up cosmology
+        #tf = info["transfer_function"]
+        tf = "boltzmann_camb"
+        self.cosmo = CosmologyPlanck18(transfer_function=tf)
+
         # setup halo model objects
         hal = ccl.halos
         cM_class = hal.Concentration.from_name(info["cm_name"])
@@ -50,20 +55,17 @@ class CosmoHaloModel:
         hb_class = hal.HaloBias.from_name(info["hb_name"])
 
         self.mass_def = hal.MassDef.from_name(info["mdef_name"])()
-        self.c_m_relation = cM_class(mass_def=self.mass_def)
-        self.prof_g = hal.HaloProfileHOD(c_m_relation=self.c_m_relation)
-        self.prof_k = hal.HaloProfileNFW(c_m_relation=self.c_m_relation)
+        self.c_m_relation = cM_class(mdef=self.mass_def)
+        self.prof_g = hal.HaloProfileHOD(c_M_relation=self.c_m_relation)
+        self.prof_k = hal.HaloProfileNFW(c_M_relation=self.c_m_relation)
         self.prof_y = hal.HaloProfilePressureGNFW()
-        self.mass_function = mf_class(mass_def=self.mass_def)
-        self.halo_bias = hb_class(mass_def=self.mass_def)
+        self.mass_function = mf_class(self.cosmo, mass_def=self.mass_def)
+        self.halo_bias = hb_class(self.cosmo, mass_def=self.mass_def)
         self.hmc = hal.HMCalculator(
-            mass_function=self.mass_function,
-            halo_bias=self.halo_bias,
+            self.cosmo,
+            massfunc=self.mass_function,
+            hbias=self.halo_bias,
             mass_def=self.mass_def)
-
-        # set up cosmology
-        tf = info["transfer_function"]
-        self.cosmo = CosmologyPlanck18(transfer_function=tf)
 
     def update_parameters(self, *, sigma8=None, lMmin_0=None, lM1_0=None,
                           mass_bias=None, x_out=None, mass_function=None):

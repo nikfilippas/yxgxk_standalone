@@ -1,6 +1,6 @@
 theory:
   ygk_like.CCL:
-    transfer_function: bacco
+    transfer_function: boltzmann_camb
     matter_pk: halofit
     baryons_pk: nobaryons
     params:
@@ -352,6 +352,7 @@ sampler:
     proposal_scale: 2.4
     output_every: 60s
     learn_every: 40d
+    temperature: 1
     learn_proposal: true
     learn_proposal_Rminus1_max: 2.0
     learn_proposal_Rminus1_max_early: 30.0
@@ -380,8 +381,7 @@ sampler:
     check_every: null
     oversample: null
     drag_limits: null
-    version: 3.0.4
+    fallback_covmat_scale: 4
+    version: 3.5.1
 output: cobaya
-packages_path: null
-test: false
-version: 3.0.4
+version: 3.5.1

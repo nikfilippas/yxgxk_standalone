@@ -82,7 +82,7 @@ class Plotter(ChainCalculator):
         all_data = np.hstack(bpe_data)
         err = [all_data[1] - all_data[2], all_data[3] - all_data[1]]
         # plot error bars without markers
-        ax.errorbar(all_data[0], all_data[1], yerr=err,
+        ax.errorbar(all_data[0], all_data[1], yerr=np.abs(err),
                     fmt="none", color="royalblue", alpha=0.2,
                     label="bibliography (see caption)")
         # plot name initials from bibliography
@@ -163,11 +163,14 @@ class Plotter(ChainCalculator):
                 z_arr = self.zmid[zbin] * np.ones_like(chain["sigma8"])
                 chains[zbin] = BTC.get_Omgr(chain["sigma8"], z_arr)
             # quick solution - use percentiles instead of real watershed
-            ogr = 1e8 * np.array([np.percentile(item, q=[50, 16, 84])
-                                      for item in chains.values()])
+            ogr = 1e8 * np.array(
+                [np.percentile(item, q=[50, 16, 84])
+                 for item in chains.values()]
+            )
+            yerr = np.abs(np.c_[ogr[:, 0] - ogr[:, 1], ogr[:, 2] - ogr[:, 0]].T)
             ax.errorbar(self._zarr-0.005, ogr[:, 0],
-                        np.c_[ogr[:, 0] - ogr[:, 1], ogr[:, 2] - ogr[:, 0]].T,
-                        fmt="s", c="darkviolet", label=r'$\Omega_{\rm grav}$')
+                        yerr=yerr,
+                        fmt="s", c="darkviolet", label=r'$-\Omega_{\rm grav}$')
 
         if violins is not None and par not in ["bPe", "Omth"]:
             vmods = [models[i] for i in violins]
@@ -225,11 +228,24 @@ class Plotter(ChainCalculator):
             s = [gmc.loadMCSamples(fname, settings={'ignore_rows': 0.3})
                  for fname in fnames]
 
+            # derived Omega_m parameter
+            if "Omega_m" in params_in:
+                for sample in s:
+                    p = sample.getParams()
+                    if "Omega_c" in p.__dict__:
+                        sample.addDerived(
+                            p.Omega_c + p.Omega_b,
+                            name="Omega_m",
+                            label=r"\Omega_{\rm m}")
+
             # list all free parameters
-            if params_in == "all":
+            if params_in == "all" or "all" in params_in:
                 exclude = "chi2"
-                p = s[0].getParams()
+                p = s[-1].getParams()
                 params = [par for par in p.__dict__ if exclude not in par]
+                if "Omega_c" in p.__dict__:
+                    params.remove("Omega_c")
+                    params.remove("Omega_b")
 
             lbl = self._latex_labels if len(params) > 2 else self._latex_short
             gdplot = gplot.get_subplot_plotter()

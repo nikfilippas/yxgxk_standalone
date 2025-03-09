@@ -46,7 +46,7 @@ class CCL(Theory):
     downstream from camb/CLASS.
     """
     # CCL options
-    transfer_function: str = 'bacco'
+    transfer_function: str = 'boltzmann_camb'
     matter_pk: str = 'halofit'
     baryons_pk: str = 'nobaryons'
     # Params it can accept

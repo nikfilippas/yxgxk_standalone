@@ -180,4 +180,4 @@ theory:
   ygk_like.CCL:
     baryons_pk: nobaryons
     matter_pk: halofit
-    transfer_function: bacco
+    transfer_function: boltzmann_camb

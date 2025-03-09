@@ -77,14 +77,14 @@ class ygkLike(Likelihood):
             self.mfc = ccl.halos.MassFunc.from_name(self.mf_name)
             self.hbc = ccl.halos.HaloBias.from_name(self.hb_name)
             cmc = ccl.halos.Concentration.from_name(self.cm_name)
-            self.cm = cmc(mass_def=self.massdef)
+            self.cm = cmc(mdef=self.massdef)
             hal = ccl.halos
             self.profs = {
                 'galaxy_density': hal.HaloProfileHOD(
-                    c_m_relation=self.cm,
+                    c_M_relation=self.cm,
                     ns_independent=self.ns_independent),
-                'galaxy_shear': hal.HaloProfileNFW(c_m_relation=self.cm),
-                'cmb_convergence': hal.HaloProfileNFW(c_m_relation=self.cm),
+                'galaxy_shear': hal.HaloProfileNFW(c_M_relation=self.cm),
+                'cmb_convergence': hal.HaloProfileNFW(c_M_relation=self.cm),
                 'cmb_tSZ': hal.HaloProfilePressureGNFW()}
             self.p2pt_HOD = ccl.halos.Profile2ptHOD()
 
@@ -114,7 +114,7 @@ class ygkLike(Likelihood):
 
         s = sacc.Sacc.load_fits(self.input_file)
         self.bin_properties = {}
-        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
+        cosmo_lcdm = ccl.CosmologyVanillaLCDM(transfer_function="boltzmann_camb")
         kmax_default = self.defaults.get('kmax', 0.1)
         for b in self.bins:
             if b['name'] not in s.tracers:
@@ -390,10 +390,10 @@ class ygkLike(Likelihood):
             cosmo.compute_growth()
             cosmo.compute_sigma()
             pkmm = cosmo.get_nonlin_power(name='delta_matter:delta_matter')
-            mf = self.mfc(mass_def=self.massdef)
-            hb = self.hbc(mass_def=self.massdef)
-            hmc = ccl.halos.HMCalculator(mass_function=mf,
-                                         halo_bias=hb,
+            mf = self.mfc(cosmo, mass_def=self.massdef)
+            hb = self.hbc(cosmo, mass_def=self.massdef)
+            hmc = ccl.halos.HMCalculator(cosmo, massfunc=mf,
+                                         hbias=hb,
                                          mass_def=self.massdef)
             return {'hmc': hmc, 'pk_mm': pkmm}
         else:
@@ -454,11 +454,11 @@ class ygkLike(Likelihood):
                 cosmo, pkd['hmc'], k_s, a_s,
                 p1,
                 prof_2pt=prof2pt, prof2=p2,
-                normprof=norm1,
+                normprof1=norm1,
                 normprof2=norm2,
                 get_1h=get_1h, get_2h=get_2h,
                 smooth_transition=fsmooth,
-                suppress_1h=fsuppress)
+                supress_1h=fsuppress)
 
             # halo model correction
             if get_1h and get_2h:

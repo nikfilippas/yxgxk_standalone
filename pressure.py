@@ -1,9 +1,10 @@
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 import pyccl.halos as hal
 import pickle
 
 from utils import Container
+from battaglia import HaloProfilePressureBattaglia
 
 
 class BattagliaCalculator(Container):
@@ -15,18 +16,19 @@ class BattagliaCalculator(Container):
         super().__init__(**kwargs)
         self.cosmo.compute_growth()
         # effective halo model stuff using 200c mass definition
-        self._prof_y_b = hal.HaloProfilePressureBattaglia()
+        self._prof_y_b = HaloProfilePressureBattaglia()
         cm = hal.ConcentrationDuffy08()
-        self._prof_k_b = hal.HaloProfileNFW(c_m_relation=cm)
+        self._prof_k_b = hal.HaloProfileNFW(c_M_relation=cm)
         self._hmc_b = hal.HMCalculator(
-            mass_function=self.hmc.mass_function.name,
-            halo_bias=self.hmc.halo_bias.name,
+            cosmo = self.cosmo,
+            massfunc=self.hmc._massfunc.name,
+            hbias=self.hmc._hbias.name,
             mass_def="200c")
 
     def _get_bPe(self, z, n_r):
-        self._hmc_b._get_ingredients(1/(1+z), self.cosmo, True)
+        self._hmc_b._get_ingredients(self.cosmo, 1/(1+z), True)
         cprof = self._prof_y_b.profile_cumul_nr(
-            n_r, self.cosmo, self._hmc_b._mass, 1/(1+z), self._hmc_b.mass_def)
+            n_r, self.cosmo, self._hmc_b._mass, 1/(1+z), self._hmc_b._mdef)
         return self._hmc_b._integrate_over_mbf(cprof)
 
     def get_bPe(self, z_arr, n_r=100):
@@ -34,9 +36,9 @@ class BattagliaCalculator(Container):
         return np.array([self._get_bPe(z, n_r) for z in z_arr])*1e3
 
     def _get_Omth(self, z, n_r):
-        self._hmc_b._get_ingredients(1/(1+z), self.cosmo, False)
+        self._hmc_b._get_ingredients(self.cosmo, 1/(1+z), False)
         cprof = self._prof_y_b.profile_cumul_nr(
-            n_r, self.cosmo, self._hmc_b._mass, 1/(1+z), self._hmc_b.mass_def)
+            n_r, self.cosmo, self._hmc_b._mass, 1/(1+z), self._hmc_b._mdef)
         pe = self._hmc_b._integrate_over_mf(cprof)
         Y = 0.24
         prefac = (8-5*Y) / (4-2*Y)
@@ -50,16 +52,17 @@ class BattagliaCalculator(Container):
         return np.array([self._get_Omth(z, n_r) for z in z_arr])
 
     def _get_Omgr(self, cosmo, z):
+        # it is a negative quantity
         cosmo.compute_growth()
         ks = np.geomspace(1E-4, 100, 256)
         pk = hal.halomod_power_spectrum(
             cosmo, self._hmc_b, ks, 1/(1+z), self._prof_k_b,
             normprof=True, get_1h=True, get_2h=False)
-        pkint = simps(ks*pk, x=np.log(ks), axis=-1)
+        pkint = simpson(ks*pk, x=np.log(ks), axis=-1)
         Om = cosmo["Omega_c"] + cosmo["Omega_b"]
         Obh2 = cosmo["Omega_b"] * cosmo["h"]**2
-        return 3 * Om *Obh2 * 1.11265006E-7 * pkint * (1+z) / (16*np.pi**2)
-
+        return -3 * Om *Obh2 * 1.11265006E-7 * pkint * (1+z) / (16*np.pi**2)
+        
     def get_Omgr(self, sigma8, z):
         """Use an RBF emulator with a clipped kernel to calculate Omega_grav."""
         points = np.atleast_2d(np.c_[sigma8, z])

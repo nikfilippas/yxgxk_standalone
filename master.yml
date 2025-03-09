@@ -372,7 +372,7 @@ params:
 
 theory:
   ygk_like.CCL:
-    transfer_function: bacco
+    transfer_function: boltzmann_camb
     matter_pk: halofit
     baryons_pk: nobaryons
 

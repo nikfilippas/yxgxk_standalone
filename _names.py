@@ -23,6 +23,9 @@ names = {
     14: 'gyksrA_Nsat',      # ns_indep   : Mmin, M1, 1-b, sigma8, rhogy, A
     15: 'gyr',              # gxg, gxy   : Mmin, M1, 1-b, rhogy
     16: 'gyksrAw',          # w(z)       : Mmin, M1, 1-b, sigma8, rhogy, A, w
+    
+    # Omega_m
+    17: 'gyksrAOm',          # Omega_m    : Mmin, M1, 1-b, sigma8, rhogy, A, Om
 }
 
 latex_bins = [r'$\mathrm{2MPZ}$'] + \
@@ -30,9 +33,9 @@ latex_bins = [r'$\mathrm{2MPZ}$'] + \
 
 latex_names = {
     'bPe': '\\langle bP_e \\rangle\\ [\\mathrm{meV\\,cm^{-3}}]',
-    'Omth': '10^{-8}\,\\Omega_{\mathrm{th}}',
+    'Omth': '10^{-8}\\,\\Omega_{\\mathrm{th}}',
     'ygk_mass_bias': '1-b_{\\mathrm{H}}',
-    'sigma8': '\\sigma_8'
+    'sigma8': '\\sigma_8',
 }
 
 gxg = r'$g \times g$'
@@ -60,6 +63,7 @@ latex_labels = {
     'gyksrA_Nsat'   : r'$N_{rm sat}$ independent from $N_{\rm cen}$',
     'gyr'           : r'no $\kappa$: %s, %s, fixed $A_{\rm hmc}$' % (gxg, gxy),
     'gyksrAw'       : r'$w^(z) \sim U(0.80, 1.20)$',
+    'gyksrAOm'      : r'free $\Omega_{\rm m}$',
 }
 
 latex_labels_short = {
@@ -83,6 +87,8 @@ latex_labels_short = {
     'gyksrA_Nsat'   : r'independent $N_{\rm sat}$',
     'gyr'           : r'g,y, fixed $A_{\rm hmc}$',
     'gyksrAw'       : r'$w^(z) \sim U(0.80, 1.20)$',
+    
+    'gyksrAOm'      : r'free $\Omega_{\rm m}$',
 }
 
 colors = {
@@ -106,6 +112,8 @@ colors = {
     'gyksrA_Nsat'   : 'darkslategrey',
     'gyr'           : 'darkslategrey',
     'gyksrAw'       : 'lime',
+    
+    'gyksrAOm'      : 'gold',
 }
 
 markers = {
@@ -129,4 +137,6 @@ markers = {
     'gyksrA_Nsat'   : '>',
     'gyr'           : 's',
     'gyksrAw'       : '1',
+    
+    'gyksrAOm'      : 'H',
 }

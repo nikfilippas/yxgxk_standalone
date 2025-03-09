@@ -2,7 +2,7 @@ theory:
   ygk_like.CCL:
     baryons_pk: nobaryons
     matter_pk: halofit
-    transfer_function: bacco
+    transfer_function: boltzmann_camb
 likelihood:
   ygk_like.ygkLike:
     HM_correction: halofit
@@ -180,5 +180,3 @@ sampler:
     learn_proposal: true
     max_samples: 30000
 output: cobaya
-packages_path: null
-test: false

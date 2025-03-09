@@ -1,7 +1,7 @@
 import warnings
 import pyccl as ccl
 import numpy as np
-from scipy.interpolate import interp2d
+from scipy.interpolate import RectBivariateSpline
 
 
 class HalomodCorrection(object):
@@ -22,7 +22,7 @@ class HalomodCorrection(object):
                  k_range=[1E-1, 5], nlk=20,
                  z_range=[0., 1.], nz=16):
 
-        cosmo = ccl.CosmologyVanillaLCDM(transfer_function="bacco")
+        cosmo = ccl.CosmologyVanillaLCDM(transfer_function="boltzmann_camb")
         cosmo.compute_growth()
         lkarr = np.linspace(np.log10(k_range[0]),
                             np.log10(k_range[1]),
@@ -53,8 +53,7 @@ class HalomodCorrection(object):
                           for a in 1. / (1 + zarr)])
         ratio = pk_hf / pk_hm
 
-        self.rk_func = interp2d(lkarr, 1/(1+zarr), ratio,
-                                bounds_error=False, fill_value=1)
+        self.rk_func = RectBivariateSpline(lkarr, 1/(1+zarr[::-1]), ratio[:, ::-1].T)
 
     def rk_interp(self, k, a):
         """
@@ -65,4 +64,4 @@ class HalomodCorrection(object):
             k (float or array): wavenumbers in units of Mpc^-1.
             a (float): value of the scale factor.
         """
-        return self.rk_func(np.log10(k), a)-1
+        return np.transpose(self.rk_func(np.log10(k), a)-1)

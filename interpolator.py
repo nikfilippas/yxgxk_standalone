@@ -8,7 +8,7 @@ from pressure import BattagliaCalculator
 def cosmo_s8(s8):
     return ccl.Cosmology(
         Omega_c=0.26066676, Omega_b=0.048974682, h=0.6766, n_s=0.9665,
-        sigma8=s8, transfer_function="bacco")
+        sigma8=s8, transfer_function="boltzmann_camb")
 
 F_Omgr = BattagliaCalculator(base_model="gyksrA")._get_Omgr
 lo_bounds, hi_bounds = [0.6, 0.05], [1.1, 0.40]
